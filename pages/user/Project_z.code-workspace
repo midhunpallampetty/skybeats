@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		},
+		{
+			"path": "../../../../webscraping_learn"
+		},
+		{
+			"path": "../../../../Admin"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "webscraping_learn"
+	}
+}
