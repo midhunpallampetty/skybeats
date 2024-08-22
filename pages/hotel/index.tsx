@@ -41,7 +41,7 @@ const Hotels: React.FC = () => {
   useEffect(() => {
     const fetchImage = async () => {
       try {
-        const response = await axios.get('https://pixabay.com/api/', {
+        const response:any = await axios.get('https://pixabay.com/api/', {
           params: {
             key: '38643909-0965461316365ac27e67b31c5', // Replace with your Pixabay API key
             q: 'hotel+rooms',

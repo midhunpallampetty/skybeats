@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { useDispatch, UseDispatch,useSelector } from 'react-redux';
 import { setAirports,setFilteredAirports } from '@/redux/slices/airportsSlice';
 import debounce from 'lodash.debounce';
+import { setBookDetail } from '@/redux/slices/bookdetailSlice';
 import axios from 'axios';
 import { Flight } from '../../../interfaces/flight'; 
 import Image from 'next/image';
@@ -13,8 +14,9 @@ import { Airport } from '@/interfaces/Airport';
 import { RootState } from '@/redux/store';
 import { setFlights } from '@/redux/slices/flightsSlice';
 import { OptionType } from '@/interfaces/OptionType';
-
+import { useRouter } from 'next/router';
 const ListFlights: React.FC = () => {
+  const router=useRouter()
   const dispatch=useDispatch()
   const airports=useSelector((state:RootState)=>state.airports.airports);
   const filteredAirports=useSelector((state:RootState)=>state.airports.filteredAirports)
@@ -67,7 +69,7 @@ const ListFlights: React.FC = () => {
         airport.label.toLowerCase().includes(inputValue.toLowerCase())
       );
       dispatch(setFilteredAirports(filteredOptions))
-  }, 300), [airports,dispatch]);
+  },300), [airports,dispatch]);
 
   const handleSearch = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -81,7 +83,7 @@ const ListFlights: React.FC = () => {
           date: startDate,
         });
           dispatch(setFlights(response.data as Flight[]))
-        console.log(flights,'got data flights from gql server')
+        console.log(response.data,'got data flights from gql server')
       } catch (error:any) {
         console.error('Error searching flights:', error.message);
       }
@@ -206,7 +208,7 @@ const ListFlights: React.FC = () => {
         <div className="relative z-10 top-0 left-0 w-full">
           <div className="container mx-auto px-4 h-auto pt-20">
             {currentFlights.map((flight, index) => (
-              <div key={index} className="bg-white/10 p-4 rounded-lg shadow-md flex items-center justify-between w-full mb-4">
+              <div key={flight.flightNumber} className="bg-white/10 p-4 rounded-lg shadow-md flex items-center justify-between w-full mb-4">
                 <div className="flex items-center">
                   <div className="mr-4"></div>
                   <div>
@@ -214,12 +216,21 @@ const ListFlights: React.FC = () => {
                     <div className="text-white">{flight.departureAirport} - {flight.arrivalAirport}</div>
                     <div className="text-sm text-white">{flight.duration} ({flight.stops})</div>
                     <div className="text-sm text-white">{flight.flightNumber}</div>
+
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold text-white">₹{flight.price}</div>
                   <div className="text-sm text-green-500">Get at ₹{flight.price - 750} with INTSAVER</div>
-                  <button className="bg-green-500 font-extrabold px-6 text-white py-2 rounded mt-2">Book</button>
+                  <button 
+  className="bg-green-500 font-extrabold px-6 text-white py-2 rounded mt-2"
+  onClick={() => {
+    dispatch(setBookDetail(flight));
+    router.push('/user/flight/bookingdetails'); 
+  }}  
+>
+  Book
+</button>
                   <div className="text-sm text-white/80 mt-1">Partially refundable</div>
                 </div>
               </div>
