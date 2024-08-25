@@ -1,6 +1,19 @@
-import React from 'react';
+import React,{useState} from 'react';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/router';
 
 const AdminNavbar: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const router=useRouter()
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+  const handleLogout = () => {
+    Cookies.remove('jwtToken');
+  
+    router.push('/admin/signin');
+  };
   return (
     <nav className="fixed top-0 left-0 w-full bg-transparent border-gray-200 z-50">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
@@ -17,7 +30,24 @@ const AdminNavbar: React.FC = () => {
             data-dropdown-placement="bottom"
           >
             <span className="sr-only">Open user menu</span>
-            <img className="w-8 h-8 rounded-full cursor-" src="https://dl.memuplay.com/new_market/img/com.vicman.newprofilepic.icon.2022-06-07-21-33-07.png" alt="user photo" />
+            <div className="relative inline-block">
+      <img
+        className="w-8 h-8 rounded-full cursor-pointer"
+        src="https://m.media-amazon.com/images/I/31MqR2pPE5L._AC_.jpg"
+        alt="user photo"
+        onClick={toggleDropdown}
+      />
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-48 bg-dark rounded-md shadow-lg z-20">
+          <ul className="py-1">
+            <li className="px-4 py-2 hover:bg-gray-800 text-white  font-extrabold cursor-pointer">Profile</li>
+            <li className="px-4 py-2 hover:bg-gray-800 text-white font-extrabold cursor-pointer">Settings</li>
+            <li onClick={handleLogout} className="px-4 text-white py-2 hover:bg-gray-800 font-extrabold cursor-pointer">Logout</li>
+          </ul>
+        </div>
+      )}
+    </div>
           </button>
           <div
             className="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600"

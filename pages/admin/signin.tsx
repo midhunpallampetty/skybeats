@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Cookies from 'js-cookie';
 import { ADMIN_LOGIN_MUTATION } from '@/graphql/mutations/adminLoginMutation';
 import { useMutation } from '@apollo/client';
 import { useRouter } from 'next/router';
@@ -31,8 +32,16 @@ const Signin: React.FC = () => {
   
       // Check if login was successful
       if (data && data.adminLogin) {
+        const { token } = data.adminLogin;
+        if(token){
+          Cookies.set('jwtToken', token, { expires: 30 }); 
+        }else{
+          alert('No token received. Please check your login credentials.');
+        }
         console.log('Login success', data.adminLogin);
         router.push('/admin/super_adminDashboard')
+
+
       } else {
         alert('Invalid credentials. Please check your email, password, and admin type.');
       }
@@ -42,7 +51,7 @@ const Signin: React.FC = () => {
       alert("Can't perform admin login operation. Please try again.");
     }
   };
-  
+ 
   const containerStyle: React.CSSProperties = {
     position: 'relative',
     width: '100vw',

@@ -4,8 +4,10 @@ import Navbar from '@/pages/components/Navbar';
 import { ApolloClient, gql } from '@apollo/client'
 import { Airport } from '@/interfaces/Airport';
 import Modal from 'react-modal';
+import { useDispatch, UseDispatch,useSelector } from 'react-redux';
 import DatePicker from 'react-datepicker';
 import { useRef } from 'react';
+import { setHotels } from '@/redux/slices/bookHotelSlice';
 import Select, { SingleValue, ActionMeta, InputActionMeta } from 'react-select';
 import 'react-datepicker/dist/react-datepicker.css';
 import debounce from 'lodash.debounce';
@@ -15,21 +17,17 @@ import Image from 'next/image';
 import { useQuery } from '@apollo/client';
 import { AnyNaptrRecord } from 'dns';
 import { OptionType } from '@/interfaces/OptionType';
-interface CityOption {
-  label: string;
-  value: string;
-}
-
-interface IMycity {
-  city: string,
-  Region: string,
-  Location: string
-}
+import { CityOption } from '@/interfaces/cityOption';
+import { IMycity } from '@/interfaces/IMyCity';
+import { RootState } from '@/redux/store';
 
 const Hotels: React.FC = () => {
+  const dispatch=useDispatch()
+
   const [pixabayImages,setpixabayImages]=useState([])
   const [airports, setAirports] = useState<Airport[]>([]);
-  const [hotels, setHotels] = useState([]);
+  
+  // const [hotels, setHotels] = useState([]);
   const itemsPerPage = 6; 
   const [currentPage, setCurrentPage] = useState(1);
  
@@ -72,7 +70,9 @@ const Hotels: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState<SingleValue<OptionType> | null>(null);
   const [location, setLocation] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState('');
-  const [hotelOptions, setHotelOptions] = useState<any>([]);
+  // const [hotelOptions, setHotelOptions] = useState<any>([]);
+  const hotelOptions=((state:RootState)=>state.hotels.hotels)
+  console.log('accessed d')
   const currentHotels = hotelOptions?.HotelByLocation?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -142,8 +142,8 @@ const Hotels: React.FC = () => {
         const response = await axios.post('/api/searchHotels', {
           city: selectedCity.label.toLowerCase(),
         });
-
-        setHotelOptions(response.data as any);  // Assuming `setHotelOptions` updates the list of hotels.
+        dispatch(setHotels(response.data as any))
+        setHotelOptions(response.data as any);  
         console.log(response.data, 'got data hotels from gql server');
       } catch (error: any) {
         console.error('Error searching hotels:', error.message);

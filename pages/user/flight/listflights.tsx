@@ -3,7 +3,7 @@ import Navbar from '@/pages/components/Navbar';
 import DatePicker from 'react-datepicker';
 import Select, { SingleValue, ActionMeta, InputActionMeta } from 'react-select';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useDispatch, UseDispatch,useSelector } from 'react-redux';
+import { useDispatch,useSelector } from 'react-redux';
 import { setAirports,setFilteredAirports } from '@/redux/slices/airportsSlice';
 import debounce from 'lodash.debounce';
 import { setBookDetail } from '@/redux/slices/bookdetailSlice';
