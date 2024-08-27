@@ -6,6 +6,7 @@ export const SIGNIN_MUTATION = gql`
       token
       user {
         email
+        isBlocked
       }
     }
   }

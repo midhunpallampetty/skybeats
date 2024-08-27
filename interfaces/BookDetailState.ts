@@ -3,7 +3,8 @@ import { Flight } from "./flight";
 // Represents the overall state for booking details
 export interface BookDetailState {
   selectedFlight: Flight | null;
-  passengerDetails: PassengerDetails[];  // Stores the detailed passenger information
+  passengerDetails: PassengerDetails[]; 
+  guestDetails:PassengerDetails[] // Stores the detailed passenger information
 }
 
 

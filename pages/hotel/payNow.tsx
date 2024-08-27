@@ -3,10 +3,10 @@ import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { RootState } from '@/redux/store';
 import Swal from 'sweetalert2';
-import Cookies from 'js-cookie';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 interface PaymentIntentResponse {
   clientSecret: string;
 }
@@ -15,17 +15,17 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 
 const PaymentForm: React.FC = () => {
   const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
-  const passengerDetails = useSelector((state: RootState) => state.bookdetail.passengerDetails);
+  const guestDetails = useSelector((state: RootState) => state.bookdetail.guestDetails);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const stripe = useStripe();
-  const router=useRouter()
   const elements = useElements();
-  const token=Cookies.get('jwtToken');
-useEffect(()=>{
-if(!token){
-  router.push('/');
-}
-},[])
+  const router = useRouter();
+  const token=Cookies.get('jwtToken')
+  useEffect(()=>{
+  if(!token){
+    router.push('/')
+  }
+  },[])
   useEffect(() => {
     if (selectedFlight) {
       axios.post<PaymentIntentResponse>('/api/create-payment-intent', { amount: selectedFlight.price * 100 })
@@ -43,31 +43,23 @@ if(!token){
 
     if (!stripe || !elements || !clientSecret) {
       return;
-    }
-    const data = 
-      {
-        "passengerName":  `${passengerDetails[0].firstName} ${passengerDetails[0].lastName}` ,
-        "email": passengerDetails[0].email,
-        "phoneNumber": passengerDetails[0].phoneNumber,
-        "departureAirport": selectedFlight?.departureAirport,
-        "arrivalAirport": selectedFlight?.arrivalAirport,
-        "stop": selectedFlight?.stops,
-        "flightNumber": selectedFlight?.flightNumber,
-        "flightDuration": selectedFlight?.duration,
-        "departureTime": selectedFlight?.departureTime,
-        "arrivalTime": selectedFlight?.arrivalTime,
-        "totalPassengers": 1,
-        "FarePaid": selectedFlight?.price,
-      
+    }  const router=useRouter()
+
+
+    const data = {
+      guestName: `${guestDetails[0].firstName} ${guestDetails[0].lastName}`,
+      email: guestDetails[0].email,
+      phoneNumber: guestDetails[0].phoneNumber,
       
     };
+
     const result = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
         card: elements.getElement(CardElement)!,
         billing_details: {
-          name: `${passengerDetails[0].firstName} ${passengerDetails[0].lastName}`,
-          email: passengerDetails[0].email,
-          phone: passengerDetails[0].phoneNumber,
+          name: `${guestDetails[0].firstName} ${guestDetails[0].lastName}`,
+          email: guestDetails[0].email,
+          phone: guestDetails[0].phoneNumber,
         },
       },
     });
@@ -84,13 +76,14 @@ if(!token){
       console.error('Payment error:', result.error.message);
     } else if (result.paymentIntent?.status === 'succeeded') {
       console.log('Payment successful!');
-      axios.post('http://localhost:3000/api/saveBooking', data, {
+      axios.post('http://localhost:3000/api/saveHotelBooking', data, {
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
-      .then(response => console.log('Success:', response.data))
-      .catch(error => console.error('Error:', error));
+        .then(response => console.log('Success:', response.data))
+        .catch(error => console.error('Error:', error));
+
       Swal.fire({
         title: 'Success!',
         text: 'Payment Success.',
@@ -99,8 +92,8 @@ if(!token){
         imageHeight: 200,
         imageAlt: 'Custom image',
       });
-      // Handle successful payment (e.g., redirect to a confirmation page)
-      router.push('/user/payment/thanksPayment')
+
+      router.push('/user/payment/thanksPayment');
     }
   };
 
@@ -115,7 +108,6 @@ if(!token){
               fontSize: '16px',
               '::placeholder': {
                 color: '#aab7c4',
-                
               },
             },
             invalid: {
@@ -138,8 +130,8 @@ if(!token){
 };
 
 const PaymentPage: React.FC = () => {
-  const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
-  const passengerDetails = useSelector((state: RootState) => state.bookdetail.passengerDetails);
+  const hotelBookingDetail = useSelector((state: RootState) => state.hotelBookDetail.selectedHotel);
+  const bookdata = useSelector((state: RootState) => state.hotelGuestData.selectedUser);
 
   return (
     <Elements stripe={stripePromise}>
@@ -147,7 +139,7 @@ const PaymentPage: React.FC = () => {
         {/* Header Image */}
         <div className="relative h-64">
           <img
-            src="/flight-pay.webp" 
+            src="/flight-pay.webp"
             className="w-full h-full object-cover rounded-b-lg"
           />
           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -158,45 +150,35 @@ const PaymentPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Flight and Passenger Details Section */}
-        <div className="container mx-auto p-6 mt-6 bg-[#07152C]  border border-white/5 rounded-lg shadow-lg">
-          {selectedFlight ? (
+        {/* Hotel and Passenger Details Section */}
+        <div className="container mx-auto p-6 mt-6 bg-[#07152C] border border-white/5 rounded-lg shadow-lg">
+          {hotelBookingDetail ? (
             <>
-              <div className="flex justify-between mb-4 ">
+              <div className="flex justify-between mb-4">
                 <div>
-                  <h2 className="text-2xl font-semibold">{selectedFlight.departureAirport} → {selectedFlight.arrivalAirport}</h2>
-                  <p>{selectedFlight.departureTime} - {selectedFlight.arrivalTime}</p>
-                  <p>{selectedFlight.duration}</p>
+                  <h2 className="text-2xl font-semibold">{hotelBookingDetail?.type} → {hotelBookingDetail?.name}</h2>
                 </div>
                 <div>
                   <p className="text-right">Fare Type: Regular</p>
-                  <p className="text-right">Total Passengers: 1</p>
-                  <p className="text-right">Total Fare: ₹{selectedFlight.price}</p>
-                </div>
-              </div>
-
-              <div className="flex justify-between mb-4">
-                <div>
-                  <p className="text-lg">Flight Number: {selectedFlight.flightNumber}</p>
-                  <p className="text-sm">Stop: {selectedFlight.stops}</p>
+                  <p className="text-right">Total Fare: ₹{bookdata?.amount}</p>
                 </div>
               </div>
 
               <div className="mt-6">
-                <h2 className="text-2xl font-semibold mb-4">Passenger Details</h2>
-                {passengerDetails ? (
+                <h2 className="text-2xl font-semibold mb-4">Booking Details</h2>
+                {bookdata && (
                   <div>
-                    <p className="text-lg">Name: {passengerDetails[0]?.firstName} {passengerDetails[0].lastName}</p>
-                    <p className="text-lg">Email: {passengerDetails[0].email}</p>
-                    <p className="text-lg">Phone: {passengerDetails[0].phoneNumber}</p>
+                    <p className="text-lg">Check-in: {bookdata.checkin}</p>
+                    <p className="text-lg">Check-out: {bookdata.checkout}</p>
+                    <p className="text-lg">Guests: {bookdata.guests}</p>
+                    <p className="text-lg">Hotel Name: {hotelBookingDetail?.name}</p>
+                    
                   </div>
-                ) : (
-                  <p>No passenger details available</p>
                 )}
               </div>
             </>
           ) : (
-            <p>No flight selected</p>
+            <p>No hotel selected</p>
           )}
         </div>
 

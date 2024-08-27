@@ -8,27 +8,57 @@ import { DotLoader } from 'react-spinners';
 import AdminNavbar from '../components/AdminNavbar';
 import { Users } from '@/interfaces/Users';
 const super_adminDashboard: React.FC = () => {
-   const [authorized,setAuthorized]=useState(false)
+   const [authorized, setAuthorized] = useState(false)
    const [email, setEmail] = useState('');
-   const [role,setRole]=useState('')
+   const [role, setRole] = useState('')
    const [users, setUsers] = useState<Users[]>([])
    const [currentPage, setCurrentPage] = useState(1);
    const usersPerPage = 6; // Number of users to display p
- const router=useRouter()
+   const router = useRouter()
    // Calculate total number of pages
    const totalPages = Math.ceil(users.length / usersPerPage);
-  
-   // Function to handle page changes
-   const handlePageChange = (pageNumber:number) => {
-     setCurrentPage(pageNumber);
+   const token = Cookies.get('jwtToken');
+   const handleBlockUser = async (userId: string) => {
+      try {
+         const response = await fetch('/api/blockUser', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ blockUserId: userId }),
+         });
+
+         const data = await response.json();
+         if (response.ok) {
+            // Update the user's block status in the UI
+            setUsers(prevUsers =>
+               prevUsers.map(user =>
+                  user.id === userId ? { ...user, isBlocked: !user.isBlocked } : user
+               )
+            );
+            console.log(data.message);
+         } else {
+            console.error('Error blocking/unblocking user:', data.message);
+         }
+      } catch (error) {
+         console.error('Request error:', error);
+      }
    };
- 
+
+   useEffect(() => {
+      if (!token) {
+         router.push('/admin/signin')
+      }
+   }, [token])
+   const handlePageChange = (pageNumber: number) => {
+      setCurrentPage(pageNumber);
+   };
+
    // Get the current page of users
 
-      const currentUsers = users.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
+   const currentUsers = users.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
 
-   
- const token=Cookies.get('jwtToken');
+
    useEffect(() => {
       (async () => {
          try {
@@ -54,9 +84,9 @@ const super_adminDashboard: React.FC = () => {
       (async () => {
          try {
             console.log('Sending token to API:', token);
-            const response = await fetch('/api/tokenVerify',{
+            const response = await fetch('/api/tokenVerify', {
                method: 'POST',
-               headers:{
+               headers: {
                   'Content-Type': 'application/json',
                },
                body: JSON.stringify({ token }),
@@ -65,39 +95,37 @@ const super_adminDashboard: React.FC = () => {
             console.log('Response headers:', response.headers);
             const data = await response.json();
             console.log('Received data:', data);
-            
-               setRole(data)
-               
 
-            
-            console.log(role,'datahvbfdhvb')
+            setRole(data)
+
+
+
+            console.log(role, 'datahvbfdhvb')
             if (!response.ok) {
                console.error('Error from API:', data.message);
-               throw new Error('Failed to verify token');
             }
          } catch (error) {
             console.log('External api error');
 
-            throw new Error('Error occured while fetch api data')
          }
       })();
    }, [token])
    useEffect(() => {
       if (role !== null) {
          console.log('Role has been updated:', role);
-         if(role==='superadmin' || role==='flightoperator'){
+         if (role === 'superadmin' || role === 'flightoperator') {
             console.log('Setting authorised to true');
             setAuthorized(true)
-           console.log('role is fine',role)
+            console.log('role is fine', role)
          }
-         console.log('test',authorized);
+         console.log('test', authorized);
 
       }
    }, [role]);
    useEffect(() => {
       console.log('Authorised state updated:', authorized);
-    }, [authorized]);
-    
+   }, [authorized]);
+
    console.log(users, 'user')
    const [password, setPassword] = useState('');
    const [adminType, setadminType] = useState('');
@@ -161,7 +189,7 @@ const super_adminDashboard: React.FC = () => {
       <div style={containerStyle}>
          {loading && <DotLoader color="#ffffff" size={60} />}
          <AdminNavbar />
-         
+
          <div style={backgroundStyle} />
          <div style={contentStyle}>
             <div className='ml-52 mb-32'>
@@ -192,71 +220,68 @@ const super_adminDashboard: React.FC = () => {
                   </svg>
                </button>
 
-    <Adminaside/>
+               <Adminaside />
 
                <div className="p-4 mt-[200px]">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {authorized ? (
-  currentUsers.map((user, index) => (
-    <div key={index} className="max-w-sm bg-transparent border border-gray-600 rounded-lg shadow-lg">
-      <div className="relative">
-        <img
-          className="w-full h-48 rounded-t-lg object-cover"
-          src="https://res.cloudinary.com/dbn1fdk8f/image/upload/v1723181608/airline/kch5xemyueavoffdg7r1.jpg"
-          alt="Airplane in the sky"
-        />
-        <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
-          <img
-            className="w-24 h-24 rounded-full border-4 border-white"
-            src="https://res.cloudinary.com/dbn1fdk8f/image/upload/v1723181608/airline/kch5xemyueavoffdg7r1.jpg"
-            alt="Profile Picture"
-          />
-        </div>
-      </div>
-      <div className="text-center mt-14 p-4">
-        <h5 className="mb-1 text-xl font-bold text-white">{user?.username}</h5>
-        <p className="text-sm text-gray-400">{user?.email}</p>
-        <div className="flex justify-around mt-4 text-white">
-          <div className="text-center">
-            <span className="block text-2xl font-bold">Test</span>
-            <span className="text-sm">Flying Hours</span>
-          </div>
-          <div className="border-l-2 border-gray-500"></div>
-          <div className="text-center">
-            <span className="block text-2xl font-bold">Test</span>
-            <span className="text-sm">Years of Experience</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  ))
-) : (
-<div className="flex items-center justify-center min-h-screen">
-    <div className="text-center text-red-500">
-      <h1 className="text-4xl font-bold">Access Denied</h1>
-      <p className="mt-4 text-lg">You do not have permission to access this page.</p>
-    </div>
-  </div>
- 
- 
-)}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                     {authorized ? (
+                        currentUsers.map((user, index) => (
+                           <div key={index} className="max-w-sm bg-transparent border border-gray-600 rounded-lg shadow-lg">
+                              <div className="relative">
+                                 <img className="w-full h-48 rounded-t-lg object-cover" src="https://res.cloudinary.com/dbn1fdk8f/image/upload/v1723181608/airline/kch5xemyueavoffdg7r1.jpg" alt="Airplane in the sky" />
+                                 <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
+                                    <img className="w-24 h-24 rounded-full border-4 border-white" src="https://res.cloudinary.com/dbn1fdk8f/image/upload/v1723181608/airline/kch5xemyueavoffdg7r1.jpg" alt="Profile Picture" />
+                                 </div>
+                              </div>
+                              <div className="text-center mt-14 p-4">
+                                 <h5 className="mb-1 text-xl font-bold text-white">{user?.username}</h5>
+                                 <p className="text-sm text-gray-400">{user?.email}</p>
+                                 <div className="flex justify-around mt-4 text-white">
+                                    <div className="text-center">
+                                       <span className="block text-2xl font-bold">Test</span>
+                                       <span className="text-sm">Flying Hours</span>
+                                    </div>
+                                    <div className="border-l-2 border-gray-500"></div>
+                                    <div className="text-center">
+                                       
+                                    </div>
+                                 </div>
+                                 <button
+                                    onClick={() => handleBlockUser(user.id)}
+                                    className={`mt-4 px-4 py-2 rounded-md ${user.isBlocked ? 'bg-red-500' : 'bg-green-500'} text-white`}
+                                 >
+                                    {user.isBlocked ? 'Unblock' : 'Block'}
+                                 </button>
+                              </div>
+                           </div>
+                        ))
+                     ) : (
+                        <div className="flex items-center justify-center min-h-screen">
+                           <div className="text-center text-red-500">
+                              <h1 className="text-4xl font-bold">Access Denied</h1>
+                              <p className="mt-4 text-lg">You do not have permission to access this page.</p>
+                           </div>
+                        </div>
 
-      </div>
-      {authorized && totalPages > 1 && (
-  <div className="flex justify-center mt-4">
-    {Array.from({ length: totalPages }, (_, pageNumber) => (
-      <button
-        key={pageNumber}
-        className={`px-3 py-2 rounded-md ${currentPage === pageNumber + 1 ? 'bg-blue-500 text-white' : 'text-gray-500 hover:text-blue-500'}`}
-        onClick={() => handlePageChange(pageNumber + 1)}
-      >
-        {pageNumber + 1}
-      </button>
-    ))}
-  </div>
-)}
 
-    </div>
+                     )}
+
+                  </div>
+                  {authorized && totalPages > 1 && (
+                     <div className="flex justify-center mt-4">
+                        {Array.from({ length: totalPages }, (_, pageNumber) => (
+                           <button
+                              key={pageNumber}
+                              className={`px-3 py-2 rounded-md ${currentPage === pageNumber + 1 ? 'bg-blue-500 text-white' : 'text-gray-500 hover:text-blue-500'}`}
+                              onClick={() => handlePageChange(pageNumber + 1)}
+                           >
+                              {pageNumber + 1}
+                           </button>
+                        ))}
+                     </div>
+                  )}
+
+               </div>
             </section>
 
          </div>

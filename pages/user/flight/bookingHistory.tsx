@@ -1,18 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/pages/components/Navbar';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
-
+import Cookies from 'js-cookie';
 const BookingHistory: React.FC = () => {
   const [bookings, setBookings] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-
+  const router=useRouter()
+ const token=Cookies.get('jwtToken')
+ useEffect(()=>{
+ if(!token){
+ router.push('/')
+ }
+ },[])
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get('/api/getBookings');
         console.log(response.data, 'congratulations.........');
-        setBookings(response.data);
+        setBookings(response?.data);
       } catch (error) {
         console.log('An error occurred', error);
       }

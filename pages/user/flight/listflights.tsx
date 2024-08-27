@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from '@/pages/components/Navbar';
+import Cookies from 'js-cookie';
 import DatePicker from 'react-datepicker';
 import Select, { SingleValue, ActionMeta, InputActionMeta } from 'react-select';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -27,7 +28,12 @@ const ListFlights: React.FC = () => {
   const [sortOption, setSortOption] = useState<string>('price');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [flightsPerPage] = useState<number>(5); 
-
+  const token=Cookies.get('jwtToken')
+useEffect(()=>{                   
+if(!token){
+  router.push('/')
+}
+},[])
   useEffect(() => {
     const fetchAirports = async () => {
       try {

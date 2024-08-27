@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Cookies from 'js-cookie';
 import Link from 'next/link';
 import {  signIn, signOut } from "next-auth/react";
 import GoogleButton from '../components/GoogleButton';
 import { useMutation } from '@apollo/client';
 import { SIGNIN_MUTATION } from '@/graphql/mutations/loginMutation';
 import { useRouter } from 'next/router';
+import Swal from 'sweetalert2';
 const SignIn: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [email, setEmail] = useState('');
@@ -37,46 +39,68 @@ const SignIn: React.FC = () => {
     }
   }, [isDarkMode]);
 const router=useRouter()
-  const handleSignin = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const emailError = validateEmail(email);
-    const passwordError = validatePassword(password);
-    setCustomError({
-      email: emailError,
-      password: passwordError
-    });
-    if (emailError || passwordError) {
-      return;
-    }
-    try {
-      const { data } = await userLogin({
-        variables: {
-          email,
-          password
-        },
-      });
-
-      if (data && data.userLogin) {
-        console.log('Login successful:', data.userLogin);
-        
-        const { token, user } = data.userLogin;
-    
-        localStorage.setItem('authToken', token);
-    
-        if (user) {
-            router.push({
-                pathname: '/',
-                query: { userEmail: user.email }
-            });
-        } else {
-            router.push('/');
-        }
-    }
-    
-    } catch (error) {
-      console.log('Error during sign in:', error);
-    }
+const handleSignin = async (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  
+  const emailError = validateEmail(email);
+  const passwordError = validatePassword(password);
+  
+  setCustomError({
+    email: emailError,
+    password: passwordError
+  });
+  
+  if (emailError || passwordError) {
+    return;
   }
+  
+  try {
+    // Attempt user login
+    const { data } = await userLogin({
+      variables: {
+        email,
+        password
+      },
+    });
+
+    if (data && data.userLogin) {
+      const { token, user } = data.userLogin;
+
+      if (user.isBlocked) {
+        Swal.fire({
+          title: "User Blocked!",
+          text: "Operation failed!",
+          icon: "error"
+        });
+        console.log('User is blocked. Cannot sign in.');
+        setCustomError((prevState) => ({
+          ...prevState,
+          general: 'Your account is blocked. Please contact support.'
+        }));
+        return;
+      }
+
+      Cookies.set('jwtToken', token, { expires: 30 });
+
+      if (user) {
+        router.push({
+          pathname: '/',
+          query: { userEmail: user.email }
+        });
+      } else {
+        router.push('/');
+      }
+    }
+    
+  } catch (error) {
+    console.log('Error during sign in:', error);
+    setCustomError((prevState) => ({
+      ...prevState,
+      general: 'An error occurred during sign in. Please try again.'
+    }));
+  }
+}
+
   
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);

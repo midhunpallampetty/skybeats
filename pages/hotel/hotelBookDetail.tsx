@@ -3,36 +3,37 @@ import Image from 'next/image';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router'; // Import useRouter hook
 import { RootState } from '@/redux/store';
-import { setPassengerDetails } from '@/redux/slices/bookdetailSlice';
+import { setGuestDetails } from '@/redux/slices/bookdetailSlice';
 import Cookies from 'js-cookie';
-const BookingDetailsPage: React.FC = () => {
+const hotelBookDetail: React.FC = () => {
   const dispatch = useDispatch();
   const router = useRouter(); 
-  const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
+  const bookdata=useSelector((state:RootState)=>state.hotelGuestData.selectedUser)
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const updatedPassengerDetails = useSelector((state: RootState) => state.bookdetail.passengerDetails);
- const token=Cookies.get('jwtToken');
-  useEffect(()=>{
-  if(!token){
-  router.push('/')
-  }
- },[])
+  const updatedGuestDetails = useSelector((state: RootState) => state.bookdetail.guestDetails);
+   const hotelBookingDetail=useSelector((state:RootState)=>state.hotelBookDetail.selectedHotel)
+  const token=Cookies.get('jwtToken')
+   useEffect(()=>{
+    if(!token){
+      router.push('/')
+    }
+   },[])
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Dispatch the action to add passenger details to Redux
-    dispatch(setPassengerDetails({
+    dispatch(setGuestDetails({
       firstName,
       lastName,
       email,
       phoneNumber,
     }));
-    console.log("Updated Passenger Details State:", updatedPassengerDetails);
+    console.log("Updated Passenger Details State:", updatedGuestDetails);
     // Optionally, you can navigate to another page after submission
-    router.push('/user/payment/payNow'); // For example, redirect to the payment page
+    router.push('/hotel/payNow'); // For example, redirect to the payment page
   };
 
   return (
@@ -52,25 +53,25 @@ const BookingDetailsPage: React.FC = () => {
       </div>
 
       <div className="container mx-auto p-6 mt-6 bg-[#07152C] rounded-lg shadow-lg">
-        {selectedFlight ? (
+        {hotelBookingDetail ? (
           <>
             <div className="flex justify-between mb-4">
               <div>
-                <h2 className="text-2xl font-semibold">{selectedFlight.departureAirport} → {selectedFlight.arrivalAirport}</h2>
-                <p>{selectedFlight.departureTime} - {selectedFlight.arrivalTime}</p>
-                <p>{selectedFlight.duration}</p>
+                <h2 className="text-2xl font-semibold">test → test</h2>
+                <p>{hotelBookingDetail.name} - test</p>
+                <p>{hotelBookingDetail?.overall_rating}</p>
               </div>
               <div>
                 <p className="text-right">Fare Type: Regular</p>
                 <p className="text-right">Total Passengers: 1</p>
-                <p className="text-right">Total Fare: ₹{selectedFlight.price}</p>
+                <p className="text-right">Total Fare: ₹{bookdata?.amount}</p>
               </div>
             </div>
 
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-lg">Flight Number: {selectedFlight.flightNumber}</p>
-                <p className="text-sm">Stop: {selectedFlight.stops}</p>
+                <p className="text-lg">Flight Number: </p>
+                <p className="text-sm">Stop: </p>
               </div>
               <div className="flex space-x-4">
                 <button className="bg-blue-500 text-white font-semibold px-4 py-2 rounded">Details</button>
@@ -79,7 +80,7 @@ const BookingDetailsPage: React.FC = () => {
             </div>
           </>
         ) : (
-          <p>No flight selected</p>
+          <p>No hotels selected</p>
         )}
       </div>
 
@@ -148,4 +149,4 @@ const BookingDetailsPage: React.FC = () => {
   );
 };
 
-export default BookingDetailsPage;
+export default hotelBookDetail;

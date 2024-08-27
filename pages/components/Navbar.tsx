@@ -3,14 +3,15 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
-
+import Cookies from "js-cookie";
 const Navbar: React.FC = () => {
+
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-
+const token=Cookies.get('jwtToken')
   useEffect(() => {
-    if (router.query.userEmail || router.query.googleauth) {
+    if (router.query.userEmail || router.query.googleauth || token) {
       setIsLoggedIn(true);
     } else {
       setIsLoggedIn(false);
@@ -18,7 +19,7 @@ const Navbar: React.FC = () => {
   }, [router.query]);
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
+  Cookies.remove('jwtToken')
     router.push("/");
   };
 
@@ -49,7 +50,7 @@ const Navbar: React.FC = () => {
             />
           </Link>
           <div className="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-            {isLoggedIn ? (
+            {isLoggedIn  ? (
               <button
                 onClick={handleLogout}
                 className="text-white bg-blue-200 hover:bg-blue-200/10 focus:ring-4 focus:outline-none focus:ring-blue-300 text-sm px-5 py-3 text-center dark:bg-blue-600/20 rounded-2xl font-extrabold dark:hover:bg-blue-600/40 dark:focus:ring-blue-950"

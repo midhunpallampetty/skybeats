@@ -4,7 +4,8 @@ import { BookDetailState, PassengerDetails } from '@/interfaces/BookDetailState'
 
 const initialState: BookDetailState = {
   selectedFlight: null,
-  passengerDetails: [], // Initialize with an empty array
+  passengerDetails: [], 
+  guestDetails: [],// Initialize with an empty array
 };
 
 const bookdetailSlice = createSlice({
@@ -17,6 +18,9 @@ const bookdetailSlice = createSlice({
     setPassengerDetails: (state, action: PayloadAction<PassengerDetails>) => {
       state.passengerDetails = [...state.passengerDetails, action.payload];
     },
+    setGuestDetails: (state, action: PayloadAction<PassengerDetails>) => {
+      state.guestDetails = [...state.passengerDetails, action.payload];
+    },
   
     clearBookDetail(state) {
       state.selectedFlight = null;
@@ -25,6 +29,6 @@ const bookdetailSlice = createSlice({
   },
 });
 
-export const { setBookDetail, clearBookDetail,setPassengerDetails } = bookdetailSlice.actions;
+export const { setBookDetail, clearBookDetail,setGuestDetails,setPassengerDetails } = bookdetailSlice.actions;
 
 export default bookdetailSlice.reducer;

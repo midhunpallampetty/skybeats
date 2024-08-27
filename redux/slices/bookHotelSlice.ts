@@ -1,17 +1,21 @@
 import { createSlice ,PayloadAction} from "@reduxjs/toolkit";
- import { hotelState } from "@/interfaces/hotelInterfaces";
+ import { hotelOptionsState } from "@/interfaces/hotelInterfaces";
 import { Hotel } from "@/interfaces/hotelInterfaces";
-const initialState:hotelState={
-    hotels :[],
+const initialState:hotelOptionsState={
+    hotelOptions :[],
 }
 const bookHotelSlice=createSlice({
-name:'hotels',
+name:'hotelOptions',
 initialState,
 reducers:{
-    setHotels:(state,action:PayloadAction<Hotel[]>)=>{
-        state.hotels=action.payload;
-    }
+    setHotelOptions:(state,action:PayloadAction<Hotel[]>)=>{
+        state.hotelOptions=action.payload;
+    },
+    clearHotelOptions:(state)=>{
+    state.hotelOptions=[];
+    },
+    
 }
 });
-export const {setHotels}=bookHotelSlice.actions;
+export const {setHotelOptions,clearHotelOptions}=bookHotelSlice.actions;
 export default bookHotelSlice.reducer;

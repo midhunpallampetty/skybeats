@@ -39,7 +39,18 @@ const Signin: React.FC = () => {
           alert('No token received. Please check your login credentials.');
         }
         console.log('Login success', data.adminLogin);
-        router.push('/admin/super_adminDashboard')
+        if(adminType==='superadmin' || adminType==='flightoperator'){
+          router.push('/admin/super_adminDashboard')
+
+        }else{
+          if(adminType==='hoteladmin'){
+            router.push('/admin/bookingReport')
+
+          }else{
+            router.push('/admin/super_adminDashboard')
+
+          }
+        }
 
 
       } else {

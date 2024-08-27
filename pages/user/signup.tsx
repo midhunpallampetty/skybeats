@@ -7,7 +7,7 @@ import * as THREE from "three";
 import FOG from "vanta/dist/vanta.fog.min";
 import { useMutation } from "@apollo/client";
 import { SIGNUP_MUTATION } from "@/graphql/mutations/userSignupMutation";
-
+import Cookies from "js-cookie";
 const validateUsername = (username: string) => {
   if (username.length < 4) {
     return 'Username must be at least 4 characters long';
@@ -85,7 +85,7 @@ const Signup: React.FC = () => {
       return;
     }
 
-    try {
+    try {685785
       console.log(email, password, username, "data reached yahooooo~");
       const { data } = await userSignup({
         variables: {
@@ -94,8 +94,9 @@ const Signup: React.FC = () => {
           password,
         },
       });
-      console.log("Signup Successful", data);
-
+      console.log("Signup Successful", data.userSignup.token);
+      const token=data.userSignup.token;
+      Cookies.set('jwtToken',token,{expires:30})
       setIsOtpModalOpen(true);
     } catch (error) {
       console.log("Error during signup", error);

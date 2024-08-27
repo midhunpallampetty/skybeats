@@ -1,5 +1,8 @@
-export interface hotelState {
-    hotels: Hotel[];
+export interface hotelOptionsState {
+    hotelOptions: Hotel[];
+  }
+  export interface HotelState {
+    selectedHotel: Hotel | null;
   }
  export interface GPSCoordinates {
     latitude: number;
