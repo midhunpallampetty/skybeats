@@ -23,7 +23,7 @@ const SelectHotel = () => {
   },[])
   const handleBookHotel = () => {
     dispatch(setSelectedUser({ checkin, checkout, guests,amount }));
-    alert(JSON.stringify(details)); // Stringify details object for alert
+    alert(JSON.stringify(details)); 
     router.push('/hotel/hotelBookDetail');
   };
 
@@ -33,7 +33,7 @@ const SelectHotel = () => {
       const calculatedAmount = (1000 * parseInt(guests)) * totalStayDays;
       setAmount(calculatedAmount);
     }
-  }, [checkin, checkout, guests]); // Add dependencies to avoid infinite loop
+  }, [checkin, checkout, guests]); 
 
   function dateDifference(d1: string, d2: string) {
     const date1 = parseDate(d1);
@@ -44,7 +44,7 @@ const SelectHotel = () => {
   }
 
   function parseDate(dateStr: string) {
-    const [day, month, year] = dateStr.split('-').map(Number); // Adjust to match dd-mm-yyyy format
+    const [day, month, year] = dateStr.split('-').map(Number); 
     return new Date(year, month - 1, day);
   }
 
@@ -72,7 +72,6 @@ const SelectHotel = () => {
             <p className='text-white ml-3'>{data?.location_rating}</p>
           </div>
 
-          {/* Hotel Info Section */}
           <div className=" text-white flex flex-col md:flex-row mt-8">
             <div className="flex-1">
               {data?.amenities?.map((amenity, index) => (
@@ -81,7 +80,6 @@ const SelectHotel = () => {
                 </div>
               ))}
 
-              {/* About this place */}
               <div className="mt-4">
                 <h2 className="text-2xl font-bold">About this place</h2>
                 <p className="mt-2">
@@ -90,7 +88,6 @@ const SelectHotel = () => {
               </div>
             </div>
 
-            {/* Price and Booking Section */}
             <div className="bg-black/5 md:w-1/3 md:ml-8 mt-8 md:mt-0">
               <div className="border p-4 rounded-lg shadow-md">
                 <p className="text-2xl font-bold">₹1000 / night</p>

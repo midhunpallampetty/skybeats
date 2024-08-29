@@ -14,21 +14,24 @@ interface PaymentIntentResponse {
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 const PaymentForm: React.FC = () => {
-  const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
+  const hotelBookingDetail = useSelector((state: RootState) => state.hotelBookDetail.selectedHotel);
+
+  const getGuestDetails=useSelector((state:RootState)=>state.hotelGuestData.selectedUser)
   const guestDetails = useSelector((state: RootState) => state.bookdetail.guestDetails);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const stripe = useStripe();
   const elements = useElements();
-  const router = useRouter();
   const token=Cookies.get('jwtToken')
+  const router=useRouter()
+
   useEffect(()=>{
   if(!token){
     router.push('/')
   }
   },[])
   useEffect(() => {
-    if (selectedFlight) {
-      axios.post<PaymentIntentResponse>('/api/create-payment-intent', { amount: selectedFlight.price * 100 })
+    if (getGuestDetails) {
+      axios.post<PaymentIntentResponse>('/api/create-payment-intent', { amount: getGuestDetails!.amount * 100 })
         .then((response) => {
           setClientSecret(response.data.clientSecret);
         })
@@ -36,20 +39,27 @@ const PaymentForm: React.FC = () => {
           console.error('Error creating payment intent:', error);
         });
     }
-  }, [selectedFlight]);
+  }, [getGuestDetails]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    alert(getGuestDetails?.amount)
 
     if (!stripe || !elements || !clientSecret) {
       return;
-    }  const router=useRouter()
-
-
+    }  
     const data = {
       guestName: `${guestDetails[0].firstName} ${guestDetails[0].lastName}`,
       email: guestDetails[0].email,
       phoneNumber: guestDetails[0].phoneNumber,
+      noOfGuests:getGuestDetails?.guests,
+      checkin:getGuestDetails?.checkin,
+      checkout:getGuestDetails?.checkout,
+      amount:getGuestDetails?.amount,
+      hotelName:hotelBookingDetail?.name,
+      hotelLocation:JSON.stringify(hotelBookingDetail?.gps_coordinates),
+      
+
       
     };
 
@@ -150,7 +160,6 @@ const PaymentPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Hotel and Passenger Details Section */}
         <div className="container mx-auto p-6 mt-6 bg-[#07152C] border border-white/5 rounded-lg shadow-lg">
           {hotelBookingDetail ? (
             <>
@@ -182,7 +191,6 @@ const PaymentPage: React.FC = () => {
           )}
         </div>
 
-        {/* Payment Form Section */}
         <div className="container mx-auto p-6 border border-white/5 mt-6 bg-[#07152C] rounded-lg shadow-lg">
           <h2 className="text-2xl font-semibold mb-4">Payment Details</h2>
           <PaymentForm />

@@ -1,6 +1,5 @@
 import { Flight } from "./flight";
 
-// Represents the overall state for booking details
 export interface BookDetailState {
   selectedFlight: Flight | null;
   passengerDetails: PassengerDetails[]; 

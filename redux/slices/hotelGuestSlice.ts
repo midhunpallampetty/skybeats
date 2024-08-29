@@ -1,13 +1,9 @@
 import { createSlice,PayloadAction } from "@reduxjs/toolkit";
+import { User } from "@/interfaces/hotelOptions";
 interface hotelOptions{
 selectedUser:User | null
 }
-interface User{
-    checkin:string
-    checkout:string
-    guests:string,
-    amount:number,
-}
+
 const initialState:hotelOptions={
     selectedUser:null,
 }

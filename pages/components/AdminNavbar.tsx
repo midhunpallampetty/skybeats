@@ -139,8 +139,8 @@ const AdminNavbar: React.FC = () => {
   xmlns="http://www.w3.org/2000/svg"
   fill="none"
   viewBox="0 0 17 14"
-  width="24"   // Adjust width here
-  height="24"  // Adjust height here
+  width="24"   
+  height="24"  
 >
   <path
     stroke="currentColor"

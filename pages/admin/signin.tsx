@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react';
 import Cookies from 'js-cookie';
 import { ADMIN_LOGIN_MUTATION } from '@/graphql/mutations/adminLoginMutation';
@@ -15,13 +16,11 @@ const Signin: React.FC = () => {
   }
   const handleSignin = async (event: React.MouseEvent<HTMLButtonElement>) => {
     try {
-      // Check if all fields are provided
       if (!email || !password || !adminType) {
         alert('All fields (email, password, admin type) must be provided');
         return;
       }
   
-      // Attempt to log in
       const { data } = await adminLogin({
         variables: {
           email,
@@ -30,7 +29,6 @@ const Signin: React.FC = () => {
         }
       });
   
-      // Check if login was successful
       if (data && data.adminLogin) {
         const { token } = data.adminLogin;
         if(token){
@@ -57,7 +55,6 @@ const Signin: React.FC = () => {
         alert('Invalid credentials. Please check your email, password, and admin type.');
       }
     } catch (error) {
-      // Log the error and show an alert
       console.error('Operation of admin login not successful', error);
       alert("Can't perform admin login operation. Please try again.");
     }

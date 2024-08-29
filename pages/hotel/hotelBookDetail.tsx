@@ -24,7 +24,6 @@ const hotelBookDetail: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Dispatch the action to add passenger details to Redux
     dispatch(setGuestDetails({
       firstName,
       lastName,
@@ -32,13 +31,11 @@ const hotelBookDetail: React.FC = () => {
       phoneNumber,
     }));
     console.log("Updated Passenger Details State:", updatedGuestDetails);
-    // Optionally, you can navigate to another page after submission
-    router.push('/hotel/payNow'); // For example, redirect to the payment page
+    router.push('/hotel/payNow'); 
   };
 
   return (
     <div className="bg-gray-900 text-white min-h-screen">
-      {/* Header Image */}
       <div className="relative h-64">
         <Image
           src="/ai-generated.jpg" 
@@ -132,7 +129,6 @@ const hotelBookDetail: React.FC = () => {
                 required
               />
             </div>
-            {/* Add more form fields as needed */}
           </div>
 
           <div className="mt-6 flex justify-end">

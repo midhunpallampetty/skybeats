@@ -35,7 +35,6 @@ const OtpModal: React.FC<OtpModalProps> = ({ email, isOpen, onClose }) => {
 
       console.log("OTP Verified Successfully", data);
 
-      // Redirect to home page
       router.push("/");
     } catch (error) {
       console.log("Error during OTP verification", error);

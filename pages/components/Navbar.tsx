@@ -30,7 +30,7 @@ const token=Cookies.get('jwtToken')
   const handleMouseLeave = () => {
     setTimeout(() => {
       setActiveMenu(null);
-    }, 300); // Delay before hiding the submenu
+    }, 300); 
   };
 
   return (

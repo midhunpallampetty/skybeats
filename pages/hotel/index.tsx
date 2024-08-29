@@ -69,7 +69,6 @@ const router=useRouter()
         router.push('/hotel/selectHotel')
   };                 
 
-  // Handle page change
   const handlePageChange = (pageNumber:number) => {
     setCurrentPage(pageNumber);
     console.log('got data  gaxiosgaxiosgaxiosgaxiosgaxiosgaxios',testData)
@@ -80,7 +79,7 @@ const router=useRouter()
       try {
         const response:any = await axios.get('https://pixabay.com/api/', {
           params: {
-            key: '38643909-0965461316365ac27e67b31c5', // Replace with your Pixabay API key
+            key: '38643909-0965461316365ac27e67b31c5', 
             q: 'hotel+rooms',
             image_type: 'photo',
             per_page: 50,
@@ -200,7 +199,6 @@ const router=useRouter()
 
 
      <div style={{ position: 'relative', zIndex: 1 }}>
-      {/* Background Video */}
       <video
         autoPlay
         loop
@@ -283,7 +281,6 @@ const router=useRouter()
             </svg>
           </div>
 
-          {/* Right Scroll Button */}
           <div className="absolute top-1/2 transform -translate-y-1/2 right-2 z-10">
             <svg
               xmlns="http://www.w3.org/2000/svg"

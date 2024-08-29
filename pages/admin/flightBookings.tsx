@@ -1,49 +1,31 @@
 'use client'
 import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+
+import { usePDF } from 'react-to-pdf';
 import { ADMIN_LOGIN_MUTATION } from '@/graphql/mutations/adminLoginMutation';
 import { useMutation } from '@apollo/client';
+import axios from 'axios';
 import Adminaside from '../components/Adminaside';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import { DotLoader } from 'react-spinners';
-import AdminNavbar from '../components/AdminNavbar';
-import { Users } from '@/interfaces/Users';
+import { bookData } from '@/interfaces/bookData';
 const super_adminDashboard: React.FC = () => {
+   const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
    const [authorized, setAuthorized] = useState(false)
    const [email, setEmail] = useState('');
    const [role, setRole] = useState('')
-   const [users, setUsers] = useState<Users[]>([])
-   const [currentPage, setCurrentPage] = useState(1);
-   const usersPerPage = 6; 
-   const router = useRouter()
-   const totalPages = Math.ceil(users.length / usersPerPage);
-   const token = Cookies.get('jwtToken');
-   const handleBlockUser = async (userId: string) => {
-      try {
-         const response = await fetch('/api/blockUser', {
-            method: 'POST',
-            headers: {
-               'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ blockUserId: userId }),
-         });
+   const AdminNavbar  = dynamic(() => import('../components/AdminNavbar'), { ssr: false });
+   const Adminaside  = dynamic(() => import('../components/Adminaside'), { ssr: false });
 
-         const data = await response.json();
-         if (response.ok) {
-            
-            setUsers(prevUsers =>
-               prevUsers.map(user =>
-                  user.id === userId ? { ...user, isBlocked: !user.isBlocked } : user
-               )
-            );
-            console.log(data.message);
-         } else {
-            console.error('Error blocking/unblocking user:', data.message);
-         }
-      } catch (error) {
-         console.error('Request error:', error);
-      }
-   };
+   const [bookings, setBookings] = useState<bookData[]>([])
+   const [currentPage, setCurrentPage] = useState(1);
+   const usersPerPage = 2;
+   const router = useRouter()
+
+   const totalPages = Math.ceil(bookings.length / usersPerPage);
+   const token = Cookies.get('jwtToken');
 
    useEffect(() => {
       if (!token) {
@@ -55,30 +37,9 @@ const super_adminDashboard: React.FC = () => {
    };
 
 
-   const currentUsers = users.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
 
 
-   useEffect(() => {
-      (async () => {
-         try {
-            const response = await fetch('/api/getUsers')
-            console.log('data', response)
-            const data = await response.json();
-            if (response) {
-               setUsers(data)
-               console.log(users)
-            } else {
-               console.log('failed getting users');
 
-               throw new Error('failed to fetch users data');
-            }
-         } catch (error) {
-            console.log('External api error');
-
-            throw new Error('Error occured while fetch api data')
-         }
-      })();
-   }, [])
    useEffect(() => {
       (async () => {
          try {
@@ -112,7 +73,7 @@ const super_adminDashboard: React.FC = () => {
    useEffect(() => {
       if (role !== null) {
          console.log('Role has been updated:', role);
-         if (role === 'superadmin' || role === 'flightoperator') {
+         if (role === 'flightoperator') {
             console.log('Setting authorised to true');
             setAuthorized(true)
             console.log('role is fine', role)
@@ -125,13 +86,27 @@ const super_adminDashboard: React.FC = () => {
       console.log('Authorised state updated:', authorized);
    }, [authorized]);
 
-   console.log(users, 'user')
+   console.log(bookings, 'user')
    const [password, setPassword] = useState('');
    const [adminType, setadminType] = useState('');
    const [adminLogin, { loading, error, data }] = useMutation(ADMIN_LOGIN_MUTATION)
    const handleDropdown = (e: any) => {
       setadminType(e.target.value)
    }
+   useEffect(() => {
+      const fetchData = async () => {
+         try {
+            const response: any = await axios.get('/api/getBookings');
+            console.log(response.data, 'congratulations.........');
+            setBookings(response?.data);
+         } catch (error) {
+            console.log('An error occurred', error);
+         }
+      };
+      fetchData();
+   }, []);
+   const currentUsers = bookings.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
+
    const handleSignin = async (event: React.MouseEvent<HTMLButtonElement>) => {
       try {
          const { data } = await adminLogin({
@@ -221,66 +196,84 @@ const super_adminDashboard: React.FC = () => {
 
                <Adminaside />
 
-               <div className="p-4 mt-[200px]">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                     {authorized ? (
-                        currentUsers.map((user, index) => (
-                           <div key={index} className="max-w-sm bg-transparent border border-gray-600 rounded-lg shadow-lg">
-                              <div className="relative">
-                                 <img className="w-full h-48 rounded-t-lg object-cover" src="https://res.cloudinary.com/dbn1fdk8f/image/upload/v1723181608/airline/kch5xemyueavoffdg7r1.jpg" alt="Airplane in the sky" />
-                                 <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
-                                    <img className="w-24 h-24 rounded-full border-4 border-white" src="https://res.cloudinary.com/dbn1fdk8f/image/upload/v1723181608/airline/kch5xemyueavoffdg7r1.jpg" alt="Profile Picture" />
-                                 </div>
-                              </div>
-                              <div className="text-center mt-14 p-4">
-                                 <h5 className="mb-1 text-xl font-bold text-white">{user?.username}</h5>
-                                 <p className="text-sm text-gray-400">{user?.email}</p>
-                                 <div className="flex justify-around mt-4 text-white">
-                                    <div className="text-center">
-                                       <span className="block text-2xl font-bold">Test</span>
-                                       <span className="text-sm">Flying Hours</span>
-                                    </div>
-                                    <div className="border-l-2 border-gray-500"></div>
-                                    <div className="text-center">
-                                       
-                                    </div>
-                                 </div>
-                                 <button
-                                    onClick={() => handleBlockUser(user.id)}
-                                    className={`mt-4 px-4 py-2 rounded-md ${user.isBlocked ? 'bg-red-500' : 'bg-green-500'} text-white`}
-                                 >
-                                    {user.isBlocked ? 'Unblock' : 'Block'}
-                                 </button>
-                              </div>
-                           </div>
-                        ))
-                     ) : (
-                        <div className="flex items-center justify-center min-h-screen">
-                           <div className="text-center text-red-500">
-                              <h1 className="text-4xl font-bold">Access Denied</h1>
-                              <p className="mt-4 text-lg">You do not have permission to access this page.</p>
-                           </div>
+               {authorized ? (
+                  currentUsers.map((bookings, index) => (
+
+
+                     <div  className="bg-blue-900/50 p-6 rounded-lg shadow-lg w-full mb-10  mx-auto">
+                        <div className="relative rounded-t-lg overflow-hidden">
+                           <span className="absolute top-2 left-2 bg-green-400 text-black text-xs px-3 py-1 rounded-full">
+                              International
+                           </span>
                         </div>
 
+                        <div className="flex items-center mt-4" >
+                           <img src="https://www.rosenaviation.com/wp-content/uploads/2024/02/Longest-commercial-flights-Rosen-Aviation-scaled.jpeg" alt="Profile" className="w-20 h-20 rounded-full border-4 border-blue-900" />
+                           <div className="ml-4 text-white flex-1">
+                              <div className="flex justify-between items-center">
+                                 <div ref={targetRef}>
+                                    <p className="text-lg font-semibold">Name: {bookings?.passengerName}</p>
+                                    <p className="text-sm">Paid: {bookings.FarePaid}</p>
+                                    <p className="text-sm">Duration: {bookings.flightDuration}</p>
+                                    <p className="text-sm">Stop: {bookings.stop}</p>
 
-                     )}
+                                 </div>
+                                 <div>
+                                    <p className="text-sm">Arrival Airport: {bookings?.arrivalAirport}</p>
+                                    <p className="text-sm">Arrival Time: {bookings.arrivalTime}</p>
+                                    <p className="text-sm">Phone Number: {bookings.phoneNumber}</p>
+                                    <p className="text-sm">Stop: {bookings.email}</p>
 
-                  </div>
-                  {authorized && totalPages > 1 && (
-                     <div className="flex justify-center mt-4">
-                        {Array.from({ length: totalPages }, (_, pageNumber) => (
-                           <button
-                              key={pageNumber}
-                              className={`px-3 py-2 rounded-md ${currentPage === pageNumber + 1 ? 'bg-blue-500 text-white' : 'text-gray-500 hover:text-blue-500'}`}
-                              onClick={() => handlePageChange(pageNumber + 1)}
-                           >
-                              {pageNumber + 1}
-                           </button>
-                        ))}
+                                 </div>
+                                 <p className="text-sm">Flight Number: <span className="text-white">{bookings.flightNumber}</span></p>
+                              </div>
+                              <div className="flex mt-4 space-x-4">
+                                 <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                                    Details
+                                 </button>
+                                 <button className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg">
+                                    Reject
+                                 </button>
+
+                                 <a href="#" className="text-white flex items-center space-x-2 hover:underline">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill='white' width='25'> <path d="M256 464a208 208 0 1 1 0-416 208 208 0 1 1 0 416zM256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM128 256l0 32L256 416 384 288l0-32-80 0 0-128-96 0 0 128-80 0z" /></svg>
+                                    <span onClick={() => toPDF()}>Download Ticket</span>
+                                 </a>
+                              </div>
+                           </div>
+                        </div>
+                       
                      </div>
-                  )}
 
-               </div>
+
+
+                  ))
+               ) : (
+                  <div className="flex items-center justify-center min-h-screen">
+                     <div className="text-center text-red-500">
+                        <h1 className="text-4xl font-bold">Access Denied</h1>
+                        <p className="mt-4 text-lg">You do not have permission to access this page.</p>
+                     </div>
+                  </div>
+
+
+               )}
+
+               {authorized && totalPages > 1 && (
+                  <div className="flex justify-center mt-4">
+                     {Array.from({ length: totalPages }, (_, pageNumber) => (
+                        <button
+                           key={pageNumber}
+                           className={`px-3 py-2 rounded-md ${currentPage === pageNumber + 1 ? 'bg-blue-500 text-white' : 'text-gray-500 hover:text-blue-500'}`}
+                           onClick={() => handlePageChange(pageNumber + 1)}
+                        >
+                           {pageNumber + 1}
+                        </button>
+                     ))}
+                  </div>
+               )}
+
+
             </section>
 
          </div>

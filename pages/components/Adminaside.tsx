@@ -1,6 +1,20 @@
-import React from 'react'
-
+import React, { useEffect } from 'react'
+import Link from 'next/link';
+import { useState } from 'react';
 const Adminaside:React.FC=()=> {
+   const [isSubmenuOpen, setIsSubmenuOpen] = useState(false);
+
+   const toggleSubmenu = () => {
+     setIsSubmenuOpen(!isSubmenuOpen);
+   };
+ useEffect(()=>{
+   let timer;
+   if(isSubmenuOpen){
+      timer=setTimeout(() => {
+         setIsSubmenuOpen(false)
+      }, 15000);
+   }
+ })
   return (
     <>
      <aside
@@ -8,7 +22,7 @@ const Adminaside:React.FC=()=> {
     className="fixed top-0 left-0 z-40 w-72 h-screen transition-transform -translate-x-full sm:translate-x-0 sm:w-72"
     aria-label="Sidebar"
  >
-    <div className="h-full px-3 py-4 overflow-y-auto bg-white/5 border border-white/10 rounded">
+    <div className="h-full px-3 py-4 overflow-y-auto bg-transparent border border-white/10 rounded">
        <a href="https://flowbite.com/" className="flex items-center ps-2.5 mb-5">
           <img src="/logo_airline.png" className="h-6 me-3 sm:h-7" alt="Flowbite Logo" />
           <span className="text-white/35 text-sm">CRM®</span>
@@ -59,8 +73,27 @@ const Adminaside:React.FC=()=> {
                    viewBox="0 0 20 20"
                 >
                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M482.3 192c34.2 0 93.7 29 93.7 64c0 36-59.5 64-93.7 64l-116.6 0L265.2 495.9c-5.7 10-16.3 16.1-27.8 16.1l-56.2 0c-10.6 0-18.3-10.2-15.4-20.4l49-171.6L112 320 68.8 377.6c-3 4-7.8 6.4-12.8 6.4l-42 0c-7.8 0-14-6.3-14-14c0-1.3 .2-2.6 .5-3.9L32 256 .5 145.9c-.4-1.3-.5-2.6-.5-3.9c0-7.8 6.3-14 14-14l42 0c5 0 9.8 2.4 12.8 6.4L112 192l102.9 0-49-171.6C162.9 10.2 170.6 0 181.2 0l56.2 0c11.5 0 22.1 6.2 27.8 16.1L365.7 192l116.6 0z" /></svg>               </svg>
-                <span className="flex-1 ms-4 text-2xl whitespace-nowrap">Flights</span>
-                <span className="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">3</span>
+                   <div className="relative">
+      <span
+        className="flex-1 ms-4 text-2xl whitespace-nowrap cursor-pointer"
+        onClick={toggleSubmenu}
+      >
+        Flights
+      </span>
+      {isSubmenuOpen && (
+        <div className="absolute left-0 mt-2 w-48  bg-blue-950 shadow-lg rounded-md">
+          <ul className="py-2">
+            <li className="px-4 py-2 hover:bg-blue-800/50 cursor-pointer">Domestic Flights</li>
+            <li className="px-4 py-2 hover:bg-blue-800/50 cursor-pointer">International Flights</li>
+            <li className="px-4 py-2 hover:bg-blue-800/50 cursor-pointer">Chartered Flights</li>
+            <Link href='/admin/flightBookings'>            <li className="px-4 py-2 hover:bg-blue-800/50 cursor-pointer">Booked Flights</li>
+            </Link>
+
+          </ul>
+        </div>
+      )}
+    </div>                
+    <span className="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">3</span>
              </a>
           </li>
           <li>
@@ -110,7 +143,10 @@ const Adminaside:React.FC=()=> {
                    viewBox="0 0 20 20"
                 >
                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3zM609.3 512l-137.8 0c5.4-9.4 8.6-20.3 8.6-32l0-8c0-60.7-27.1-115.2-69.8-151.8c2.4-.1 4.7-.2 7.1-.2l61.4 0C567.8 320 640 392.2 640 481.3c0 17-13.8 30.7-30.7 30.7zM432 256c-31 0-59-12.6-79.3-32.9C372.4 196.5 384 163.6 384 128c0-26.8-6.6-52.1-18.3-74.3C384.3 40.1 407.2 32 432 32c61.9 0 112 50.1 112 112s-50.1 112-112 112z" /></svg>               </svg>
-                <span className="flex-1 ms-4 text-2xl whitespace-nowrap">Users</span>
+               <Link href='/admin/super_adminDashboard'>
+               <span className="flex-1 ms-4 text-2xl whitespace-nowrap">Users</span>
+
+               </Link>
              </a>
           </li>
           <li>

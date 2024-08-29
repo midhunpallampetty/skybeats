@@ -5,7 +5,7 @@ import { BookDetailState, PassengerDetails } from '@/interfaces/BookDetailState'
 const initialState: BookDetailState = {
   selectedFlight: null,
   passengerDetails: [], 
-  guestDetails: [],// Initialize with an empty array
+  guestDetails: [],
 };
 
 const bookdetailSlice = createSlice({
@@ -24,7 +24,7 @@ const bookdetailSlice = createSlice({
   
     clearBookDetail(state) {
       state.selectedFlight = null;
-      state.passengerDetails = []; // Clear passenger details as well
+      state.passengerDetails = []; 
     },
   },
 });

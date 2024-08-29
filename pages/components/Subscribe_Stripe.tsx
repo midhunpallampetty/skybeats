@@ -21,7 +21,6 @@ const SubscribeComponent:React.FC<SubscribeComponentProps> = () => {
     }
     try {
       const response = await axios.post('/api/stripe/checkout', {
-        // Remove priceId since it's not required
       });
       const data:any = response.data;
       if (!data.ok) throw new Error('Something went wrong');

@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useState } from 'react';
 import { ADMIN_LOGIN_MUTATION } from '@/graphql/mutations/adminLoginMutation';
 import { useMutation } from '@apollo/client';
@@ -13,9 +14,9 @@ const super_adminDashboard: React.FC = () => {
    const [role,setRole]=useState('')
    const [bookings, setBookings] = useState<Guests[]>([])
    const [currentPage, setCurrentPage] = useState(1);
-   const usersPerPage = 5; // Number of users to display p
+   const usersPerPage = 5; 
  const router=useRouter()
-   // Calculate total number of pages
+  
    const totalPages = Math.ceil(bookings.length / usersPerPage);
    const token=Cookies.get('jwtToken');
 
@@ -24,12 +25,10 @@ const super_adminDashboard: React.FC = () => {
       router.push('/admin/signin')
     }
    },[token]) 
-   // Function to handle page changes
    const handlePageChange = (pageNumber:number) => {
      setCurrentPage(pageNumber);
    };
  
-   // Get the current page of users
 
       const currentUsers = bookings.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
 

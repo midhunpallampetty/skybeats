@@ -1,4 +1,3 @@
-// graphql/mutations/verifyOtpMutation.ts
 
 import { gql } from "@apollo/client";
 

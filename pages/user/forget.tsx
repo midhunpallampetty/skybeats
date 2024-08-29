@@ -66,7 +66,12 @@ export default function ForgotPassword() {
     const preventUnloadRefresh = (event:any) => {
       if (isTimerActive) {
         event.preventDefault();
-        event.returnValue = '';
+        event.returnValue = '';More
+        Tools
+        
+        Alan Nixon
+        Journalist
+        
         return '';
       }
     };
