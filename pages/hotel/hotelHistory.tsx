@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from '@/pages/components/Navbar';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
+import { bookData } from '@/interfaces/bookData';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 const BookingHistory: React.FC = () => {
-  const [bookings, setBookings] = useState([]);
+  const Navbar=dynamic(()=>import('../components/Navbar'))
+  const [bookings, setBookings] = useState<bookData[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const router=useRouter()
@@ -17,7 +19,7 @@ const BookingHistory: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/getHotelBookings');
+        const response:any = await axios.get('/api/getHotelBookings');
         console.log(response.data, 'congratulations.........');
         setBookings(response?.data);
       } catch (error) {

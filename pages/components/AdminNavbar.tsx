@@ -18,7 +18,7 @@ const AdminNavbar: React.FC = () => {
     <nav className="fixed top-0 left-0 w-full bg-transparent border-gray-200 z-50">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <a href="https://flowbite.com/" className="flex items-center space-x-3 rtl:space-x-reverse">
-          <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Users</span>
+          <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">Users</span>
         </a>
         <div className="flex items-center md:order-2 space-x-3 rtl:space-x-reverse">
           <button
@@ -137,13 +137,13 @@ const AdminNavbar: React.FC = () => {
             <svg
   className="w-5 h-10 cursor-progress opacity-30"
   xmlns="http://www.w3.org/2000/svg"
-  fill="none"
+  fill="white"
   viewBox="0 0 17 14"
   width="24"   
   height="24"  
 >
   <path
-    stroke="currentColor"
+    stroke="white"
     strokeLinecap="round"
     strokeLinejoin="round"
     strokeWidth="2"

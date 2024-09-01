@@ -216,22 +216,30 @@ const token=Cookies.get('jwtToken')
                 >
                   Hotels
                 </Link>
-                {activeMenu === "cabs" && (
+                {activeMenu === "hotels" && (
                   <ul className="absolute bg-white dark:bg-blue-950 shadow-lg rounded-lg mt-2  min-w-[200px]">
                     <li>
                       <Link
-                        href="/cabs/book"
+                        href="/hotel"
                         className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                       >
-                        Book Cab
+                        Book Hotels
                       </Link>
                     </li>
                     <li>
                       <Link
-                        href="/cabs/rates"
+                        href="/hotel/hotelHistory"
                         className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                       >
-                        Cab Rates
+                        Booking History
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/hotel/hotelHistory"
+                        className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                      >
+                        Booking History
                       </Link>
                     </li>
                   </ul>
@@ -302,6 +310,20 @@ const token=Cookies.get('jwtToken')
                     </li>
                   </ul>
                 )}
+              </li>
+              <li
+                className="relative group"
+                onMouseEnter={() => handleMouseEnter("gallery")}
+                onMouseLeave={handleMouseLeave}
+              >
+                <Link
+                  href="/user/view_gallery"
+                  className="block py-2 px-3 text-xl md:text-lg text-white rounded md:bg-transparent md:p-0 font-extrabold"
+                  aria-current="page"
+                >
+                  Gallery
+                </Link>
+                
               </li>
             </ul>
           </div>

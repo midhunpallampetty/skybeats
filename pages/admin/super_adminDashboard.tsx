@@ -2,14 +2,15 @@
 import React, { useEffect, useState } from 'react';
 import { ADMIN_LOGIN_MUTATION } from '@/graphql/mutations/adminLoginMutation';
 import { useMutation } from '@apollo/client';
-import Adminaside from '../components/Adminaside';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import { DotLoader } from 'react-spinners';
-import AdminNavbar from '../components/AdminNavbar';
 import { Users } from '@/interfaces/Users';
 const super_adminDashboard: React.FC = () => {
    const [authorized, setAuthorized] = useState(false)
+   const AdminNavbar=dynamic(()=>import('../components/AdminNavbar'))
+   const Adminaside=dynamic(()=>import('../components/Adminaside'))
    const [email, setEmail] = useState('');
    const [role, setRole] = useState('')
    const [users, setUsers] = useState<Users[]>([])

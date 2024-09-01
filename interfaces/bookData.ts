@@ -9,4 +9,5 @@ export interface bookData{
     passengerName: string
     phoneNumber: string
     stop: string
+    guestName:string
 }
