@@ -1,61 +1,72 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-function index() {
-  const Navbar=dynamic(()=>import('../../components/Navbar'),{ssr:false})
+import axios from 'axios'
+
+interface Cloud {
+  imageUrl: string
+}
+
+function Index() {
+  const Navbar = dynamic(() => import('../../components/Navbar'), { ssr: false })
+  const [images, setImages] = useState<Cloud[]>([])
+  const [imageUrl, setImageUrl] = useState<string[]>([])
+
+  useEffect(() => {
+    axios.get<Cloud[]>('http://localhost:3000/api/getClouds')
+      .then((response) => {
+        setImages(response.data)
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error)
+      })
+  }, [])
+
+  useEffect(() => {
+    if (images.length > 0) {
+      const urls = images.map((image) => image.imageUrl)
+      setImageUrl(urls)
+      console.log('Images loaded:', urls)
+    } else {
+      console.log('No images found')
+    }
+  }, [images])
+
   return (
-   <>
-   <Navbar/>
+    <>
+      <Navbar />
 
-<div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:mt-36 lg:ml-52 w-[80%]">
-    <div className="grid gap-4">
-        <div>
-            <img className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image.jpg" alt=""/>
+      <div id="gallery" className="relative w-full" data-carousel="slide">
+        <div className="relative h-56 overflow-hidden rounded-lg md:h-96">
+          {imageUrl.map((url, index) => (
+            <div key={index} className={`hidden duration-700 ease-in-out ${index === 0 ? 'active' : ''}`} data-carousel-item={index === 0 ? 'active' : ''}>
+              <img
+                src={url}
+                className="absolute block max-w-full h-auto -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
+                alt={`Slide ${index + 1}`}
+              />
+            </div>
+          ))}
         </div>
-        <div>
-            <img className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-1.jpg" alt=""/>
-        </div>
-        <div>
-            <img className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-2.jpg" alt=""/>
-        </div>
-    </div>
-    <div className="grid gap-4">
-        <div>
-            <img className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-3.jpg" alt=""/>
-        </div>
-        <div>
-            <img className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-4.jpg" alt=""/>
-        </div>
-        <div>
-            <img className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-5.jpg" alt=""/>
-        </div>
-    </div>
-    <div className="grid gap-4">
-        <div>
-            <img className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-6.jpg" alt=""/>
-        </div>
-        <div>
-            <img className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-7.jpg" alt=""/>
-        </div>
-        <div>
-            <img className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-8.jpg" alt=""/>
-        </div>
-    </div>
-    <div className="grid gap-4">
-        <div>
-            <img className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-9.jpg" alt=""/>
-        </div>
-        <div>
-            <img className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-10.jpg" alt=""/>
-        </div>
-        <div>
-            <img className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-11.jpg" alt=""/>
-        </div>
-    </div>
-</div>
 
-   
-   </>
+        <button type="button" className="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-prev>
+          <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
+            <svg className="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 1 1 5l4 4"/>
+            </svg>
+            <span className="sr-only">Previous</span>
+          </span>
+        </button>
+        <button type="button" className="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-next>
+          <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
+            <svg className="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 9l4-4-4-4"/>
+            </svg>
+            <span className="sr-only">Next</span>
+          </span>
+        </button>
+      </div>
+    </>
   )
 }
 
-export default index
+export default Index

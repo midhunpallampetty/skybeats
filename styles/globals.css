@@ -31,3 +31,22 @@ body{
   height: 100%;
   object-fit: cover;
 }
+.custom-modal {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  background-color: #1f2937 !important;
+  color: white !important;
+  border-radius: 10px !important;
+  padding: 20px !important;
+  text-align: center !important;
+  max-width: 90% !important;
+  max-height: 90% !important;
+  overflow: auto !important;
+}
+
+.custom-overlay {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+  z-index: 1000 !important;
+}

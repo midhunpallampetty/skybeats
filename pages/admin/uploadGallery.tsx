@@ -1,18 +1,75 @@
-import React, { useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import dynamic from 'next/dynamic';
 import AWS from 'aws-sdk';
+import axios from 'axios';
 import Swal from 'sweetalert2';
 import S3 from 'aws-sdk/clients/s3';
-import Modal from 'react-modal'; // Import react-modal
 
 function uploadGallery() {
   const AdminNavbar = dynamic(() => import('../components/AdminNavbar'));
   const AdminAside = dynamic(() => import('../components/Adminaside'));
-
+  const Modal=dynamic(()=>import('react-modal'))
   const [image, setImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
+  
+  async function uploadToS3() {
+    if (!image) {
+      console.log('No image selected');
+      return null;
+    }
 
+    const fileType = encodeURIComponent(image.type);
+
+    try {
+      console.log('Upload starting...');
+      setUploading(true);
+      setIsModalOpen(true);
+
+      const { data } = await axios.get(`/api/media?fileType=${fileType}`);
+      const { uploadUrl, key } = data;
+
+      console.log('Uploading...');
+      await axios.put(uploadUrl, image);
+
+      console.log(`Upload completed.with key:${key}`);
+      const formatedImage={imageUrl:'https://airline-datacenter.s3.ap-south-1.amazonaws.com/'+key}
+      axios.post('http://localhost:3000/api/saveCloud',formatedImage , {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => console.log('Success:', response.data))
+        .catch(error => console.error('Error:', error));
+      setUploading(false);
+      setIsModalOpen(false);
+      Swal.fire({
+        title: "uploaded!",
+        text: "Data Reached There",
+        imageUrl: "https://cdn.dribbble.com/users/374672/screenshots/3295528/compbig.gif",
+        imageWidth: 400,
+        imageHeight: 200,
+        imageAlt: "Custom image",
+        
+      });
+      return key;
+    } catch (error) {
+      console.error('Error during upload:', error);
+      setUploading(false);
+      setIsModalOpen(false);
+      return null;
+    }
+  }
+
+  function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
+    }
+  }
+
+  function handleUploadClick() {
+    uploadToS3();
+  }
   const allowedTypes = [
     'image/jpeg',
     'image/png',
@@ -23,57 +80,8 @@ function uploadGallery() {
     'audio/wav',
   ];
 
-  const uploadFile = async () => {
-    if (!image) {
-      alert("Please select a file to upload.");
-      return;
-    }
-
-    setUploading(true);
-    setIsModalOpen(true); // Open the modal when uploading starts
-
-    const S3_BUCKET = "airline-datacenter";
-    const REGION = "ap-south-1";
-
-    AWS.config.update({
-      accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
-      region: REGION,
-    });
-
-    const s3 = new S3({
-      region: REGION,
-    });
-
-    const params = {
-      Bucket: S3_BUCKET,
-      Key: image.name,
-      Body: image,
-      ContentType: image.type,
-    };
-
-    try {
-      const upload = await s3.upload(params).promise();
-      console.log("Upload Success:", upload.Location);
-
-      setUploading(false);
-      setIsModalOpen(false); // Close the modal on success
-      Swal.fire({
-        title: "uploaded!",
-        text: "Data Reached There",
-        imageUrl: "https://cdn.dribbble.com/users/374672/screenshots/3295528/compbig.gif",
-        imageWidth: 400,
-        imageHeight: 200,
-        imageAlt: "Custom image",
-        
-      });
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      setUploading(false);
-      setIsModalOpen(false); // Close the modal on error
-      alert("Error uploading file: " + error.message);
-    }
-  };
+  
+  
 
   const backgroundStyle: React.CSSProperties = {
     backgroundImage: "url('/admin-bg.png')",
@@ -131,55 +139,45 @@ function uploadGallery() {
               <p className="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
             </div>
             {image && <img className='opacity-20 w-28 h-52' src={URL.createObjectURL(image)} alt="Preview" />}
-            <input onChange={handleImage} id="dropzone-file" type="file" className="hidden" />
+            <input onChange={handleFileChange} id="dropzone-file" type="file" className="hidden" />
           </label>
         </div>
 
-        <button onClick={uploadFile} className='bg-blue-950 mt-10 w-28 h-12 hover:bg-blue-700/30 rounded-lg border border-blue-900 text-white font-extrabold'>
+        <button onClick={handleUploadClick} className='bg-blue-950 mt-10 w-28 h-12 hover:bg-blue-700/30 rounded-lg border border-blue-900 text-white font-extrabold'>
           {uploading ? 'Uploading...' : 'Upload File'}
         </button>
       </div>
+       
 
       <Modal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        style={{
-          content: {
-            top: '50%',
-            left: '50%',
-            right: 'auto',
-            bottom: 'auto',
-            marginRight: '-50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundColor: '#1f2937',
-            color: 'white',
-            borderRadius: '10px',
-            padding: '20px',
-            textAlign: 'center',
-          },
-        }}
-      >
-        <h2>Uploading to AWS...</h2>
-        <span>Contacting AWS Datacenters....</span>
-        <div className="loader"></div>
-      </Modal>
+  isOpen={isModalOpen}
+  onRequestClose={() => setIsModalOpen(false)}
+  className="custom-modal"
+  overlayClassName="custom-overlay"
+>
+  <h2>Uploading to AWS...</h2>
+  <span>Contacting AWS Datacenters...</span>
+  <div className="loader"></div>
+</Modal>
 
-      <style jsx>{`
-        .loader {
-          border: 4px solid #f3f3f3;
-          border-radius: 50%;
-          border-top: 4px solid #3498db;
-          width: 40px;
-          height: 40px;
-          animation: spin 2s linear infinite;
-          margin: 20px auto;
-        }
 
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+<style jsx>{`
+  .loader {
+    border: 4px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 4px solid #3498db;
+    width: 40px;
+    height: 40px;
+    animation: spin 2s linear infinite;
+    margin: 20px auto;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`}</style>
+
     </div>
   );
 }

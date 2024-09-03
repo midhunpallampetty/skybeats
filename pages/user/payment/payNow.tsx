@@ -26,6 +26,7 @@ if(!token){
   router.push('/');
 }
 },[])
+
   useEffect(() => {
     if (selectedFlight) {
       axios.post<PaymentIntentResponse>('/api/create-payment-intent', { amount: selectedFlight.price * 100 })
@@ -84,6 +85,7 @@ if(!token){
       console.error('Payment error:', result.error.message);
     } else if (result.paymentIntent?.status === 'succeeded') {
       console.log('Payment successful!');
+     
       axios.post('http://localhost:3000/api/saveBooking', data, {
         headers: {
           'Content-Type': 'application/json'
@@ -99,6 +101,7 @@ if(!token){
         imageHeight: 200,
         imageAlt: 'Custom image',
       });
+
       // Handle successful payment (e.g., redirect to a confirmation page)
       router.push('/user/payment/thanksPayment')
     }
