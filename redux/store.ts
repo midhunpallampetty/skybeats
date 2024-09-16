@@ -7,12 +7,14 @@ import bookHotelReducer from './slices/bookHotelSlice';
 import hotelBookDetailReducer from './slices/hotelBookDetailSlice';
 import hotelUserReducer from './slices/hotelUserSlice';
 import hotelGuestReducer from './slices/hotelGuestSlice';
+import selectedSeatsReducer from './slices/selectedSeat';
 export const store=configureStore({
     reducer:{
         airports:airportsReducer,
         flights:flightsReducer,
         seats:seatReducer,
         bookdetail: bookdetailReducer,
+        selectedSeats: selectedSeatsReducer,
         hotelOptions:bookHotelReducer,
         hotelBookDetail:hotelBookDetailReducer,
         hotelBookUserData:hotelUserReducer,

@@ -19,7 +19,8 @@ const token=Cookies.get('jwtToken')
   }, [router.query]);
 
   const handleLogout = () => {
-  Cookies.remove('jwtToken')
+  Cookies.remove('jwtToken');
+  Cookies.remove('userId');
     router.push("/");
   };
 
@@ -251,7 +252,7 @@ const token=Cookies.get('jwtToken')
                 onMouseLeave={handleMouseLeave}
               >
                 <Link
-                  href="/careers"
+                  href="/user/careers"
                   className="block py-2 px-3 text-xl md:text-lg text-white rounded md:bg-transparent md:p-0 font-extrabold"
                   aria-current="page"
                 >

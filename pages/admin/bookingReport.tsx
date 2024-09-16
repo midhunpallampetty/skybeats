@@ -86,7 +86,7 @@ const super_adminDashboard: React.FC = () => {
    useEffect(() => {
       if (role !== null) {
          console.log('Role has been updated:', role);
-         if(role==='hoteladmin'){
+         if(role==='hoteladmin' || role==='superadmin'){
             console.log('Setting authorised to true');
             setAuthorized(true)
            console.log('role is fine',role)

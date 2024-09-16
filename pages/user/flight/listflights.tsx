@@ -232,7 +232,7 @@ if(!token){
   className="bg-green-500 font-extrabold px-6 text-white py-2 rounded mt-2"
   onClick={() => {
     dispatch(setBookDetail(flight));
-    router.push('/user/flight/bookingdetails'); 
+    router.push('/user/flight/selectSeats'); 
   }}  
 >
   Book

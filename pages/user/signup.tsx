@@ -94,9 +94,10 @@ const Signup: React.FC = () => {
           password,
         },
       });
-      console.log("Signup Successful", data.userSignup.token);
+      console.log("Signup Successful", data.userSignup);
       const token=data.userSignup.token;
       Cookies.set('jwtToken',token,{expires:30})
+
       setIsOtpModalOpen(true);
     } catch (error) {
       console.log("Error during signup", error);

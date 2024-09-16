@@ -10,6 +10,8 @@ const BookingDetailsPage: React.FC = () => {
   const router = useRouter(); 
   const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
   const [firstName, setFirstName] = useState('');
+  const selectedSeat = useSelector((state: RootState) => state.selectedSeats.selectedSeat);
+
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -22,8 +24,7 @@ const BookingDetailsPage: React.FC = () => {
  },[])
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Dispatch the action to add passenger details to Redux
+    console.log(selectedSeat,'fgbfggb')
     dispatch(setPassengerDetails({
       firstName,
       lastName,
@@ -31,13 +32,11 @@ const BookingDetailsPage: React.FC = () => {
       phoneNumber,
     }));
     console.log("Updated Passenger Details State:", updatedPassengerDetails);
-    // Optionally, you can navigate to another page after submission
-    router.push('/user/payment/payNow'); // For example, redirect to the payment page
+    router.push('/user/payment/payNow'); 
   };
 
   return (
     <div className="bg-gray-900 text-white min-h-screen">
-      {/* Header Image */}
       <div className="relative h-64">
         <Image
           src="/ai-generated.jpg" 

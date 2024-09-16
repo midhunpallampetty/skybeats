@@ -15,10 +15,8 @@ const getUsers = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
         const { token } = req.body;
 
-        // Log the received token to ensure it is correctly formatted
         console.log('JSON TOKEN RECEIVED:', token);
 
-        // Check if the token is missing or not a string
         if (!token || typeof token !== 'string') {
             console.error('Invalid token format:', token);
             return res.status(400).json({ message: 'Token is required and must be a string' });

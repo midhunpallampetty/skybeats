@@ -3,21 +3,34 @@ import Navbar from '@/pages/components/Navbar';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import Modal from 'react-modal';
+
+// Set the app element for accessibility
+Modal.setAppElement('#__next');
+
 const BookingHistory: React.FC = () => {
-  const [bookings, setBookings] = useState([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedTicketUrl, setSelectedTicketUrl] = useState<string | null>(null);
   const itemsPerPage = 5;
-  const router=useRouter()
- const token=Cookies.get('jwtToken')
- useEffect(()=>{
- if(!token){
- router.push('/')
- }
- },[])
+  const router = useRouter();
+  const token = Cookies.get('jwtToken');
+
   useEffect(() => {
+    if (!token) {
+      router.push('/');
+    }
+  }, [token, router]);
+
+  useEffect(() => {
+    const userId = Cookies.get('userId');
+
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/getBookings');
+        const response = await axios.post('/api/getBookingById', {
+          userId: userId, 
+        });
         console.log(response.data, 'congratulations.........');
         setBookings(response?.data);
       } catch (error) {
@@ -27,20 +40,27 @@ const BookingHistory: React.FC = () => {
     fetchData();
   }, []);
 
-  // Calculate the indices for the current page
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentBookings = bookings.slice(indexOfFirstItem, indexOfLastItem);
-
-  // Calculate the total number of pages
   const totalPages = Math.ceil(bookings.length / itemsPerPage);
 
   const handlePrevPage = () => {
-    setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
   };
 
   const handleNextPage = () => {
-    setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
+  };
+
+  const openModal = (ticketUrl: string) => {
+    setSelectedTicketUrl(ticketUrl);
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setSelectedTicketUrl(null);
   };
 
   return (
@@ -57,7 +77,7 @@ const BookingHistory: React.FC = () => {
                 <p className="text-sm">{booking.passengerName}</p>
               </div>
               <div className="text-right">
-                <p className="text-sm">Total Passengers: 1</p>
+                <p className="text-sm">Total Passengers: {booking.totalPassengers}</p>
                 <p className="text-lg font-bold">Total: ₹{booking?.FarePaid}</p>
               </div>
             </div>
@@ -74,8 +94,11 @@ const BookingHistory: React.FC = () => {
                 <p className="text-sm">Arrival Time</p>
               </div>
               <div className="flex space-x-2">
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                  Details
+                <button
+                  onClick={() => openModal(booking.ticketUrl)}
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  View Ticket
                 </button>
                 <button className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                   Cancel
@@ -101,6 +124,43 @@ const BookingHistory: React.FC = () => {
             Next
           </button>
         </div>
+
+        {/* Modal for displaying the ticket */}
+        <Modal
+          isOpen={modalIsOpen}
+          onRequestClose={closeModal}
+          contentLabel="Ticket Modal"
+          className="bg-dark-blue text-white p-6 rounded-lg max-w-lg mx-auto mt-16"
+          overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+        >
+          <h2 className="text-2xl font-bold mb-4">Your Ticket</h2>
+          {selectedTicketUrl ? (
+            <>
+              <iframe
+                src={selectedTicketUrl}
+                width="100%"
+                height="600"
+                className="border-none"
+                title="Ticket"
+              ></iframe>
+              <a
+                href={selectedTicketUrl}
+                download={`ticket_${new Date().toLocaleDateString()}.pdf`}  // Dynamic file name for download
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 inline-block"
+              >
+                Download Ticket
+              </a>
+            </>
+          ) : (
+            <p>No ticket available</p>
+          )}
+          <button
+            onClick={closeModal}
+            className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4"
+          >
+            Close
+          </button>
+        </Modal>
       </div>
     </>
   );

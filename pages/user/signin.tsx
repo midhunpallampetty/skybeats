@@ -81,6 +81,7 @@ const handleSignin = async (event: React.FormEvent<HTMLFormElement>) => {
       }
 
       Cookies.set('jwtToken', token, { expires: 30 });
+      Cookies.set('userId',user.id,{expires:30})
 
       if (user) {
         router.push({

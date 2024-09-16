@@ -4,39 +4,75 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/redux/store';
 import { setSeats } from '@/redux/slices/seatSlice';
+import { useRouter } from 'next/router';
+import { setSelectedSeat, clearSelectedSeat } from '@/redux/slices/selectedSeat'; // Import clearSelectedSeats action
 
 const SelectSeats: React.FC = () => {
+    const router=useRouter()
     const dispatch = useDispatch<AppDispatch>();
     const seats = useSelector((state: RootState) => state.seats.seats);
-    const [selectedSeat, setSelectedSeat] = useState<any>(null);
+    const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
+    const selectedSeats = useSelector((state: RootState) => state.selectedSeats.selectedSeat);
+    const [localSelectedSeat, setLocalSelectedSeat] = useState<any>(null); // Local state for selected seat UI
     const seatDetailsRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const fetchSeats = async () => {
             try {
-                const response = await fetch('/api/getSeats');
+                const response = await fetch('/api/getSeats', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ flightNumber: selectedFlight?.flightNumber }),
+                });
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
+
                 const data = await response.json();
-                console.log('Fetched seats data:', data.getSeats);
+                console.log('Fetched seats data:', data);
                 dispatch(setSeats(data || []));
             } catch (error: any) {
                 console.error('Error fetching seats:', error.message);
             }
         };
 
-        fetchSeats();
-    }, [dispatch]);
+        if (selectedFlight?.flightNumber) {
+            fetchSeats();
+        }
+    }, [dispatch, selectedFlight?.flightNumber]);
 
     const handleSeatClick = (seat: any) => {
-        setSelectedSeat(seat);
+        setLocalSelectedSeat(seat);
+        dispatch(setSelectedSeat(seat)); // Add selected seat to Redux store
+  console.log(selectedSeats,'hbvhdfvgbsdhfgv')
+        // Scroll to seat details
         if (seatDetailsRef.current) {
             seatDetailsRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     };
 
-    console.log('Redux seats state:', seats);
+    // Handle proceeding with selected seat
+    const handleContinueWithSelectedSeat = () => {
+        if (localSelectedSeat) {
+            router.push('/user/flight/bookingdetails')
+            console.log('Proceeding with selected seat:', localSelectedSeat);
+            // Navigate or perform actions to continue with the selected seat
+        } else {
+            console.log('No seat selected.');
+        }
+    };
+
+    // Handle skipping seat selection
+    const handleSkipSelection = () => {
+        setLocalSelectedSeat(null);
+        dispatch(clearSelectedSeat()); 
+        router.push('/user/flight/bookingdetails')
+        console.log('Proceeding without selecting a seat');
+        // Navigate or perform actions to continue without seat selection
+    };
 
     return (
         <>
@@ -67,16 +103,33 @@ const SelectSeats: React.FC = () => {
                     <p>No seats available</p>
                 )}
             </div>
-            {selectedSeat && (
+
+            {localSelectedSeat && (
                 <div ref={seatDetailsRef} className='mt-4 p-4 w-[350px] h-[200px] bg-white/10 border border-white/10 rounded shadow-md'>
-                    <h3 className='text-3xl text-white  font-extrabold'>Selected Seat Details:</h3>
-                    <p className='font-semibold  text-white text-2xl'>SeatNumber: {selectedSeat.row}{selectedSeat.col}</p>
-                    
-                    <p className='font-semibold  text-white text-2xl'>Class: {selectedSeat.class}</p>
+                    <h3 className='text-3xl text-white font-extrabold'>Selected Seat Details:</h3>
+                    <p className='font-semibold text-white text-2xl'>Seat Number: {localSelectedSeat.row}{localSelectedSeat.col}</p>
+                    <p className='font-semibold text-white text-2xl'>Class: {localSelectedSeat.class}</p>
                 </div>
             )}
+
+            {/* Buttons for proceeding */}
+            <div className="flex justify-center mt-8 space-x-4">
+                <button
+                    onClick={handleContinueWithSelectedSeat}
+                    className="px-4 py-2 bg-green-500 text-white rounded shadow hover:bg-green-600"
+                >
+                    Continue with Selected Seat
+                </button>
+
+                <button
+                    onClick={handleSkipSelection}
+                    className="px-4 py-2 bg-red-500 text-white rounded shadow hover:bg-red-600"
+                >
+                    Skip Selection
+                </button>
+            </div>
         </>
     );
-}
+};
 
 export default SelectSeats;

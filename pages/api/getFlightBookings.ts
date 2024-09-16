@@ -10,6 +10,7 @@ const getUsers = async (req: NextApiRequest, res: NextApiResponse) => {
                 email
                 guestName
                 phoneNumber
+                
             }
         }
     `;

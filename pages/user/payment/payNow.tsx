@@ -14,6 +14,8 @@ interface PaymentIntentResponse {
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 const PaymentForm: React.FC = () => {
+  const selectedSeat = useSelector((state: RootState) => state.selectedSeats.selectedSeat);
+
   const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
   const passengerDetails = useSelector((state: RootState) => state.bookdetail.passengerDetails);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -45,6 +47,7 @@ if(!token){
     if (!stripe || !elements || !clientSecret) {
       return;
     }
+    const userId=Cookies.get('userId')
     const data = 
       {
         "passengerName":  `${passengerDetails[0].firstName} ${passengerDetails[0].lastName}` ,
@@ -59,6 +62,8 @@ if(!token){
         "arrivalTime": selectedFlight?.arrivalTime,
         "totalPassengers": 1,
         "FarePaid": selectedFlight?.price,
+        "userId":userId,
+        "seatNumber": selectedSeat ? selectedSeat._id : null
       
       
     };
@@ -85,23 +90,41 @@ if(!token){
       console.error('Payment error:', result.error.message);
     } else if (result.paymentIntent?.status === 'succeeded') {
       console.log('Payment successful!');
-     
-      axios.post('http://localhost:3000/api/saveBooking', data, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(response => console.log('Success:', response.data))
-      .catch(error => console.error('Error:', error));
-      Swal.fire({
-        title: 'Success!',
-        text: 'Payment Success.',
-        imageUrl: 'https://i.pinimg.com/originals/cc/a5/02/cca5022c86f67861746d7cf2eb486de8.gif',
-        imageWidth: 400,
-        imageHeight: 200,
-        imageAlt: 'Custom image',
-      });
+      
+     const handleRequests = async (data: {}) => {
+      try {
+        const sendTicketAndBookingRequest = await axios.post('http://localhost:3000/api/sendTicket', data, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+    
+        // Log the response if needed
+        console.log('Send Ticket and Booking Response:', sendTicketAndBookingRequest.data);
+    
+        // Display a success message with Swal when the request is successful
+        Swal.fire({
+          title: 'Success!',
+          text: 'Payment Successful. Your booking and ticket have been saved.',
+          imageUrl: 'https://i.pinimg.com/originals/cc/a5/02/cca5022c86f67861746d7cf2eb486de8.gif',
+          imageWidth: 400,
+          imageHeight: 200,
+          imageAlt: 'Success image',
+        });
+    
+      } catch (error: any) {
+        // Handle any errors that occur
+        console.error('Error:', error.response ? error.response.data : error.message);
+        Swal.fire({
+          title: 'Error',
+          text: 'Something went wrong with the booking or ticketing process.',
+          icon: 'error',
+        });
+      }
+    };
+    
 
+handleRequests(data);
       // Handle successful payment (e.g., redirect to a confirmation page)
       router.push('/user/payment/thanksPayment')
     }
