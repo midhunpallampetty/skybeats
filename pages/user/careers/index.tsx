@@ -4,6 +4,8 @@ import { Carousel } from 'flowbite-react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import { useDispatch } from 'react-redux';
+import { setSelectedJob } from '@/redux/slices/jobSlice';
 
 interface Job {
   description: string;
@@ -14,18 +16,22 @@ interface Job {
 const JobBoard = () => {
   const Navbar = dynamic(() => import('../../components/Navbar'));
   const ChatBox = dynamic(() => import('../../components/ChatBox'));
-
+  const dispatch = useDispatch();
+  const router = useRouter()
+  const handleDetailsClick = (job: Job) => {
+    dispatch(setSelectedJob(job));
+    router.push('/user/careers/careerDetails');  
+  };
   const [career, setCareer] = useState<Job[]>([]);
-  const router = useRouter();
   const token = Cookies.get('jwtToken');
-  const [expandedJobIndex, setExpandedJobIndex] = useState<number | null>(null); 
+  const [expandedJobIndex, setExpandedJobIndex] = useState<number | null>(null);
   useEffect(() => {
     const fetchCareerData = async () => {
       try {
         const response = await axios.get('/api/getCareer');
-        
+
         if (response.data && response.data.getJobs) {
-          setCareer(response.data.getJobs); 
+          setCareer(response.data.getJobs);
         } else {
           console.error("getJobs array not found in the response data");
         }
@@ -112,7 +118,7 @@ const JobBoard = () => {
                 career.map((job: Job, index) => (
                   <div
                     key={index}
-                    className="bg-gradient-to-r from-blue-900 to-blue-700 text-white shadow-lg w-[550px] min-h-[250px] p-4 border rounded-lg hover:shadow-lg shadow-black"
+                    className=" text-white  w-[550px] min-h-[250px] p-4 border rounded-lg hover:shadow-lg shadow-white shadow-md "
                   >
                     <div className="flex items-center">
                       <div className="w-24 h-24 rounded overflow-hidden">
@@ -143,12 +149,13 @@ const JobBoard = () => {
                         </p>
 
                         <div className="flex mt-3 space-x-2">
-                          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Forward
+                          <button
+                            onClick={() => handleDetailsClick(job)}
+                            className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                          >
+                            Details
                           </button>
-                          <button className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
-                            Update Status
-                          </button>
+
                         </div>
                       </div>
                     </div>

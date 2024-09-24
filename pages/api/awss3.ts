@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-// Initialize S3 client
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
@@ -18,12 +17,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const command = new PutObjectCommand({
       Bucket: process.env.S3_BUCKET!,
       Key: filename,
-      ContentType: filetype,
-      ACL: 'public-read',
+      ContentType: filetype, 
     });
 
     try {
-      const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 1000 });
+      const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 60 });
       res.status(200).json({ uploadUrl });
     } catch (error) {
       console.error('Error generating pre-signed URL:', error);

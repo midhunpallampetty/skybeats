@@ -8,6 +8,7 @@ import hotelBookDetailReducer from './slices/hotelBookDetailSlice';
 import hotelUserReducer from './slices/hotelUserSlice';
 import hotelGuestReducer from './slices/hotelGuestSlice';
 import selectedSeatsReducer from './slices/selectedSeat';
+import jobReducer from './slices/jobSlice'
 export const store=configureStore({
     reducer:{
         airports:airportsReducer,
@@ -19,6 +20,7 @@ export const store=configureStore({
         hotelBookDetail:hotelBookDetailReducer,
         hotelBookUserData:hotelUserReducer,
         hotelGuestData:hotelGuestReducer,
+        job: jobReducer,
     },
 });
 export type RootState = ReturnType<typeof store.getState>;

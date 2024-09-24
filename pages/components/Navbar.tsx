@@ -36,7 +36,7 @@ const token=Cookies.get('jwtToken')
 
   return (
     <>
-      <nav className="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0">
+      <nav className="bg-white  shad dark:bg-gray-900 fixed rounded-md  shadow-white/30 shadow-inner w-full z-20 top-0 start-0">
         <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
           <Link
             href="/"
@@ -178,7 +178,7 @@ const token=Cookies.get('jwtToken')
                 onMouseLeave={handleMouseLeave}
               >
                 <Link
-                  href="/cargo"
+                  href="/"
                   className="block py-2 px-3 text-xl md:text-lg text-white rounded md:bg-transparent md:p-0 font-extrabold"
                   aria-current="page"
                 >
@@ -188,15 +188,15 @@ const token=Cookies.get('jwtToken')
                   <ul className="absolute bg-white dark:bg-blue-950 shadow-lg rounded-lg mt-2  min-w-[200px]">
                     <li>
                       <Link
-                        href="/cargo/info"
+                        href="/user/cargo/RequestCargo"
                         className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                       >
-                        Cargo Info
+                        Request Cargo
                       </Link>
                     </li>
                     <li>
                       <Link
-                        href="/cargo/track"
+                        href="/user/cargo/TrackCargo"
                         className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                       >
                         Track Cargo

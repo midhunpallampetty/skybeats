@@ -15,7 +15,7 @@ const getBookings = async (req: NextApiRequest, res: NextApiResponse) => {
     passengerName
     phoneNumber
     stop
-    ticketUrl
+    ticketUrl 
     }
     
     

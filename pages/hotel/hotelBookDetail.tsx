@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'; // Import useRouter hook
 import { RootState } from '@/redux/store';
 import { setGuestDetails } from '@/redux/slices/bookdetailSlice';
 import Cookies from 'js-cookie';
-const hotelBookDetail: React.FC = () => {
+const HotelBookDetail: React.FC = () => {
   const dispatch = useDispatch();
   const router = useRouter(); 
   const bookdata=useSelector((state:RootState)=>state.hotelGuestData.selectedUser)
@@ -145,4 +145,4 @@ const hotelBookDetail: React.FC = () => {
   );
 };
 
-export default hotelBookDetail;
+export default HotelBookDetail;
