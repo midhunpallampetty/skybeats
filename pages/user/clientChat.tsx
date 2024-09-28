@@ -1,48 +1,134 @@
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-import socketIOClient from "socket.io-client";
-import Cookies from "js-cookie";
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { Socket } from 'socket.io-client';
+import io from 'socket.io-client';
+import dynamic from 'next/dynamic';
+import EmojiPicker from "emoji-picker-react";
 
-const Navbar = dynamic(() => import("../components/Navbar"), { ssr: false });
-const socket = socketIOClient('http://localhost:3300');  // Backend server URL
+interface Message {
+  id: number;
+  message: string;
+  from: 'admin' | 'user';
+}
 
-const ClientPage = () => {
-  const [message, setMessage] = useState('');
-  const [chat, setChat] = useState<{ from: string; message: string }[]>([]);
-  const userId = Cookies.get('userId');  // User identification cookie
+// Dynamically import components to prevent SSR issues
+const UserNavbar = dynamic(() => import('../components/Navbar'), { ssr: false });
 
+const UserChat: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [message, setMessage] = useState<string>('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   useEffect(() => {
-    // Handle incoming messages from the server
-    socket.on('message', (data: { from: string; message: string }) => {
-      setChat(prevChat => [...prevChat, data]);
-    });
+    const timer = setTimeout(() => {
+      setIsLoading(false); // Simulate loading time
+    }, 5000); // 2 seconds delay for loading
 
-    // Cleanup the socket connection on component unmount
+    return () => clearTimeout(timer); // Cleanup the timer
+  }, []);
+  // Initialize Socket.io connection
+  useEffect(() => {
+    const socketConnection: Socket = io('http://localhost:3300'); // Replace with your backend Socket.io URL
+    setSocket(socketConnection);
+
+    // Identify as user
+    socketConnection.emit('identify', 'user');
+
+    // Listen for messages from admin
+    socketConnection.on('privateMessageFromAdmin', (data: { message: string }) => {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { id: prevMessages.length + 1, message: data.message, from: 'admin' },
+      ]);
+    });
+   
+    // Clean up the connection when the component is unmounted
     return () => {
-      socket.off('message');
+      socketConnection.disconnect();
     };
   }, []);
-
+  const handleEmojiClick = (emojiObject: any) => {
+    // Append the emoji to the current message
+    setMessage(prevMessage => prevMessage + emojiObject.emoji);
+  };
+  
+  
+  // Function to send a message
   const sendMessage = () => {
-    if (message.trim() !== '') {
-      // Emit message to server with user identification
-      socket.emit('message', {
-        from: userId || 'user',  // Sending the message as the user
-        message
-      });
-
-      // Update local chat with the sent message
-      setChat(prevChat => [...prevChat, { from: userId || 'user', message }]);
-      setMessage('');  // Clear input after sending
+    if (message.trim()) {
+      // Send the message (including any emojis) to the admin via socket
+      socket?.emit('privateMessageToAdmin', { message });
+  
+      // Update the message list in the user chat UI, including emojis
+      setMessages([...messages, { id: messages.length + 1, message, from: 'user' }]);
+  
+      // Clear the input field after sending
+      setMessage('');
     }
   };
+  
+
+  // Inline styles for loading screen and animation
+  const loadingScreenStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+    backgroundColor: '#1a2d45', // Dark background for loading screen
+  };
+
+  const loadingBarStyle = {
+    width: '100px',
+    height: '5px',
+    backgroundColor: '#0c2336', // Bar background
+    marginTop: '10px',
+    borderRadius: '3px',
+    overflow: 'hidden',
+  };
+
+  const loadingBarFillStyle = {
+    width: '0',
+    height: '100%',
+    backgroundColor: '#0073b1', // Loading bar fill color
+    animation: 'load 3s ease-in-out infinite',
+  };
+
+  // Keyframe animation using JavaScript
+  const loadingKeyframes = `
+    @keyframes load {
+      0% { width: 0; }
+      50% { width: 100%; }
+      100% { width: 0; }
+    }
+  `;
 
   return (
     <>
-      <Navbar />
+    <style>
+      {loadingKeyframes}
+    </style>
+    {isLoading ? (
+      <div style={loadingScreenStyle}>
+        <Image
+          src="/chat-icon.png" // Replace with your logo path
+          alt="Logo"
+          width={100}
+          height={100}
+        />
+        <p className='text-white font-extrabold font-sans text-xl'>Loading Customer Support Please Wait......</p>
+        <div style={loadingBarStyle}>
+          <div style={loadingBarFillStyle}></div>
+        </div>
+      </div>
+    ) : (
+    <>
+      <UserNavbar />
       <div className="flex w-full h-screen bg-gray-100 rounded-lg">
         {/* Sidebar */}
         <div className="w-1/4 bg-blue-950 shadow-inner shadow-white text-white p-4">
+          {/* Profile & Navigation */}
           <div className="flex items-center space-x-4 mb-8">
             <img
               src="https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://fdczvxmwwjwpwbeeqcth.supabase.co/storage/v1/object/public/images/d7462d01-eaa6-4971-9026-28d1385204c4/7e6c08d8-8c4e-4242-a2e8-356928a0ab3a.png"
@@ -77,10 +163,10 @@ const ClientPage = () => {
               <h3 className="text-xl font-bold">Chats</h3>
             </div>
             <ul className="space-y-4 p-4">
-              {['Elmer Murphy'].map((user, index) => (
+              {['Jithin'].map((user, index) => (
                 <li key={index} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 cursor-pointer">
                   <img
-                    src={`https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://fdczvxmwwjwpwbeeqcth.supabase.co/storage/v1/object/public/images/d7462d01-eaa6-4971-9026-28d1385204c4/7e6c08d8-8c4e-4242-a2e8-356928a0ab3a.png`}
+                    src="https://media.licdn.com/dms/image/v2/C5603AQFUUiMCTz33zg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1517405946768?e=1732752000&v=beta&t=B8m-ZvygfZNZWpscCYzGxlAjg5c-ZTPZriwmpCYCff8"
                     alt={user}
                     className="w-10 h-10 rounded-full"
                   />
@@ -94,50 +180,55 @@ const ClientPage = () => {
           </div>
 
           {/* Chat Window */}
-          <div className="w-2/3 bg-gray-50 flex flex-col">
+          <div className="w-2/3 bg-gray-50 flex flex-col relative">
             {/* Chat Header */}
             <div className="bg-white border-b p-4 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <img
-                  src="https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://fdczvxmwwjwpwbeeqcth.supabase.co/storage/v1/object/public/images/d7462d01-eaa6-4971-9026-28d1385204c4/7e6c08d8-8c4e-4242-a2e8-356928a0ab3a.png"
-                  alt="User"
-                  className="w-10 h-10 rounded-full"
-                />
-                <div>
-                  <h3 className="font-bold text-xl">Elmer Murphy</h3>
-                  <p className="text-sm text-gray-500">Last active 5 mins ago</p>
-                </div>
-              </div>
-              <button className="text-blue-600 hover:text-blue-800 font-bold">End Chat</button>
+              <h2 className="text-xl font-bold">Chat with Elmer Murphy</h2>
             </div>
 
-            {/* Chat Messages */}
-            <div className="flex-grow p-4 space-y-4 overflow-y-auto">
-              {chat.map((msg, index) => (
+            {/* Messages List */}
+            <div className="flex-grow p-4 overflow-y-auto space-y-2 flex flex-col">
+              {messages.map((msg) => (
                 <div
-                  key={index}
-                  className={`flex items-start ${msg.from === 'admin' ? 'justify-start' : 'justify-end'}`}
+                  key={msg.id}
+                  className={`p-2 rounded-l-lg rounded-r-sm text-xl font-semibold shadow-inner flex items-center justify-center ${msg.from === 'user'
+                    ? 'bg-gradient-to-r from-[#4a00e0] to-[#8e2de2] text-white self-end max-w-xs'
+                    : 'bg-gray-200 text-black self-start max-w-xs'
+                    }`}
                 >
-                  <div className={`rounded-lg p-3 ${msg.from === 'admin' ? 'bg-gray-200' : 'bg-blue-500 text-white'}`}>
-                    <p className="font-semibold">{msg.message}</p>
-                  </div>
+                  {msg.message}
                 </div>
               ))}
             </div>
 
             {/* Message Input */}
-            <div className="p-4 border-t bg-white flex items-center space-x-3">
-              <input
+            <div className="border-t p-4 flex items-center">
+              <div className="relative">
+                {showEmojiPicker && (
+                  <div className="absolute bottom-full mb-2 left-0">
+                    <EmojiPicker onEmojiClick={handleEmojiClick} />
+                  </div>
+                )}
+                <button
+                  className="p-2 rounded-md border bg-gray-200"
+                  onClick={() => setShowEmojiPicker((prev) => !prev)}
+                >
+                  😀
+                </button>
+              </div>
+              <input 
                 type="text"
-                placeholder="Type a message..."
+                placeholder="Type a message"
                 value={message}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    sendMessage(); 
+                  }
+                }}
                 onChange={(e) => setMessage(e.target.value)}
-                className="flex-grow border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:border-blue-500"
+                className="flex-grow p-2 border rounded-lg mx-2"
               />
-              <button
-                onClick={sendMessage}
-                className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-800"
-              >
+              <button onClick={sendMessage} className="p-2 bg-blue-600 text-white rounded-lg">
                 Send
               </button>
             </div>
@@ -145,7 +236,9 @@ const ClientPage = () => {
         </div>
       </div>
     </>
+      )}
+    </>
   );
 };
 
-export default ClientPage;
+export default UserChat;

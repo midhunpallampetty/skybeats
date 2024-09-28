@@ -5,14 +5,14 @@ import Navbar from './components/Navbar';
 import ImageCarousel from './components/imageCarousel';
 import NetworkStatus from './components/networkStatus';
 import NetworkSpeedButton from './components/NetworkSpeed';
-
+import dynamic  from 'next/dynamic';
 const Index: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
-
+  const AiChatBot=dynamic(()=>import('./components/ChatBox'))
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false); // Simulate loading time
-    }, 2000); // 2 seconds delay for loading
+    }, 4000); // 2 seconds delay for loading
 
     return () => clearTimeout(timer); // Cleanup the timer
   }, []);
@@ -40,7 +40,7 @@ const Index: React.FC = () => {
     width: '0',
     height: '100%',
     backgroundColor: '#0073b1', // Loading bar fill color
-    animation: 'load 5s ease-in-out infinite',
+    animation: 'load 3s ease-in-out infinite',
   };
 
   // Keyframe animation using JavaScript
@@ -54,6 +54,7 @@ const Index: React.FC = () => {
 
   return (
     <>
+
       <style>
         {loadingKeyframes}
       </style>
@@ -62,8 +63,8 @@ const Index: React.FC = () => {
           <Image
             src="/logo_airline.png" // Replace with your logo path
             alt="Logo"
-            width={100}
-            height={100}
+            width={200}
+            height={200}
           />
           <div style={loadingBarStyle}>
             <div style={loadingBarFillStyle}></div>
@@ -72,7 +73,7 @@ const Index: React.FC = () => {
       ) : (
         <>
           <Navbar />
-
+<AiChatBot/>
           <div className="h-screen relative">
             <Image
               src="/airplane_home.webp"
@@ -87,7 +88,6 @@ const Index: React.FC = () => {
             </div>
           </div>
 
-          <NetworkSpeedButton />
 
           <footer className="bg-white dark:bg-gray-900">
             <div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">

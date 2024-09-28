@@ -118,7 +118,7 @@ const JobBoard = () => {
                 career.map((job: Job, index) => (
                   <div
                     key={index}
-                    className=" text-white  w-[550px] min-h-[250px] p-4 border rounded-lg hover:shadow-lg shadow-white shadow-md "
+                    className=" bg-blue-800/50 text-white  w-full min-h-[250px] p-4  rounded-lg hover:shadow-lg  "
                   >
                     <div className="flex items-center">
                       <div className="w-24 h-24 rounded overflow-hidden">
@@ -141,12 +141,7 @@ const JobBoard = () => {
                         </button>
                         <p className="text-gray-200">{job.designation}</p>
 
-                        <p className="mt-2 text-sm text-gray-200">
-                          <strong>Sender Name:</strong> Ailena John <br />
-                          <strong>Receiver Name:</strong> Alan Nixon <br />
-                          <strong>Destination Airport:</strong> COK <br />
-                          <strong>Weight:</strong> 650 Kg
-                        </p>
+                      
 
                         <div className="flex mt-3 space-x-2">
                           <button

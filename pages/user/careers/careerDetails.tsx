@@ -36,12 +36,7 @@ const CareerDetails = () => {
 
               <div className="mt-4">
                 <h3 className="text-lg font-semibold text-gray-800">Job Information</h3>
-                <ul className="list-disc pl-6 mt-2 text-gray-700">
-                  <li><strong>Sender Name:</strong> Ailena John</li>
-                  <li><strong>Receiver Name:</strong> Alan Nixon</li>
-                  <li><strong>Destination Airport:</strong> COK</li>
-                  <li><strong>Weight:</strong> 650 Kg</li>
-                </ul>
+                
               </div>
 
               <div className="mt-6">
@@ -51,6 +46,7 @@ const CareerDetails = () => {
                 >
                   Back to Job Board
                 </button>
+                <button className='ml-5 bg-green-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg' onClick={(()=>router.push('/user/careers/applyCareer'))}>Apply</button>
               </div>
             </div>
           </div>

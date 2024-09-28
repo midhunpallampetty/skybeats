@@ -74,58 +74,62 @@ function TrackCargo() {
 
 
         {/* Tracking Details Card */}
-        {trackingData && (
-          <div className="bg-blue-700/30 shadow-inner shadow-white/15 rounded-lg  p-6 max-w-lg mx-auto my-10">
-            <h2 className="text-2xl font-bold mb-4 text-white ">Tracking Details</h2>
-            <div className="space-y-3">
-              <div>
-                <strong className="block text-white font-extralight">Tracking ID:</strong>
-                <p className="text-white font-extrabold">{tracking}</p>
-              </div>
+        {trackingData && trackingData.data && trackingData.data.length > 0 ? (
+  <div className="bg-blue-700/30 shadow-inner shadow-white/15 rounded-lg  p-6 max-w-lg mx-auto my-10">
+    <h2 className="text-2xl font-bold mb-4 text-white">Tracking Details</h2>
+    <div className="space-y-3">
+      <div>
+        <strong className="block text-white font-extralight">Tracking ID:</strong>
+        <p className="text-white font-extrabold">{tracking}</p>
+      </div>
 
-              <div>
-                <strong className="block text-white font-extralight">Package Name:</strong>
-                <p className="text-white font-extrabold">{trackingData.data[0].packageName}</p>
-              </div>
-              <div>
-                <strong className="block text-white font-extralight">Sender Name:</strong>
-                <p className="text-white font-extrabold">{trackingData.data[0].senderName}</p>
-              </div>
-              <div>
-                <strong className="block text-white font-extralight">Weight:</strong>
-                <p className="text-white font-extrabold">{trackingData.data[0].Weight}</p>
-              </div>
-              <div>
-                <strong className="block text-white font-extralight">Date Received:</strong>
-                <p className="text-white font-extrabold">
-                  {new Date(trackingData?.data[0]?.Date_Received).toLocaleDateString()}
-                </p>
-              </div>
+      <div>
+        <strong className="block text-white font-extralight">Package Name:</strong>
+        <p className="text-white font-extrabold">{trackingData.data[0].packageName}</p>
+      </div>
+      <div>
+        <strong className="block text-white font-extralight">Sender Name:</strong>
+        <p className="text-white font-extrabold">{trackingData.data[0].senderName}</p>
+      </div>
+      <div>
+        <strong className="block text-white font-extralight">Weight:</strong>
+        <p className="text-white font-extrabold">{trackingData.data[0].Weight}</p>
+      </div>
+      <div>
+        <strong className="block text-white font-extralight">Date Received:</strong>
+        <p className="text-white font-extrabold">
+          {new Date(trackingData.data[0].Date_Received).toLocaleDateString()}
+        </p>
+      </div>
 
-              <div>
-                <strong className="block text-white font-extralight">Description:</strong>
-                <p className="text-white font-extrabold">{trackingData.data[0].descriptionOfGoods}</p>
-              </div>
-              <div>
-                <strong className="block text-white font-extralight">Approval Status:</strong>
-                <p className={`text-lg ${trackingData.data[0].approved ? 'text-green-600' : 'text-red-600 font-extrabold'}`}>
-                  {trackingData.data[0].approved ? 'Approved' : 'Pending'}
-                </p>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-4">
-                <div
-                  className="h-4 rounded-full"
-                  style={{
-                    width: trackingData?.data[0]?.approved ? '100%' : '50%',
-                    backgroundColor: trackingData?.data[0]?.approved ? 'green' : 'red',
-                    transition: 'width 0.3s ease', // Optional for smooth transition
-                  }}
-                ></div>
-              </div>
+      <div>
+        <strong className="block text-white font-extralight">Description:</strong>
+        <p className="text-white font-extrabold">{trackingData.data[0].descriptionOfGoods}</p>
+      </div>
+      <div>
+        <strong className="block text-white font-extralight">Approval Status:</strong>
+        <p className={`text-lg ${trackingData.data[0].approved ? 'text-green-600' : 'text-red-600 font-extrabold'}`}>
+          {trackingData.data[0].approved ? 'Approved' : 'Pending'}
+        </p>
+      </div>
+      <div className="w-full bg-gray-200 rounded-full h-4">
+        <div
+          className="h-4 rounded-full"
+          style={{
+            width: trackingData.data[0].approved ? '100%' : '50%',
+            backgroundColor: trackingData.data[0].approved ? 'green' : 'red',
+            transition: 'width 0.3s ease', // Optional for smooth transition
+          }}
+        ></div>
+      </div>
+    </div>
+  </div>
+) : (
+  <div className="text-white font-bold text-center my-10">
+    No tracking data available.
+  </div>
+)}
 
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Footer */}

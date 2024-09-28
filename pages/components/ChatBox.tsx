@@ -1,24 +1,164 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
+import Swal from 'sweetalert2'
+type Message = {
+  text: string;
+  sender: 'user' | 'ai';
+};
 
 const ChatBox = () => {
+  const [text, setText] = useState('');
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [messages]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
-  };
 
-  const handleSendMessage = () => {
-    if (inputValue.trim() !== '') {
-      setMessages([...messages, { text: inputValue, sender: 'user' }]);
-      setInputValue('');
-      // Handle chatbot response here if needed
+    if (!isOpen && audioRef.current) {
+      audioRef.current.play();
+    }
+  };
+  const containerRef = useRef(null);
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, []);
+  function removeSymbols(text: string) {
+    return text.replace(/[#*]/g, '');
+  }
+  const speakText = (text: string) => {
+    if ('speechSynthesis' in window) {
+
+      window.speechSynthesis.cancel();
+      const cleanedText = removeSymbols(text);
+      const utterance = new SpeechSynthesisUtterance(cleanedText);
+      utterance.lang = 'en-UK';
+      utterance.rate = 1;
+      utterance.pitch = 0.9;
+
+      utterance.onstart = () => {
+        console.log("Speech started");
+      };
+
+      utterance.onend = () => {
+        console.log("Speech ended");
+      };
+
+      utterance.onerror = (e) => {
+        console.error("Speech synthesis error: ", e);
+      };
+
+
+      window.speechSynthesis.speak(utterance);
+    } else {
+      console.error('Text-to-speech is not supported in this browser.');
     }
   };
 
+
+  const handleSendMessage = async () => {
+    if (inputValue.trim() !== '') {
+      setMessages((prevMessages) => [...prevMessages, { text: inputValue, sender: 'user' }]);
+      setInputValue('');
+
+      try {
+        const response = await axios({
+          url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyAb4vvMHcfULLD9louz1CxjE79FPhBVR-k`,
+          method: 'post',
+          data: {
+            contents: [
+              { parts: [{ text: inputValue }] },
+            ],
+          },
+        });
+        console.log(response.data.candidates[0].content.parts[0].text)
+        const aiResponseText = response.data.candidates[0].content.parts[0].text || 'Sorry, I couldn\'t understand your request.';
+        const cleanaiResponseText = removeSymbols(aiResponseText)
+        setMessages((prevMessages) => [...prevMessages, { text: cleanaiResponseText, sender: 'ai' }]);
+        speakText(aiResponseText);
+      } catch (error) {
+        console.error('Error generating content:', error);
+        setMessages((prevMessages) => [...prevMessages, { text: 'An error occurred while processing your request.', sender: 'ai' }]);
+      }
+    }
+  };
+  const handleVoiceToText = () => {
+    startVoiceRecognition((transcript: any, error: any) => {
+      if (error) {
+        console.error("Recognition error:", error);
+      } else {
+        setInputValue(transcript);
+        setText(transcript);
+
+
+        setTimeout(() => {
+          const sendButton = document.getElementById("sendMessage");
+          if (sendButton) {
+            sendButton.click();
+          }
+        }, 100);
+      }
+    });
+  };
+
+  function startVoiceRecognition(callback: any) {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      console.error("Your browser does not support speech recognition.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      Swal.fire({
+        imageUrl: "https://i.pinimg.com/originals/6b/a1/74/6ba174bf48e9b6dc8d8bd19d13c9caa9.gif",
+        imageWidth: 400,
+        imageHeight: 200,
+        imageAlt: "Custom image",
+        background: 'black',
+        showConfirmButton: false,
+      });
+      console.log("Voice recognition started. You can speak now...");
+    };
+
+    recognition.onresult = (event: any) => {
+      Swal.close()
+      const transcript = event.results[0][0].transcript;
+
+      console.log("You said: ", transcript);
+      if (callback && typeof callback === 'function') {
+        callback(transcript);
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Error occurred in recognition: ", event.error);
+      if (callback && typeof callback === 'function') {
+        callback(null, event.error);
+      }
+    };
+
+    recognition.onend = () => {
+      console.log("Voice recognition ended.");
+    };
+
+    recognition.start();
+  }
   return (
-    <div style={{ position: 'fixed', bottom: '20px', right: '20px' }}>
+    <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 9999 }}>
       <button
         style={{
           border: 'none',
@@ -27,20 +167,22 @@ const ChatBox = () => {
           fontSize: '24px',
           borderRadius: '50%',
           cursor: 'pointer',
+          zIndex: 9999,
         }}
         onClick={toggleChat}
       >
-        <img width='55' src='https://airline-datacenter.s3.ap-south-1.amazonaws.com/chat-icon.png'/>
+        <img width='55' src='https://airline-datacenter.s3.ap-south-1.amazonaws.com/chat-icon.png' alt="Chat Icon" />
       </button>
 
       {isOpen && (
         <div
+          ref={containerRef}
           style={{
             width: '300px',
             height: '400px',
-            backgroundColor: 'white',
-            border: '1px solid #ddd',
-            borderRadius: '10px',
+            backgroundColor: '#1058c3',
+            opacity: 0.8,
+            borderRadius: '15px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             display: 'flex',
             flexDirection: 'column',
@@ -48,11 +190,12 @@ const ChatBox = () => {
             position: 'fixed',
             bottom: '80px',
             right: '20px',
+            zIndex: 9999,
           }}
         >
           <div
             style={{
-              backgroundColor: '#007bff',
+              backgroundColor: '#1f2656',
               color: 'white',
               padding: '10px',
               borderTopLeftRadius: '10px',
@@ -62,7 +205,12 @@ const ChatBox = () => {
               alignItems: 'center',
             }}
           >
-            <h4 style={{ margin: 0 }}>Chat with us!</h4>
+            <img src='https://i.pinimg.com/474x/c6/b9/1d/c6b91d47538de8534d5302bdb6135eb0.jpg' alt="Assistant Icon" className='h-12 w-12 rounded-[100px] shadow-inner shadow-white' />
+            <h4 style={{ margin: 0 }}>Chat With AI Assistant</h4>
+            <div>
+              <button onClick={handleVoiceToText}>🎤</button>
+
+            </div>
             <button
               style={{
                 background: 'transparent',
@@ -92,8 +240,7 @@ const ChatBox = () => {
                   margin: '5px 0',
                   padding: '8px',
                   borderRadius: '5px',
-                  backgroundColor:
-                    message.sender === 'user' ? '#007bff' : '#f1f1f1',
+                  backgroundColor: message.sender === 'user' ? '#007bff' : '#f1f1f1',
                   color: message.sender === 'user' ? 'white' : 'black',
                   textAlign: message.sender === 'user' ? 'right' : 'left',
                 }}
@@ -110,35 +257,45 @@ const ChatBox = () => {
               borderTop: '1px solid #ddd',
             }}
           >
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Type a message..."
-              style={{
-                flexGrow: 1,
-                border: '1px solid #ddd',
-                padding: '10px',
-                borderRadius: '5px',
-              }}
-            />
-            <button
-              onClick={handleSendMessage}
-              style={{
-                backgroundColor: '#007bff',
-                border: 'none',
-                color: 'white',
-                padding: '10px',
-                borderRadius: '5px',
-                marginLeft: '5px',
-                cursor: 'pointer',
-              }}
-            >
-              Send
-            </button>
+            <div style={{ position: 'relative', flexGrow: 1 }}>
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="Type a message..."
+                style={{
+                  width: '100%',
+                  border: '1px solid #ddd',
+                  padding: '10px',
+                  borderRadius: '5px',
+                  paddingRight: '50px',
+                }}
+              />
+              <button
+                id='sendMessage'
+                onClick={handleSendMessage}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  backgroundColor: '#007bff',
+                  border: 'none',
+                  color: 'white',
+                  padding: '8px 12px',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                }}
+              >
+                Send
+              </button>
+            </div>
           </div>
         </div>
       )}
+
+
+      <audio ref={audioRef} src="https://airline-datacenter.s3.ap-south-1.amazonaws.com/p_29405020_439.mp3" />
     </div>
   );
 };

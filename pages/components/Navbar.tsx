@@ -98,39 +98,7 @@ const token=Cookies.get('jwtToken')
             id="navbar-sticky"
           >
             <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-16 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-blue-950 md:dark:bg-gray-900 dark:border-gray-700">
-              <li
-                className="relative group"
-                onMouseEnter={() => handleMouseEnter("home")}
-                onMouseLeave={handleMouseLeave}
-              >
-                <Link
-                  href="/"
-                  className="block py-2 px-3 text-xl md:text-lg text-white rounded md:bg-transparent md:p-0 font-extrabold"
-                  aria-current="page"
-                >
-                  Home
-                </Link>
-                {activeMenu === "home" && (
-                  <ul className="absolute bg-white dark:bg-blue-950 shadow-lg rounded-lg mt-2  min-w-[200px]">
-                    <li>
-                      <Link
-                        href="/"
-                        className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-                      >
-                        Submenu 1
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/"
-                        className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-                      >
-                        Submenu 2
-                      </Link>
-                    </li>
-                  </ul>
-                )}
-              </li>
+          
               <li
                 className="relative group"
                 onMouseEnter={() => handleMouseEnter("flights")}
@@ -318,11 +286,25 @@ const token=Cookies.get('jwtToken')
                 onMouseLeave={handleMouseLeave}
               >
                 <Link
-                  href="/user/view_gallery"
+                  href="/user/clientChat"
                   className="block py-2 px-3 text-xl md:text-lg text-white rounded md:bg-transparent md:p-0 font-extrabold"
                   aria-current="page"
                 >
-                  Gallery
+                  Chat Support
+                </Link>
+                
+              </li>
+              <li
+                className="relative group"
+                onMouseEnter={() => handleMouseEnter("gallery")}
+                onMouseLeave={handleMouseLeave}
+              >
+                <Link
+                  href="/user/profile"
+                  className="block py-2 px-3 text-xl md:text-lg text-white rounded md:bg-transparent md:p-0 font-extrabold"
+                  aria-current="page"
+                >
+             <img className='shadow-white shadow-inner rounded-[250px] w-8  h-8' src='https://miro.medium.com/v2/resize:fit:1400/1*VcrrNXYOXbtnZqQ9R_Svbw.png'/>
                 </Link>
                 
               </li>

@@ -89,7 +89,7 @@ const SelectSeats: React.FC = () => {
                         >
                             <svg
                                 className='w-8 h-12'
-                                fill={seat.isBooked ? 'red' : 'dark'}
+                                fill={localSelectedSeat===seat ? 'yellow' : seat.isBooked ? 'red' : 'dark'}
                                 width='15'
                                 height='15'
                                 xmlns="http://www.w3.org/2000/svg"

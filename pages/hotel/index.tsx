@@ -379,12 +379,7 @@ const router=useRouter()
 
 
 
-      <section>
-        <div className='w-[70vh] h-[100vh] mt-20 rounded-lg'>
-          <iframe width="1900px" height="800" src="https://api.maptiler.com/maps/satellite/?key=aooqoXjfCRyDM4af6JeU#8.8/9.15009/76.36635"></iframe>
-
-        </div>
-      </section>
+     
       <Footer/>
       <Modal
         isOpen={modalIsOpen}
