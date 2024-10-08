@@ -53,7 +53,7 @@ const ReceivedCargo: React.FC = ({ bookingData }: any) => {
             const data = await response.json();
             setRole(data);
 
-            if (data === 'flightoperator') {
+            if (data === 'flightoperator' || data==='cargomanager') {
                setAuthorized(true);
             }
          } catch (error) {

@@ -9,6 +9,9 @@ import hotelUserReducer from './slices/hotelUserSlice';
 import hotelGuestReducer from './slices/hotelGuestSlice';
 import selectedSeatsReducer from './slices/selectedSeat';
 import jobReducer from './slices/jobSlice'
+import bookDateReducer from './slices/bookDate'
+import  passengerCountReducer  from './slices/passengerCountSlice'
+import aircraftModelReducer from './slices/aircraftModelSlice';
 export const store=configureStore({
     reducer:{
         airports:airportsReducer,
@@ -21,6 +24,9 @@ export const store=configureStore({
         hotelBookUserData:hotelUserReducer,
         hotelGuestData:hotelGuestReducer,
         job: jobReducer,
+        bookDate:bookDateReducer,
+        passengerCount:passengerCountReducer,
+        aircraftModel: aircraftModelReducer,
     },
 });
 export type RootState = ReturnType<typeof store.getState>;

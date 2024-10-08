@@ -40,9 +40,9 @@ const ChatBox = () => {
       window.speechSynthesis.cancel();
       const cleanedText = removeSymbols(text);
       const utterance = new SpeechSynthesisUtterance(cleanedText);
-      utterance.lang = 'en-UK';
+      utterance.lang = 'en-US';
       utterance.rate = 1;
-      utterance.pitch = 0.9;
+      utterance.pitch = 1;
 
       utterance.onstart = () => {
         console.log("Speech started");
@@ -113,6 +113,12 @@ const ChatBox = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
+      Swal.fire({
+        title:'Not supported',
+        text:'Your browser not support speach recognisation',
+        background: 'black',
+        showConfirmButton: false,
+      });
       console.error("Your browser does not support speech recognition.");
       return;
     }
@@ -208,7 +214,7 @@ const ChatBox = () => {
             <img src='https://i.pinimg.com/474x/c6/b9/1d/c6b91d47538de8534d5302bdb6135eb0.jpg' alt="Assistant Icon" className='h-12 w-12 rounded-[100px] shadow-inner shadow-white' />
             <h4 style={{ margin: 0 }}>Chat With AI Assistant</h4>
             <div>
-              <button onClick={handleVoiceToText}>🎤</button>
+              <button onClick={handleVoiceToText}><svg xmlns="http://www.w3.org/2000/svg" fill='white' width='18' viewBox="0 0 384 512"><path d="M192 0C139 0 96 43 96 96l0 160c0 53 43 96 96 96s96-43 96-96l0-160c0-53-43-96-96-96zM64 216c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40c0 89.1 66.2 162.7 152 174.4l0 33.6-48 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l72 0 72 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-48 0 0-33.6c85.8-11.7 152-85.3 152-174.4l0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40c0 70.7-57.3 128-128 128s-128-57.3-128-128l0-40z"/></svg></button>
 
             </div>
             <button
@@ -261,6 +267,11 @@ const ChatBox = () => {
               <input
                 type="text"
                 value={inputValue}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSendMessage(); 
+                  }
+                }}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Type a message..."
                 style={{

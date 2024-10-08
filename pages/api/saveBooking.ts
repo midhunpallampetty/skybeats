@@ -20,6 +20,7 @@ const CREATE_BOOKING_MUTATION = gql`
       arrivalTime
       totalPassengers
       FarePaid
+      DateofJourney
     }
   }
 `;

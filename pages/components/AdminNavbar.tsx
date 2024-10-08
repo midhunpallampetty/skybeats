@@ -1,7 +1,7 @@
 import React,{useState} from 'react';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
-
+import Link from 'next/link'
 const AdminNavbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const router=useRouter()
@@ -18,7 +18,7 @@ const AdminNavbar: React.FC = () => {
     <nav className="fixed top-0 left-0 w-full bg-transparent border-gray-200 z-50">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <a href="https://flowbite.com/" className="flex items-center space-x-3 rtl:space-x-reverse">
-          <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">Users</span>
+          <span className="self-center text-2xl font-semibold whitespace-nowrap text-white"><Link href='/admin/dashboard'>Home</Link></span>
         </a>
         <div className="flex items-center md:order-2 space-x-3 rtl:space-x-reverse">
           <button

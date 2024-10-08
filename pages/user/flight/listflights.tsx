@@ -4,36 +4,112 @@ import Cookies from 'js-cookie';
 import DatePicker from 'react-datepicker';
 import Select, { SingleValue, ActionMeta, InputActionMeta } from 'react-select';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useDispatch,useSelector } from 'react-redux';
-import { setAirports,setFilteredAirports } from '@/redux/slices/airportsSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { setAirports, setFilteredAirports } from '@/redux/slices/airportsSlice';
 import debounce from 'lodash.debounce';
 import { setBookDetail } from '@/redux/slices/bookdetailSlice';
 import axios from 'axios';
-import { Flight } from '../../../interfaces/flight'; 
+import { Flight } from '../../../interfaces/flight';
+import Swal from 'sweetalert2'
 import Image from 'next/image';
+import { clearSelectedSeat } from '@/redux/slices/selectedSeat'; // Import clearSelectedSeats action
+
 import { Airport } from '@/interfaces/Airport';
 import { RootState } from '@/redux/store';
 import { setFlights } from '@/redux/slices/flightsSlice';
+import { setDate } from '@/redux/slices/bookDate';
+import { setSelectedPassengers } from '@/redux/slices/passengerCountSlice';
 import { OptionType } from '@/interfaces/OptionType';
 import { useRouter } from 'next/router';
+
 const ListFlights: React.FC = () => {
-  const router=useRouter()
-  const dispatch=useDispatch()
-  const airports=useSelector((state:RootState)=>state.airports.airports);
-  const filteredAirports=useSelector((state:RootState)=>state.airports.filteredAirports)
+  const router = useRouter()
+  const dispatch = useDispatch()
+  const airports = useSelector((state: RootState) => state.airports.airports);
+  const filteredAirports = useSelector((state: RootState) => state.airports.filteredAirports)
+  const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
+
   const [startDate, setStartDate] = useState<Date | null>(null);
+  const [passengers, setPassengers] = useState({
+    adults: 0,
+    seniors: 0,
+    children: 0,
+    infants: 0,
+  });
+  const passengerCount = useSelector((state: RootState) => state.passengerCount.selectedPassenger)
   const [selectedFrom, setSelectedFrom] = useState<SingleValue<OptionType>>(null);
   const [selectedTo, setSelectedTo] = useState<SingleValue<OptionType>>(null);
-  const flights=useSelector((state:RootState)=>state.flights.flights)
+  const flights = useSelector((state: RootState) => state.flights.flights)
+  const bookDate = useSelector((state: RootState) => state.bookDate.date)
   const [sortOption, setSortOption] = useState<string>('price');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [flightsPerPage] = useState<number>(5); 
-  const token=Cookies.get('jwtToken')
-useEffect(()=>{                   
-if(!token){
-  router.push('/')
-}
-},[])
+  const [flightsPerPage] = useState<number>(5);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const token = Cookies.get('jwtToken')
+  useEffect(() => {
+    if (!token) {
+      router.push('/')
+    }
+  }, [])
+  const increment = (type: any) => {
+    if (totalPassengers < 10) { // Check if total passengers are less than 10
+      if ((type === 'children' || type === 'infants') && !hasAdultOrSenior()) {
+        // Prevent adding child/infant without adult/senior
+        Swal.fire({
+          title: "You must have at least one adult or senior citizen to select infants or children.",
+          background: '#282c34',  // Dark background
+          color: '#fff',  // Text color
+          confirmButtonColor: '#4CAF50',  // Custom button color
+
+        });
+
+      } else {
+        setPassengers((prev: any) => ({
+          ...prev,
+          [type]: prev[type] + 1,
+        }));
+      }
+    } else {
+      Swal.fire({
+        title: "Maximum 10 passengers allowed.",
+        background: '#282c34',  // Dark background
+        color: '#fff',  // Text color
+        confirmButtonColor: '#4CAF50',  // Custom button color
+
+      });
+    }
+  };
+
+  // Decrement function for passengers
+  const decrement = (type: any) => {
+    if (passengers[type] > 0) {
+      setPassengers((prev) => ({
+        ...prev,
+        [type]: prev[type] - 1,
+      }));
+    }
+  };
+  const totalPassengers =
+    passengers.adults + passengers.seniors + passengers.children + passengers.infants;
+  const hasAdultOrSenior = () => passengers.adults + passengers.seniors > 0;
+  const options = [
+    {
+      value: "adults",
+      label: `Adults (${passengers.adults})`,
+    },
+    {
+      value: "seniors",
+      label: `Senior Citizen (${passengers.seniors})`,
+    },
+    {
+      value: "children",
+      label: `Children (${passengers.children})`,
+    },
+    {
+      value: "infants",
+      label: `Infants (${passengers.infants})`,
+    },
+  ];
   useEffect(() => {
     const fetchAirports = async () => {
       try {
@@ -47,12 +123,16 @@ if(!token){
           label: `${airport.city} (${airport.code}) ${airport.country}`,
         }));
         dispatch(setAirports(airportOptions));
-        dispatch(setFilteredAirports(airportOptions)); 
+        dispatch(setFilteredAirports(airportOptions));
         setFilteredAirports(airportsData.map(airport => ({
           value: airport.code,
           label: `${airport.city} (${airport.code}) ${airport.country}`,
         })));
       } catch (error) {
+        Swal.fire({
+          text: "Error Searching Flights",
+          background: 'dark'
+        });
         console.error('Error fetching airports:', error);
       }
     };
@@ -70,27 +150,28 @@ if(!token){
 
   const handleInputChange = useCallback(
     debounce((inputValue: string, actionMeta: InputActionMeta) => {
-    const filteredOptions = airports.filter(
-      (airport) =>
-        airport.label.toLowerCase().includes(inputValue.toLowerCase())
+      const filteredOptions = airports.filter(
+        (airport) =>
+          airport.label.toLowerCase().includes(inputValue.toLowerCase())
       );
       dispatch(setFilteredAirports(filteredOptions))
-  },300), [airports,dispatch]);
+    }, 300), [airports, dispatch]);
 
   const handleSearch = async (event: React.FormEvent) => {
     event.preventDefault();
-      
+
     if (selectedFrom && selectedTo && startDate) {
       try {
-        console.log(selectedFrom.label.split(' ')[0].toLowerCase(),selectedTo.label.split(' ')[0].toLowerCase(),'ok ')
+        console.log(selectedFrom.label.split(' ')[0].toLowerCase(), selectedTo.label.split(' ')[0].toLowerCase(), 'ok ')
         const response = await axios.post('/api/searchFlights', {
           from: selectedFrom.label.split(' ')[0].toLowerCase(),
           to: selectedTo.label.split(' ')[0].toLowerCase(),
           date: startDate,
         });
-          dispatch(setFlights(response.data as Flight[]))
-        console.log(response.data,'got data flights from gql server')
-      } catch (error:any) {
+        dispatch(setFlights(response.data as Flight[]))
+        dispatch(setDate(startDate.toDateString()))
+        console.log(response.data, bookDate, 'got data flights from gql server');
+      } catch (error: any) {
         console.error('Error searching flights:', error.message);
       }
     } else {
@@ -99,7 +180,7 @@ if(!token){
   };
 
   const sortFlights = (flights: Flight[], criteria: string) => {
-    switch(criteria) {
+    switch (criteria) {
       case 'price':
         return [...flights].sort((a, b) => a.price - b.price);
       case 'duration':
@@ -135,7 +216,7 @@ if(!token){
             marginTop: '80px',
           }}
         >
-          <div className="container mx-auto p-8 bg-[#07152C]/85 rounded-3xl flex w-[550px] flex-col justify-center space-y-6">
+          <div className="container mx-auto p-8 bg-white shadow shadow-blue-950 rounded-xl flex w-[850px] flex-col justify-center space-y-6">
             <form onSubmit={handleSearch}>
               <div className="flex flex-col items-center space-y-4">
                 <div className="flex space-x-4">
@@ -146,7 +227,7 @@ if(!token){
                     onChange={handleSelectChange}
                     onInputChange={handleInputChange}
                     placeholder="From"
-                    className="p-2 rounded-lg w-48"
+                    className="p-2 rounded-lg text-black w-48"
                   />
                   <Select
                     name="to"
@@ -158,13 +239,69 @@ if(!token){
                     className="p-2 rounded-lg w-48"
                   />
                 </div>
+                <div className='relative'>
+
+                  <div className="relative mb-4">
+                    <button
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)} // Toggle dropdown visibility
+                      className="p-2 rounded-lg bg-gray-200 hover:bg-gray-100 font-extrabold w-64"
+                    >
+                      Passenger Details
+                    </button>
+
+                    {isDropdownOpen && (
+                      <div className="absolute w-full mt-1 bg-white shadow-lg rounded-lg border border-gray-200 z-10">
+                        <div className="p-4 space-y-4">
+                          {[
+                            { label: "Adults", type: "adults" },
+                            { label: "Senior Citizens", type: "seniors" },
+                            { label: "Children", type: "children" },
+                            { label: "Infants", type: "infants" },
+                          ].map(({ label, type }) => (
+                            <div key={type} className="flex justify-between items-center">
+                              <span>{label}:</span>
+                              <div className="flex items-center">
+                                <button
+                                  type="button"
+                                  onClick={() => decrement(type as keyof typeof passengers)}
+                                  className="bg-gray-300 hover:bg-gray-400 px-2 py-1 rounded-lg"
+                                >
+                                  -
+                                </button>
+                                <span className="mx-2">
+                                  {passengers[type as keyof typeof passengers]}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => increment(type as keyof typeof passengers)}
+                                  className="bg-gray-300 hover:bg-gray-400 px-2 py-1 rounded-lg"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Display the total passengers */}
+                  <div className='font-extrabold text-xl ml-12'>
+                    <h4>Total Passengers: {totalPassengers}</h4>
+                  </div>
+                </div>
                 <div className="relative">
+
                   <DatePicker
                     selected={startDate}
                     onChange={(date: Date | null) => setStartDate(date)}
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholderText="Select date"
+                    minDate={new Date()}
                   />
+
+
                   <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                     <svg
                       className="w-4 h-4 text-gray-500 dark:text-gray-400"
@@ -176,6 +313,7 @@ if(!token){
                       <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
                     </svg>
                   </div>
+
                 </div>
                 <div className="flex space-x-4 mt-4">
                   <Select
@@ -187,7 +325,7 @@ if(!token){
                     ]}
                     value={{ value: sortOption, label: sortOption.charAt(0).toUpperCase() + sortOption.slice(1) }}
                     onChange={(option: SingleValue<OptionType>) => setSortOption(option?.value || 'price')}
-                    placeholder="Sort by"
+                    placeholder="Sort by" setflighc
                     className="p-2 rounded-lg w-48"
                   />
                 </div>
@@ -228,15 +366,19 @@ if(!token){
                 <div className="text-right">
                   <div className="text-lg font-bold text-white">₹{flight.price}</div>
                   <div className="text-sm text-green-500">Get at ₹{flight.price - 750} with INTSAVER</div>
-                  <button 
-  className="bg-green-500 font-extrabold px-6 text-white py-2 rounded mt-2"
-  onClick={() => {
-    dispatch(setBookDetail(flight));
-    router.push('/user/flight/selectSeats'); 
-  }}  
->
-  Book
-</button>
+                  <button
+                    className="bg-green-500 font-extrabold px-6 text-white py-2 rounded mt-2"
+                    onClick={() => {
+                      dispatch(setBookDetail(flight));
+                      dispatch(setSelectedPassengers(passengers))
+                      alert(passengerCount)
+                      console.log(flight, 'ffdsfsdf');
+                      dispatch(clearSelectedSeat())
+                      router.push('/user/flight/selectSeats');
+                    }}
+                  >
+                    Book
+                  </button>
                   <div className="text-sm text-white/80 mt-1">Partially refundable</div>
                 </div>
               </div>

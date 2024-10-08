@@ -1,42 +1,52 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { GraphQLClient, gql } from 'graphql-request';
 
+// Initialize the GraphQL Client pointing to your server
 const graphQLClient = new GraphQLClient('http://localhost:3300/graphql');
 
+// GraphQL Query for fetching seats
 const GET_SEATS_QUERY = gql`
-query GetSeats($flightNumber: String!) {
-    getSeats(flightNumber: $flightNumber) {
-        _id
-        aircraftID
-        class
-        col
-        isBooked
-        row
-        x
-        y
+  query GetSeats($flightNumber: String!, $flightModel: String!) {
+    getSeats(flightNumber: $flightNumber, flightModel: $flightModel) {
+      _id
+      aircraftID
+      class
+      col
+      isBooked
+      row
+      x
+      y
     }
-}
+  }
 `;
 
+// API handler for fetching seats
 const getSeats = async (req: NextApiRequest, res: NextApiResponse) => {
-    if (req.method === 'POST') {
-        const { flightNumber } = req.body; // Ensure you're getting the flightNumber from the body
-        console.log('Received flightNumber:', flightNumber);
+  if (req.method === 'POST') {
+    // Destructure flightNumber and flightModel from request body
+    const { flightNumber, flightModel } = req.body;
+    console.log('Received flightNumber:', flightNumber, 'Received flightModel:', flightModel);
 
-        try {
-            const variables = { flightNumber };
-            console.log('Fetching data from backend for getting seats');
-            const data: any = await graphQLClient.request(GET_SEATS_QUERY, variables);
-            console.log('Received GraphQL response:', data);
+    try {
+      // Prepare variables for the GraphQL query
+      const variables = { flightNumber, flightModel };
+      console.log('Fetching seat data from GraphQL API');
+      
+      // Execute the GraphQL request
+      const data: any = await graphQLClient.request(GET_SEATS_QUERY, variables);
+      console.log('Received GraphQL response:');
 
-            res.status(200).json(data.getSeats); 
-        } catch (error: any) {
-            console.error('Error fetching seats:', error.response ? error.response.errors : error.message);
-            res.status(500).json({ message: 'Error fetching seats', error: error.response ? error.response.errors : error.message });
-        }
-    } else {
-        res.status(405).json({ message: 'Method Not Allowed' }); 
+      // Return the seat data
+      res.status(200).json(data.getSeats);
+    } catch (error: any) {
+      // Handle errors by sending appropriate response
+      console.error('Error fetching seats:', error.response ? error.response.errors : error.message);
+      res.status(500).json({ message: 'Error fetching seats', error: error.response ? error.response.errors : error.message });
     }
+  } else {
+    // If the method is not POST, return 405 Method Not Allowed
+    res.status(405).json({ message: 'Method Not Allowed' });
+  }
 };
 
 export default getSeats;

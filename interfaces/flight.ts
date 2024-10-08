@@ -9,4 +9,6 @@ export interface Flight {
   duration: string;
   stops: number;
   price: number;
+  Date:string;
   }
+  

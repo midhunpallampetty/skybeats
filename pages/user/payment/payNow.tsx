@@ -14,8 +14,9 @@ interface PaymentIntentResponse {
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 const PaymentForm: React.FC = () => {
-  const selectedSeat = useSelector((state: RootState) => state.selectedSeats.selectedSeat);
-
+  const selectedSeat = useSelector((state: RootState) => state.selectedSeats.selectedSeats);
+  const bookDate=useSelector((state:RootState)=>state.bookDate.date)
+  const aircraftModel = useSelector((state: RootState) => state.aircraftModel.aircraftModel);
   const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
   const passengerDetails = useSelector((state: RootState) => state.bookdetail.passengerDetails);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -43,7 +44,11 @@ if(!token){
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
+console.log(selectedSeat,'test fine')
+const seatArray=[]
+for(let i of selectedSeat){
+seatArray.push(i._id)
+}
     if (!stripe || !elements || !clientSecret) {
       return;
     }
@@ -63,7 +68,9 @@ if(!token){
         "totalPassengers": 1,
         "FarePaid": selectedFlight?.price,
         "userId":userId,
-        "seatNumber": selectedSeat ? selectedSeat._id : null
+        "seatNumber": seatArray,
+        "DateofJourney":bookDate,
+        "flightModel":aircraftModel,
       
       
     };
