@@ -13,6 +13,8 @@ import axios from 'axios'
 
 const SelectSeats: React.FC = () => {
     const userId = Cookies.get('userId')
+      const [isLoading, setIsLoading] = useState(true);
+
     const router = useRouter()
     const passengerCount = useSelector((state: RootState) => state.passengerCount.selectedPassenger);
     const dispatch = useDispatch<AppDispatch>();
@@ -25,6 +27,13 @@ const SelectSeats: React.FC = () => {
 useEffect(()=>{
 console.log(selectedSeats,'cdcdscdsc')
 },[selectedSeats])
+useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false); // Simulate loading time
+    }, 5000); // 2 seconds delay for loading
+
+    return () => clearTimeout(timer); // Cleanup the timer
+  }, []);
     // Calculate the total number of passengers
     const totalPassengers = passengerCount!.adults + passengerCount!.seniors + passengerCount!.children + passengerCount!.infants;
 
@@ -143,13 +152,63 @@ console.log(selectedSeats,'cdcdscdsc')
         dispatch(clearSelectedSeat());
         router.push('/user/flight/bookingdetails');
     };
-
+    const loadingScreenStyle = {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        backgroundColor: '#1a2d45', // Dark background for loading screen
+      };
+    
+      const loadingBarStyle = {
+        width: '100px',
+        height: '5px',
+        backgroundColor: '#0c2336', // Bar background
+        marginTop: '10px',
+        borderRadius: '3px',
+        overflow: 'hidden',
+      };
+    
+      const loadingBarFillStyle = {
+        width: '0',
+        height: '100%',
+        backgroundColor: '#0073b1', // Loading bar fill color
+        animation: 'load 3s ease-in-out infinite',
+      };
+    
+      // Keyframe animation using JavaScript
+      const loadingKeyframes = `
+        @keyframes load {
+          0% { width: 0; }
+          50% { width: 100%; }
+          100% { width: 0; }
+        }
+      `;
     return (
         <>
+        <style>
+      {loadingKeyframes}
+    </style>
+    {isLoading ? (
+      <div style={loadingScreenStyle}>
+        <Image
+          src="/logo_airline.png" // Replace with your logo path
+          alt="Logo"
+          width={100}
+          height={100}
+        />
+        <p className='text-white font-extrabold font-sans text-xl'>Launching Seat Layout Based On Aircarft......</p>
+        <div style={loadingBarStyle}>
+          <div style={loadingBarFillStyle}></div>
+        </div>
+      </div>
+    ) : (
+        <>
             <Navbar />
-            <div className="relative flex justify-center items-start mt-[150px] min-h-screen">
-                <div className="p-4 w-[350px] bg-white/10 border border-white/10 rounded shadow-md mr-8">
-                    <h3 className="text-3xl text-white font-extrabold">Selected Seats Details:</h3>
+            <div className="relative flex justify-center items-start mt-[150px] w-full">
+                <div className="p-4 w-[350px] bg-blue-900 shadow shadow-white text-black border border-white/10 rounded mr-8">
+                    <h3 className="text-xl text-white font-extrabold">Selected Seats Details:</h3>
                     {localSelectedSeats.length > 0 ? (
                         localSelectedSeats.map((seat, index) => (
                             <p key={index} className="font-semibold text-white text-2xl">
@@ -172,7 +231,7 @@ console.log(selectedSeats,'cdcdscdsc')
                                 <div
                                     key={index}
                                     className={`relative flex justify-center items-center cursor-pointer p-2 rounded-md ${
-                                        seat.isBooked ? 'bg-gray-400' : localSelectedSeats.some(s => s._id === seat._id) ? 'bg-blue-500' : 'bg-green-500'
+                                        seat.isBooked ? 'bg-gray-400' : localSelectedSeats.some(s => s._id === seat._id) ? 'bg-blue-500' : 'bg-gray-800'
                                     }`}
                                     onClick={() => handleSeatClick(seat)}
                                 >
@@ -203,6 +262,8 @@ console.log(selectedSeats,'cdcdscdsc')
                     </div>
                 </div>
             </div>
+            </>
+            )}
         </>
     );
 };

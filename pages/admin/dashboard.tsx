@@ -41,7 +41,8 @@ const SuperAdminDashboard: React.FC = () => {
             name: 'Hotel Management',
             email: 'booking@example.com',
             isBlocked: false,
-            imageUrl: 'https://www.hotelierindia.com/public/styles/full_img_sml/public/images/2020/02/14/shutterstock_1560097280.jpg?XO8Z_aDT'
+            imageUrl: 'https://www.hotelierindia.com/public/styles/full_img_sml/public/images/2020/02/14/shutterstock_1560097280.jpg?XO8Z_aDT',
+            Redirect:'/admin/bookingReport'
 
         },
         {

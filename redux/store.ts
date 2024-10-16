@@ -10,6 +10,7 @@ import hotelGuestReducer from './slices/hotelGuestSlice';
 import selectedSeatsReducer from './slices/selectedSeat';
 import jobReducer from './slices/jobSlice'
 import bookDateReducer from './slices/bookDate'
+import returnDateReducer from './slices/returnDate'
 import  passengerCountReducer  from './slices/passengerCountSlice'
 import aircraftModelReducer from './slices/aircraftModelSlice';
 export const store=configureStore({
@@ -25,6 +26,7 @@ export const store=configureStore({
         hotelGuestData:hotelGuestReducer,
         job: jobReducer,
         bookDate:bookDateReducer,
+        returnDate:returnDateReducer,
         passengerCount:passengerCountReducer,
         aircraftModel: aircraftModelReducer,
     },

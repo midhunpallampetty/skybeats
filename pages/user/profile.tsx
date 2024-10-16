@@ -1,255 +1,615 @@
-import React, { useState } from 'react';
-import dynamic from 'next/dynamic';
-import { gql, useQuery } from '@apollo/client';
-import Cookies from 'js-cookie';
+      'use client'
 
-const GET_USER_BY_ID = gql`
-  query GetUserById($userId: String!) {
-    getUserById(userId: $userId) {
-      email
-      isBlocked
-      username
+      import React, { useState } from 'react'
+      import dynamic from 'next/dynamic'
+      import { useEffect } from 'react'
+      import { Carousel } from 'flowbite-react';
+      import ShowBookings from '../components/ShowBookings';
+
+      import { gql, useQuery } from '@apollo/client'
+      import Cookies from 'js-cookie'
+      import Swal from 'sweetalert2';
+      import axios from 'axios'
+      import { useRouter } from 'next/router'
+      import { Edit, Mail, Phone, MapPin, Cake, User, Briefcase, Calendar, Key } from 'lucide-react'
+      import { contextType } from 'react-modal';
+
+      const GET_USER_BY_ID = gql`
+        query GetUserById($userId: String!) {
+          getUserById(userId: $userId) {
+            email
+            isBlocked
+            username
+          }
+        }
+      `
+
+      export default function ProfileComponent() {
+        const Navbar=dynamic(()=>import('../components/Navbar'),{ssr:false})
+        const [isModalOpen, setIsModalOpen] = useState(false)
+        const router=useRouter()
+        const [editMode, setEditMode] = useState(false)
+        const [activeTab, setActiveTab] = useState('profile')
+        const userId = Cookies.get('userId')
+        const [user, setUser] = useState({
+          firstName: 'Jane',
+          lastName: 'Doe',
+          gender: 'Female',
+          contactNo: '+11 998001001',
+          currentAddress: 'Beech Creek, PA, Pennsylvania',
+          permanentAddress: 'Arlington Heights, IL, Illinois',
+          email: 'jane@example.com',
+          birthday: 'Feb 06, 1998',
+          profileImage: '/placeholder.svg?height=200&width=200',
+          coverImage: '/placeholder.svg?height=400&width=1200',
+          occupation: 'Software Engineer',
+          company: 'Tech Innovations Inc.',
+        })
+        const [bookings, setBookings] = useState<any[]>([])
+        const [birthday,setBirthDay]=useState('')
+        const [contactNo,setContactNo]=useState('')
+        const [currentAddress,setCurrentAddress]=useState('')
+        const [email,setEmail]=useState('')
+        const [errors, setErrors] = useState<any>({});
+        
+        const [gender,setGender]=useState('')
+        const [permananentAddress,setPermananentAddress]=useState('');
+        const [userData,setuserData]=useState<any[]>([])
+        const [profile, setProfile] = useState({                                                                                         
+          email: '',
+          contactNo: '',
+          gender: '',
+          birthday: '',
+          currentAddress: '',
+          permananentAddress: ''
+      });
+        const [newPassword, setNewPassword] = useState('')
+        const [oldPassword, setOldPassword] = useState('')
+        useEffect(() => {
+          const userId = Cookies.get('userId');
+
+          const fetchData = async () => {
+            try {
+              const response = await axios.post('/api/getBookingById', {
+                userId: userId,
+              });
+
+              await setBookings(response?.data);
+              console.log(bookings, 'congratulations.........');
+            } catch (error) {
+              console.log('An error occurred', error);
+            }
+          };
+          fetchData();
+        }, []);
+
+        async function handleSubmit() {
+          if (!validateForm()) {
+              console.log("Form validation failed");
+              return; // Stop submission if form is invalid
+          }
+      
+          Swal.fire("Updated Profile");
+          setEditMode(false);
+          console.log({
+              gender: profile.gender,
+              contactNo: profile.contactNo,
+              currentAddress: profile.currentAddress,
+              permananentAddress: profile.permanentAddress,
+              email: profile.email,
+              birthday: profile.birthday
+          }); // Log variable values
+      
+          try {
+              const response = await axios.post('/api/addorUpdateProfile', {
+                  userId: userId,
+                  gender: profile.gender,
+                  contactNo: profile.contactNo,
+                  currentAddress: profile.currentAddress,
+                  permananentAddress: profile.permanentAddress,
+                  email: profile.email,
+                  birthday: profile.birthday
+              }, {
+                  headers: {
+                      "Content-Type": "application/json",
+                  },
+              });
+      
+              console.log('Response:', response.data);
+          } catch (error:any) {
+              console.error('Error:', error);
+              if (error.response) {
+                  console.error('Response data:', error.response.data);
+                  console.error('Response status:', error.response.status);
+                  console.error('Response headers:', error.response.headers); 
+              }
+          }
+      }
+      
+
+
+const validateForm = () => {
+    const newErrors:any = {};
+    
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!profile.email || !emailRegex.test(profile.email)) {
+        newErrors.email = 'Please enter a valid email address';
     }
-  }
-`;
 
-const ProfileComponent = () => {
-  const [editMode, setEditMode] = useState(false);
-  const [user, setUser] = useState({
-    firstName: 'Jane',
-    lastName: 'Doe',
-    gender: 'Female',
-    contactNo: '+11 998001001',
-    currentAddress: 'Beech Creek, PA, Pennsylvania',
-    permanentAddress: 'Arlington Heights, IL, Illinois',
-    email: 'jane@example.com',
-    birthday: 'Feb 06, 1998',
-    profileImage:
-      'https://e0.pxfuel.com/wallpapers/103/954/desktop-wallpaper-abstract-glare-rays-beams-lines-paints.jpg',
-    coverImage:
-      'https://e0.pxfuel.com/wallpapers/103/954/desktop-wallpaper-abstract-glare-rays-beams-lines-paints.jpg',
-  });
-
-  const handleEditClick = () => {
-    setEditMode(!editMode);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUser({ ...user, [name]: value });
-  };
-
-  const handleImageChange = (e, imageType) => {
-    if (e.target.files && e.target.files[0]) {
-      const fileReader = new FileReader();
-      fileReader.onload = () => {
-        setUser({ ...user, [imageType]: fileReader.result });
-      };
-      fileReader.readAsDataURL(e.target.files[0]);
+    // Validate contact number (simple check for numeric value and length)
+    const contactNoRegex = /^[0-9]{10,15}$/;
+    if (!profile.contactNo || !contactNoRegex.test(profile.contactNo)) {
+        newErrors.contactNo = 'Please enter a valid contact number';
     }
-  };
 
-  const userId = Cookies.get('userId');
-  const { loading, error, data } = useQuery(GET_USER_BY_ID, {
-    variables: { userId },
-  });
+    // Validate gender
+    if (!profile.gender) {
+        newErrors.gender = 'Please enter your gender';
+    }
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+    // Validate birthday (ensure it's a valid date and in the past)
+    if (!profile.birthday || new Date(profile.birthday) >= new Date()) {
+        newErrors.birthday = 'Please enter a valid birthday in the past';
+    }
 
-  const queriedUser = data?.getUserById;
+    // Validate addresses
+    if (!profile.currentAddress) {
+        newErrors.currentAddress = 'Current address cannot be empty';
+    }
+    if (!profile.permananentAddress) {
+        newErrors.permanentAddress = 'Permanent address cannot be empty';
+    }
 
-  const Navbar = dynamic(() => import('../components/Navbar'), { ssr: false });
+    setErrors(newErrors);
 
-  return (
-    <>
-      <div className="">
-        {/* Navbar */}
-        <div className="w-full text-white bg-main-color">
-          <div className="flex flex-col max-w-screen-xl px-4 mx-auto md:items-center md:justify-between md:flex-row md:px-6 lg:px-8">
-            <div className="p-4 flex flex-row items-center justify-between">
-              <a href="#" className="text-lg font-semibold tracking-widest uppercase rounded-lg focus:outline-none focus:shadow-outline">
-                Example Profile
-              </a>
-              <button className="md:hidden rounded-lg focus:outline-none focus:shadow-outline">
-                <svg fill="currentColor" viewBox="0 0 20 20" className="w-6 h-6">
-                  <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clipRule="evenodd"></path>
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path>
-                </svg>
-              </button>
+    // If no errors, form is valid
+    return Object.keys(newErrors).length === 0;
+};
+
+
+
+      useEffect(() => {
+        const fetchProfileDetails = async () => {
+          try {
+            // Send POST request to your Next.js API
+            const response: any = await axios.post(
+              '/api/getProfile', // API route
+              {
+                userId: userId // Pass the userId in the request body
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json", // Correct the Content-Type header
+                },
+              }
+            );
+            
+            // Log the API response before setting state
+            
+            // Set the profile data in state
+            setProfile(response.data.getProfileDetails);
+            console.log(response.data.getProfileDetails, 'This is the API response data');
+
+          } catch (error) {
+            console.error('Error fetching profile details:', error);
+          }
+        };
+
+        fetchProfileDetails(); // Call the function to fetch data
+      }, [userId]); // Add userId as a dependency to refetch if it changes
+
+      // To check if the state is being updated, add a useEffect to monitor userData
+      useEffect(() => {
+        console.log(profile, 'Updated userData state');
+      }, [profile]); // This will log whenever userData is updated
+      // Empty dependency array to run this once when the component mounts
+        
+        
+
+        
+        const handleEditClick = () => {
+          setEditMode(!editMode)
+        }
+
+        const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+          const { name, value } = e.target
+          setUser({ ...user, [name]: value })
+        }
+      function handleMore(){
+        router.push('/user/flight/bookingHistory')
+      }
+        const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, imageType: 'profileImage' | 'coverImage') => {
+          if (e.target.files && e.target.files[0]) {
+            const fileReader = new FileReader()
+            fileReader.onload = () => {
+              setUser({ ...user, [imageType]: fileReader.result as string })
+            }
+            fileReader.readAsDataURL(e.target.files[0])
+          }
+        }
+
+
+
+        async function changePassword() {
+          console.log(userId,oldPassword,newPassword)
+          
+          try {
+            const response = await axios.post(
+              '/api/changePassword',
+              {
+                id: userId,          
+                oldpassword: oldPassword, 
+                newpassword: newPassword,
+              },
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+            console.log(response,'status')
+        if(response.status===200){
+          Swal.fire("Password Request Success");
+
+        }else{
+          Swal.fire("An error occurred while changing the password.");
+
+        }
+          } catch (error: any) {
+            if (error.response) {
+              Swal.fire("An error occurred while changing the password.");
+            } else {
+              console.error('Error:', error);
+              Swal.fire("Something Went Wrong While Resetting Password.");
+
+              console.log('An error occurred while changing the password.');
+            }
+          }
+        }
+       
+        
+
+      
+        const { loading, error, data } = useQuery(GET_USER_BY_ID, {
+          variables: { userId },
+        })
+
+        if (loading) return <p>Loading...</p>
+        if (error) return <p>Error: {error.message}</p>
+
+        const queriedUser = data?.getUserById
+
+        return (
+        <>
+        <Navbar/>
+
+        <div className="h-[250px] mt-[100px] w-[99] rounded-lg sm:h-[55] xl:h-[200px] 2xl:h-[200px]">
+              <Carousel>
+                <img
+                  src="https://airline-datacenter.s3.ap-south-1.amazonaws.com/pexels-steve-2130475.jpg"
+                  alt="Career Carousel 1"
+                />
+            
+              </Carousel>
+              <ShowBookings isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} bookings={bookings} />
             </div>
-            <Navbar />
-          </div>
-        </div>
+        <div className="min-h-screen  mt-16 ">
+            <div className="container mx-auto py-8 px-4">
+              <div className="bg-white rounded-lg shadow-lg overflow-hidden max-w-4xl mx-auto">
 
-        {/* Profile Section */}
-        <div className="container bg-blue-950 rounded-lg mx-auto my-5 p-5">
-          <div className="md:flex no-wrap md:-mx-2">
-            {/* Left Side - Profile Card */}
-            <div className="w-full rounded-lg md:w-3/12 md:mx-2">
-              <div className="bg-blue-900/85 rounded-lg p-3 relative">
-                <div className="image overflow-hidden relative">
-                  <img
-                    className="h-auto w-full rounded-lg mx-auto"
-                    src={user.profileImage}
-                    alt="profile"
-                  />
-                  {editMode && (
-                    <div className="absolute top-2 right-2">
+                <div className="relative px-4 md:px-6 pb-6 -mt-16">
+                  <div className="flex flex-col md:flex-row items-center">
+                  
+                    {editMode && (
                       <input
                         type="file"
                         accept="image/*"
                         onChange={(e) => handleImageChange(e, 'profileImage')}
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600"
+                        className="mt-2 md:mt-0 md:ml-4 w-full md:w-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                       />
+                    )}
+                  
+                    <button
+                      onClick={handleEditClick}
+                      className={`mt-4 md:mt-0 md:ml-auto px-4 py-2 rounded-md flex items-center ${editMode
+                          ? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                          : 'bg-blue-500 text-white hover:bg-blue-600'
+                        }`}
+                    >
+                      {editMode ? 'Save' : 'Edit'}
+                      <Edit className="w-4 h-4 ml-2" />
+                    </button>
+                  </div>
+
+                  <div className="mt-6 border-b border-gray-200">
+                    <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+                      {['profile', 'bookings', 'password'].map((tab) => (
+                        <button
+                          key={tab}
+                          onClick={() => setActiveTab(tab)}
+                          className={`${activeTab === tab
+                              ? 'border-blue-500 text-blue-600'
+                              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                        >
+                          {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                        </button>
+                      ))}
+                    </nav>
+                  </div>
+                  {activeTab === 'profile' && (
+    <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Email Input */}
+            <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={profile.email}
+                    onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                    disabled={!editMode}
+                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 ${errors.email ? 'border-red-500' : ''}`}
+                />
+                {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+            </div>
+            {/* Contact Number Input */}
+            <div>
+                <label htmlFor="contactNo" className="block text-sm font-medium text-gray-700">Contact Number</label>
+                <input
+                    type="tel"
+                    id="contactNo"
+                    name="contactNo"
+                    value={profile.contactNo}
+                    onChange={(e) => setProfile({ ...profile, contactNo: e.target.value })}
+                    disabled={!editMode}
+                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 ${errors.contactNo ? 'border-red-500' : ''}`}
+                />
+                {errors.contactNo && <p className="text-red-500 text-sm">{errors.contactNo}</p>}
+            </div>
+            {/* Gender Input */}
+            <div>
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">Gender</label>
+                <input
+                    type="text"
+                    id="gender"
+                    name="gender"
+                    value={profile.gender}
+                    onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
+                    disabled={!editMode}
+                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 ${errors.gender ? 'border-red-500' : ''}`}
+                />
+                {errors.gender && <p className="text-red-500 text-sm">{errors.gender}</p>}
+            </div>
+            {/* Birthday Input */}
+            <div>
+                <label htmlFor="birthday" className="block text-sm font-medium text-gray-700">Birthday</label>
+                <input
+                    type="date"
+                    id="birthday"
+                    name="birthday"
+                    value={profile.birthday}
+                    onChange={(e) => setProfile({ ...profile, birthday: e.target.value })}
+                    disabled={!editMode}
+                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 ${errors.birthday ? 'border-red-500' : ''}`}
+                />
+                {errors.birthday && <p className="text-red-500 text-sm">{errors.birthday}</p>}
+            </div>
+            {/* Current Address Input */}
+            <div className="col-span-2">
+                <label htmlFor="currentAddress" className="block text-sm font-medium text-gray-700">Current Address</label>
+                <textarea
+                    id="currentAddress"
+                    name="currentAddress"
+                    value={profile.currentAddress}
+                    onChange={(e) => setProfile({ ...profile, currentAddress: e.target.value })}
+                    disabled={!editMode}
+                    rows={3}
+                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 ${errors.currentAddress ? 'border-red-500' : ''}`}
+                ></textarea>
+                {errors.currentAddress && <p className="text-red-500 text-sm">{errors.currentAddress}</p>}
+            </div>
+            {/* Permanent Address Input */}
+            <div className="col-span-2">
+                <label htmlFor="permanentAddress" className="block text-sm font-medium text-gray-700">Permanent Address</label>
+                <textarea
+                    id="permanentAddress"
+                    name="permanentAddress"
+                    value={profile.permananentAddress}
+                    onChange={(e) => setProfile({ ...profile, permananentAddress: e.target.value })}
+                    disabled={!editMode}
+                    rows={3}
+                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 ${errors.permanentAddress ? 'border-red-500' : ''}`}
+                ></textarea>
+                {errors.permanentAddress && <p className="text-red-500 text-sm">{errors.permanentAddress}</p>}
+            </div>
+        </div>
+        <div className="mt-6 flex justify-end">
+            {editMode ? (
+                <>
+                    <button onClick={handleSubmit}
+                        type="button"
+                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mr-2"
+                    >
+                        Save
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleEditClick}
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                    >
+                        Cancel
+                    </button>
+                </>
+            ) : (
+                <button
+                    type="button"
+                    onClick={handleEditClick}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                    Edit
+                </button>
+            )}
+        </div>
+    </div>
+)}
+
+
+
+
+{activeTab === 'bookings' && (
+  <div className="mt-6">
+    <h3 className="text-lg font-semibold mb-4">Booking History</h3>
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Passenger Names
+            </th>
+          
+           
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {bookings.map((booking) => (
+            <tr key={booking.id}>
+              {/* Displaying passenger names */}
+              <td className="px-6 py-4 whitespace-nowrap">
+                {booking.passengerName.map((passenger, index) => (
+                  <div key={index}>
+                    {passenger.firstName} {passenger.middleName} {passenger.lastName}
+                  </div>
+                ))}
+              </td>
+
+              {/* Displaying ticket download links */}
+              {/* <td className="px-6 py-4 whitespace-nowrap">
+                {booking.ticketUrls.map((ticketUrl, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      const link = document.createElement("a");
+                      link.href = ticketUrl;
+                      link.setAttribute("download", `ticket-${booking.passengerName[index].firstName}.png`); // Download ticket with passenger name
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }}
+                    className="text-blue-500 underline"
+                  >
+                    Download Ticket {index + 1}
+                  </button>
+                ))}
+              </td> */}
+
+              {/* More details button */}
+              <td className="px-6 py-4 whitespace-nowrap">
+                <button
+                  onClick={() => setIsModalOpen(true)}// Assuming you want to pass booking id
+                  className="bg-green-600 text-white p-2 rounded-lg font-extrabold"
+                >
+                  More Details
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}
+
+
+                  {activeTab === 'password' && (
+                    <div className="mt-6">
+                      <h3 className="text-lg font-semibold mb-4">Forget Password</h3>
+                      <div  className="space-y-4">
+                        <div>
+                          <label htmlFor="new-password" className="block text-sm font-medium text-gray-700">New Password</label>
+                          <input
+                            type="password"
+                            id="new-password"
+                            value={oldPassword}
+                            onChange={(e) => setOldPassword(e.target.value)}
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                          <input
+                            type="password"
+                            id="confirm-password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <button onClick={changePassword}
+                            type="submit"
+                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          >
+                            Change Password
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
-                <h1 className="text-black font-bold text-xl leading-8 my-1">
-                  {queriedUser.username}
-                </h1>
-                <h3 className="text-white font-lg text-semibold leading-6">
-                  Owner at Her Company Inc.
-                </h3>
-                <p className="text-sm text-black hover:text-gray-600 leading-6">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Reprehenderit, eligendi dolorum sequi illum qui unde aspernatur
-                  non deserunt.
-                </p>
-                <ul className="bg-black/50 shadow-inner shadow-white text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded">
-                  <li className="flex items-center py-3">
-                    <span>Status</span>
-                    <span className="ml-auto">
-                      <span className="bg-green-500 py-1 px-2 rounded text-white text-sm">
-                        Active
-                      </span>
-                    </span>
-                  </li>
-                  <li className="flex items-center py-3">
-                    <span>Member since</span>
-                    <span className="ml-auto">Nov 07, 2016</span>
-                  </li>
-                </ul>
               </div>
-              <div className="my-4"></div>
             </div>
-
-            {/* Right Side */}
-            <div className="w-full md:w-9/12 mx-2 h-54">
-              {/* About Section */}
-              <div className="bg-blue-500/35 shadow-sm rounded-lg relative">
+          </div>
+          <footer
+          className="bg-blue-800/20 text-center mt-20 rounded-md text-white/10 shadow-white/15 shadow-inner ">
+          <div className="container p-6">
+            <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+              <div className="mb-6 lg:mb-0">
                 <img
-                  className="w-full h-48 rounded-lg"
-                  src={user.coverImage}
-                  alt="Profile Background"
-                />
-                {editMode && (
-                  <div className="absolute top-2 right-2">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImageChange(e, 'coverImage')}
-                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600"
-                    />
-                  </div>
-                )}
+                  src="https://img.freepik.com/free-photo/logistics-transportation-container-cargo-ship-cargo-plane-with-working-crane-bridge-shipyard-sunrise-logistic-import-export-transport-industry-background-ai-generative_123827-24177.jpg?w=1380&t=st=1726561962~exp=1726562562~hmac=4f9324056b37759c8605a8232a03522b85c0f6897e9d95b198c5420f7ee21ab2"
+                  className="w-full rounded-md shadow-lg" />
               </div>
-              <div className="bg-blue-500/35 mt-2 p-3 shadow-sm rounded-lg">
-                <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
-                  <span className="text-white">
-                    <svg
-                      className="h-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                  </span>
-                  <span className="tracking-wide">About</span>
-                </div>
-                <div className="text-white">
-                  <button
-                    onClick={handleEditClick}
-                    className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
-                  >
-                    {editMode ? 'Save' : 'Edit'}
-                  </button>
-                  <div className="grid md:grid-cols-2 text-sm">
-                    {Object.entries(user).map(([key, value]) => (
-                      <div className="grid grid-cols-2" key={key}>
-                        <div className="px-4 py-2 font-semibold">
-                          {key
-                            .replace(/([A-Z])/g, ' $1')
-                            .replace(/^./, (str) => str.toUpperCase())}
-                        </div>
-                        <div className="px-4 py-2">
-                          {editMode ? (
-                            key === 'profileImage' || key === 'coverImage' ? null : (
-                              <input
-                                type="text"
-                                name={key}
-                                value={value}
-                                onChange={handleChange}
-                                className="w-full px-2 py-1 text-black rounded"
-                              />
-                            )
-                          ) : key === 'email' ? (
-                            <a className="text-white" href={`mailto:${value}`}>
-                              {value}
-                            </a>
-                          ) : (
-                            value
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              <div className="mb-6 lg:mb-0">
+                <img
+                  src="https://img.freepik.com/free-photo/top-view-plane-boxes_23-2149853127.jpg?t=st=1726562011~exp=1726565611~hmac=a569284458a99cdb3aa222d3ac69611901ce23ff6683ea28acc7a4f70e6edd1b&w=1480"
+                  className="w-full rounded-md shadow-lg" />
               </div>
+              <div className="mb-6 lg:mb-0">
+                <img
+                  src="https://img.freepik.com/free-photo/logistics-means-transport-together-with-technological-futuristic-holograms_23-2151662980.jpg?t=st=1726562042~exp=1726565642~hmac=010c2b0240f5d8b1ec9ea7f9d0b07fdff1376886cc1fddfc242752aacb6e153d&w=1380"
+                  className="w-full rounded-md shadow-lg" />
+              </div>
+              <div className="mb-6 lg:mb-0">
+                <img
+                  src="https://img.freepik.com/free-photo/green-plane-ecofriendly-environment_23-2151582434.jpg?t=st=1726562078~exp=1726565678~hmac=62eea8807a3fc6a0f501a10a9dfa1819dd6f796b81385e3c079527f4b2d89a3d&w=1480"
+                  className="w-full rounded-md shadow-lg" />
+              </div>
+              <div className="mb-6 lg:mb-0">
+                <img
+                  src="https://img.freepik.com/free-photo/airplane-sunset_1150-8368.jpg?t=st=1726562105~exp=1726565705~hmac=fbcd17be8fbc2c36498465085b83d955ee64636b59ea873e49ebc6c9728bb922&w=1380"
+                  className="w-full rounded-md shadow-lg" />
+              </div>
+              <div className="mb-6 lg:mb-0">
+                <img
+                  src="https://img.freepik.com/free-photo/logistics-means-transport-together-with-technological-futuristic-holograms_23-2151662992.jpg?t=st=1726562148~exp=1726565748~hmac=9216655d617871585322a750005e26a46928b4b810d988a48cd647bb394f1c9e&w=1060"
+                  className="w-full rounded-md shadow-lg" />
+              </div>
+              
             </div>
           </div>
-        </div>
-      </div>
-      <footer className="bg-gray-800/20 shadow-white/50 shadow-inner rounded-lg text-white py-8">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <h3 className="text-lg font-semibold mb-2">About Us</h3>
-            <p className="text-sm text-gray-400">
-              We are a leading company providing top-notch services across
-              various industries. Our goal is to deliver high-quality solutions
-              tailored to the needs of our customers.
-            </p>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Services</h3>
-            <ul className="text-sm text-gray-400 space-y-2">
-              <li><a href="#" className="hover:underline">Consulting</a></li>
-              <li><a href="#" className="hover:underline">Development</a></li>
-              <li><a href="#" className="hover:underline">Support</a></li>
-              <li><a href="#" className="hover:underline">Training</a></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Contact Us</h3>
-            <p className="text-sm text-gray-400">
-              Email: info@example.com <br />
-              Phone: +1 234 567 890
-            </p>
-          </div>
-        </div>
-        <div className="mt-8 border-t border-gray-700 pt-4 text-center text-sm text-gray-500">
-          © 2024 Your Company Name. All rights reserved.
-        </div>
-      </footer>
-    </>
-  );
-};
 
-export default ProfileComponent;
+          {/* <!--Copyright section--> */}
+          <div
+            className="bg-white p-4 text-center text-black ">
+            © 2023 Copyright:
+            <a className="dark:text-neutral-400" href="https://tw-elements.com/"
+            >Skybeats</a>
+          </div>
+        </footer>
+        </>
+        )
+      }

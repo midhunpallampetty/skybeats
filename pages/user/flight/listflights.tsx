@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Navbar from '@/pages/components/Navbar';
 import Cookies from 'js-cookie';
 import DatePicker from 'react-datepicker';
 import Select, { SingleValue, ActionMeta, InputActionMeta } from 'react-select';
@@ -12,24 +11,30 @@ import axios from 'axios';
 import { Flight } from '../../../interfaces/flight';
 import Swal from 'sweetalert2'
 import Image from 'next/image';
-import { clearSelectedSeat } from '@/redux/slices/selectedSeat'; // Import clearSelectedSeats action
-
+import { clearSelectedSeat } from '@/redux/slices/selectedSeat';
+import FlightModal from '../../components/returnFlightModal';
+import dynamic from 'next/dynamic'
 import { Airport } from '@/interfaces/Airport';
 import { RootState } from '@/redux/store';
 import { setFlights } from '@/redux/slices/flightsSlice';
 import { setDate } from '@/redux/slices/bookDate';
+import { setReturnDate } from '@/redux/slices/returnDate';
 import { setSelectedPassengers } from '@/redux/slices/passengerCountSlice';
 import { OptionType } from '@/interfaces/OptionType';
 import { useRouter } from 'next/router';
 
 const ListFlights: React.FC = () => {
+  const Navbar=dynamic(()=>import('../../components/Navbar'),{ssr:true});
   const router = useRouter()
   const dispatch = useDispatch()
   const airports = useSelector((state: RootState) => state.airports.airports);
   const filteredAirports = useSelector((state: RootState) => state.airports.filteredAirports)
   const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const [startDate, setStartDate] = useState<Date | null>(null);
+  const [returnDate, setreturnDate] = useState<Date | null>(null);
+
   const [passengers, setPassengers] = useState({
     adults: 0,
     seniors: 0,
@@ -80,6 +85,22 @@ const ListFlights: React.FC = () => {
     }
   };
 
+  const openModal = () => {
+    if (returnDate && selectedFrom && selectedTo &&startDate ) {
+      setIsModalVisible(true);
+
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalVisible(false);
+  };
+  const getMinReturnDate = (startDate: Date | null) => {
+    if (!startDate) return new Date(); // Fallback to today if no startDate
+    const nextDay = new Date(startDate);
+    nextDay.setDate(nextDay.getDate() + 1); // Add one day to startDate
+    return nextDay;
+  };
   // Decrement function for passengers
   const decrement = (type: any) => {
     if (passengers[type] > 0) {
@@ -170,6 +191,7 @@ const ListFlights: React.FC = () => {
         });
         dispatch(setFlights(response.data as Flight[]))
         dispatch(setDate(startDate.toDateString()))
+        dispatch(setReturnDate(returnDate?.toDateString()))
         console.log(response.data, bookDate, 'got data flights from gql server');
       } catch (error: any) {
         console.error('Error searching flights:', error.message);
@@ -202,6 +224,8 @@ const ListFlights: React.FC = () => {
 
   return (
     <>
+      <FlightModal isVisible={isModalVisible} onClose={closeModal}  returnOn={returnDate} from={selectedFrom} to={selectedTo}/>
+
       <Navbar />
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div
@@ -213,191 +237,217 @@ const ListFlights: React.FC = () => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            marginTop: '80px',
+            
           }}
         >
-          <div className="container mx-auto p-8 bg-white shadow shadow-blue-950 rounded-xl flex w-[850px] flex-col justify-center space-y-6">
-            <form onSubmit={handleSearch}>
-              <div className="flex flex-col items-center space-y-4">
-                <div className="flex space-x-4">
-                  <Select
-                    name="from"
-                    options={filteredAirports}
-                    value={selectedFrom}
-                    onChange={handleSelectChange}
-                    onInputChange={handleInputChange}
-                    placeholder="From"
-                    className="p-2 rounded-lg text-black w-48"
-                  />
-                  <Select
-                    name="to"
-                    options={filteredAirports}
-                    value={selectedTo}
-                    onChange={handleSelectChange}
-                    onInputChange={handleInputChange}
-                    placeholder="To"
-                    className="p-2 rounded-lg w-48"
-                  />
-                </div>
-                <div className='relative'>
+      <div className="container mx-auto p-8 bg-blue-950 text-black   rounded-xl flex w-[850px] flex-col justify-center space-y-6">
+  <form onSubmit={handleSearch}>
+    <div className="flex flex-col items-center space-y-4">
+      <div className="flex space-x-4">
+        <Select
+          name="from"
+          options={filteredAirports}
+          value={selectedFrom}
+          onChange={handleSelectChange}
+          onInputChange={handleInputChange}
+          placeholder="From"
+          className="p-2 rounded-lg text-black w-48"
+        />
+        <Select
+          name="to"
+          options={filteredAirports}
+          value={selectedTo}
+          onChange={handleSelectChange}
+          onInputChange={handleInputChange}
+          placeholder="To"
+          className="p-2 rounded-lg w-48"
+        />
+      </div>
+      
+      {/* Flex container for date, return date, and sort */}
+      <div className="flex space-x-4 w-full justify-between">
+        <div className="w-full">
+          <DatePicker
+            selected={startDate}
+            onChange={(date: Date | null) => setStartDate(date)}
+            className="w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+            placeholderText="Select date"
+            minDate={new Date()}
+          />
+        </div>
+        <div className="w-full">
+          <DatePicker
+            selected={returnDate}
+            onChange={(date: Date | null) => setreturnDate(date)}
+            className="w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+            placeholderText="Select Return Date"
+            minDate={new Date()}
+          />
+        </div>
+        <div className="w-full">
+          <Select
+            name="sort"
+            options={[
+              { value: 'price', label: 'Price(Sort)' },
+              { value: 'duration', label: 'Duration(Sort)' },
+              { value: 'departureTime', label: 'Departure Time(Sort)' },
+            ]}
+            value={{ value: sortOption, label: sortOption.charAt(0).toUpperCase() + sortOption.slice(1) }}
+            onChange={(option: SingleValue<OptionType>) => setSortOption(option?.value || 'price')}
+            placeholder="Sort by"
+            className=" rounded-lg  w-full"
+          />
+          
+        </div>
+      </div>
 
-                  <div className="relative mb-4">
+      <div className="relative mb-4">
+        <button
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)} // Toggle dropdown visibility
+          className="p-2 rounded-lg bg-gray-200 hover:bg-gray-100 font-extrabold w-64"
+        >
+          Passenger Details
+        </button>
+
+        {isDropdownOpen && (
+          <div className="absolute w-full mt-1 bg-white shadow-lg rounded-lg border border-gray-200 z-10">
+            <div className="p-4 space-y-4 ">
+              {[
+                { label: "Adults", type: "adults" },
+                { label: "Senior Citizens", type: "seniors" },
+                { label: "Children", type: "children" },
+                { label: "Infants", type: "infants" },
+              ].map(({ label, type }) => (
+                <div key={type} className="flex w-full justify-between items-center">
+                  <span>{label}:</span>
+                  <div className="flex items-center">
                     <button
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)} // Toggle dropdown visibility
-                      className="p-2 rounded-lg bg-gray-200 hover:bg-gray-100 font-extrabold w-64"
+                      type="button"
+                      onClick={() => decrement(type as keyof typeof passengers)}
+                      className="bg-gray-300 hover:bg-gray-400 px-2 py-1 rounded-lg"
                     >
-                      Passenger Details
+                      -
                     </button>
-
-                    {isDropdownOpen && (
-                      <div className="absolute w-full mt-1 bg-white shadow-lg rounded-lg border border-gray-200 z-10">
-                        <div className="p-4 space-y-4">
-                          {[
-                            { label: "Adults", type: "adults" },
-                            { label: "Senior Citizens", type: "seniors" },
-                            { label: "Children", type: "children" },
-                            { label: "Infants", type: "infants" },
-                          ].map(({ label, type }) => (
-                            <div key={type} className="flex justify-between items-center">
-                              <span>{label}:</span>
-                              <div className="flex items-center">
-                                <button
-                                  type="button"
-                                  onClick={() => decrement(type as keyof typeof passengers)}
-                                  className="bg-gray-300 hover:bg-gray-400 px-2 py-1 rounded-lg"
-                                >
-                                  -
-                                </button>
-                                <span className="mx-2">
-                                  {passengers[type as keyof typeof passengers]}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => increment(type as keyof typeof passengers)}
-                                  className="bg-gray-300 hover:bg-gray-400 px-2 py-1 rounded-lg"
-                                >
-                                  +
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Display the total passengers */}
-                  <div className='font-extrabold text-xl ml-12'>
-                    <h4>Total Passengers: {totalPassengers}</h4>
-                  </div>
-                </div>
-                <div className="relative">
-
-                  <DatePicker
-                    selected={startDate}
-                    onChange={(date: Date | null) => setStartDate(date)}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholderText="Select date"
-                    minDate={new Date()}
-                  />
-
-
-                  <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                    <svg
-                      className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
+                    <span className="mx-2">
+                      {passengers[type as keyof typeof passengers]}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => increment(type as keyof typeof passengers)}
+                      className="bg-gray-300 hover:bg-gray-400 px-2 py-1 rounded-lg"
                     >
-                      <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                    </svg>
+                      +
+                    </button>
                   </div>
-
                 </div>
-                <div className="flex space-x-4 mt-4">
-                  <Select
-                    name="sort"
-                    options={[
-                      { value: 'price', label: 'Price' },
-                      { value: 'duration', label: 'Duration' },
-                      { value: 'departureTime', label: 'Departure Time' }
-                    ]}
-                    value={{ value: sortOption, label: sortOption.charAt(0).toUpperCase() + sortOption.slice(1) }}
-                    onChange={(option: SingleValue<OptionType>) => setSortOption(option?.value || 'price')}
-                    placeholder="Sort by" setflighc
-                    className="p-2 rounded-lg w-48"
-                  />
-                </div>
-              </div>
-              <div className="flex justify-center mt-4">
-                <button type="submit" className="lg:w-[180px] text-white bg-green-400 font-extrabold p-2 rounded-lg">
-                  Search
-                </button>
-              </div>
-            </form>
+              ))}
+            </div>
           </div>
+        )}
+      </div>
+      
+      <div className="flex justify-center mt-4">
+        <button type="submit" onClick={openModal} className="lg:w-[180px] text-white bg-green-400 font-extrabold p-2 rounded-lg">
+          Search
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
         </div>
       </div>
 
       <div className="relative">
-        <div className="absolute inset-0 min-h-[50vh] opacity-8 z-0" style={{ opacity: '0.08' }}>
-          <Image
-            src="/clouds-2716_1920.jpg"
-            alt="Background Image"
-            layout="fill"
-            objectFit="cover"
-          />
-        </div>
-        <div className="relative z-10 top-0 left-0 w-full">
-          <div className="container mx-auto px-4 h-auto pt-20">
-            {currentFlights.map((flight, index) => (
-              <div key={flight.flightNumber} className="bg-white/10 p-4 rounded-lg shadow-md flex items-center justify-between w-full mb-4">
-                <div className="flex items-center">
-                  <div className="mr-4"></div>
-                  <div>
-                    <div className="text-lg font-bold text-white">{flight.departureTime} - {flight.arrivalTime}</div>
-                    <div className="text-white">{flight.departureAirport} - {flight.arrivalAirport}</div>
-                    <div className="text-sm text-white">{flight.duration} ({flight.stops})</div>
-                    <div className="text-sm text-white">{flight.flightNumber}</div>
-
-                  </div>
+  <div className="absolute inset-0 min-h-[50vh] opacity-8 z-0" style={{ opacity: '0.08' }}>
+    <Image
+      src="/clouds-2716_1920.jpg"
+      alt="Background Image"
+      layout="fill"
+      objectFit="cover"
+    />
+  </div>
+  <div className="relative z-10 top-0 left-0 w-full">
+    <div className="container mx-auto px-4 h-auto pt-20">
+      {currentFlights.length > 0 ? (
+        currentFlights.map((flight, index) => (
+          <div
+            key={flight.flightNumber}
+            className="bg-white/10 p-4 rounded-lg shadow-md flex items-center justify-between w-full mb-4"
+          >
+            <div className="flex items-center">
+              <div className="mr-4"></div>
+              <div>
+                <div className="text-lg font-bold text-white">
+                  {flight.departureTime} - {flight.arrivalTime}
                 </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold text-white">₹{flight.price}</div>
-                  <div className="text-sm text-green-500">Get at ₹{flight.price - 750} with INTSAVER</div>
-                  <button
-                    className="bg-green-500 font-extrabold px-6 text-white py-2 rounded mt-2"
-                    onClick={() => {
-                      dispatch(setBookDetail(flight));
-                      dispatch(setSelectedPassengers(passengers))
-                      alert(passengerCount)
-                      console.log(flight, 'ffdsfsdf');
-                      dispatch(clearSelectedSeat())
-                      router.push('/user/flight/selectSeats');
-                    }}
-                  >
-                    Book
-                  </button>
-                  <div className="text-sm text-white/80 mt-1">Partially refundable</div>
+                <div className="text-white">
+                  {flight.departureAirport} - {flight.arrivalAirport}
                 </div>
+                <div className="text-sm text-white">
+                  {flight.duration} ({flight.stops})
+                </div>
+                <div className="text-sm text-white">{flight.flightNumber}</div>
               </div>
-            ))}
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold text-white">₹{flight.price}</div>
+              <div className="text-sm text-green-500">
+                Get at ₹{flight.price - 750} with INTSAVER
+              </div>
+              <button
+                className="bg-green-500 font-extrabold px-6 text-white py-2 rounded mt-2"
+                onClick={() => {
+                  dispatch(setBookDetail(flight));
+                  dispatch(setSelectedPassengers(passengers));
+                  alert(passengerCount);
+                  console.log(flight, 'ffdsfsdf');
+                  dispatch(clearSelectedSeat());
+                  router.push('/user/flight/selectSeats');
+                }}
+              >
+                Book
+              </button>
+              <div className="text-sm text-white/80 mt-1">Partially refundable</div>
+            </div>
           </div>
-          <div className="flex justify-center mt-6">
-            <nav>
-              <ul className="inline-flex">
-                {Array.from({ length: Math.ceil(flights.length / flightsPerPage) }, (_, i) => (
-                  <li key={i} className={`px-3 py-2 ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-md mx-1 cursor-pointer`} onClick={() => paginate(i + 1)}>
-                    {i + 1}
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </div>
+        ))
+      ) : (
+        <div className="flex flex-col items-center justify-center h-full">
+          <Image
+            src="https://airline-datacenter.s3.ap-south-1.amazonaws.com/de9dc8d1-fd3b-44a4-b095-d0e4f3a544b6.jpeg" // replace with your actual image path
+            alt="No Flights Available"
+            width={700}
+            height={400}
+          />
+          <p className="text-white text-xl mt-4">No Flights Available</p>
         </div>
+      )}
+    </div>
+    {currentFlights.length > 0 && (
+      <div className="flex justify-center mt-6">
+        <nav>
+          <ul className="inline-flex">
+            {Array.from({ length: Math.ceil(flights.length / flightsPerPage) }, (_, i) => (
+              <li
+                key={i}
+                className={`px-3 py-2 ${
+                  currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+                } rounded-md mx-1 cursor-pointer`}
+                onClick={() => paginate(i + 1)}
+              >
+                {i + 1}
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
-      <footer className="bg-white rounded-lg shadow dark:bg-gray-900 m-4 pt-40">
+    )}
+  </div>
+</div>
+
+     
+      <footer className=" rounded-lg w-full bg-gray-900 shadow-inner shadow-white/35 mt-10  pt-40">
         <div className="w-full max-w-screen-xl mx-auto p-4 md:py-8">
           <div className="sm:flex sm:items-center sm:justify-between">
             <a href="https://flowbite.com/" className="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">

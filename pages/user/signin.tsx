@@ -1,3 +1,4 @@
+'use client'
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
@@ -24,6 +25,7 @@ const SignIn: React.FC = () => {
     }
     return '';
   };
+  
 
   const validatePassword = (password: string) => {
     if (password.length < 8) {

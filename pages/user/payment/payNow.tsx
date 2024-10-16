@@ -19,8 +19,12 @@ const PaymentForm: React.FC = () => {
   const aircraftModel = useSelector((state: RootState) => state.aircraftModel.aircraftModel);
   const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
   const passengerDetails = useSelector((state: RootState) => state.bookdetail.passengerDetails);
+  
+  const returnDate=useSelector((state:RootState)=>state.returnDate.returndate)
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const stripe = useStripe();
+  const passengers=useSelector((state:RootState)=>state.bookdetail.passengerDetails)
+
   const router=useRouter()
   const elements = useElements();
   const token=Cookies.get('jwtToken');
@@ -41,75 +45,75 @@ if(!token){
         });
     }
   }, [selectedFlight]);
+useEffect(()=>{
+  console.log(passengers,'test fine')
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-console.log(selectedSeat,'test fine')
-const seatArray=[]
-for(let i of selectedSeat){
-seatArray.push(i._id)
-}
-    if (!stripe || !elements || !clientSecret) {
-      return;
-    }
-    const userId=Cookies.get('userId')
-    const data = 
-      {
-        "passengerName":  `${passengerDetails[0].firstName} ${passengerDetails[0].lastName}` ,
-        "email": passengerDetails[0].email,
-        "phoneNumber": passengerDetails[0].phoneNumber,
-        "departureAirport": selectedFlight?.departureAirport,
-        "arrivalAirport": selectedFlight?.arrivalAirport,
-        "stop": selectedFlight?.stops,
-        "flightNumber": selectedFlight?.flightNumber,
-        "flightDuration": selectedFlight?.duration,
-        "departureTime": selectedFlight?.departureTime,
-        "arrivalTime": selectedFlight?.arrivalTime,
-        "totalPassengers": 1,
-        "FarePaid": selectedFlight?.price,
-        "userId":userId,
-        "seatNumber": seatArray,
-        "DateofJourney":bookDate,
-        "flightModel":aircraftModel,
-      
-      
-    };
-    const result = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: elements.getElement(CardElement)!,
-        billing_details: {
-          name: `${passengerDetails[0].firstName} ${passengerDetails[0].lastName}`,
-          email: passengerDetails[0].email,
-          phone: passengerDetails[0].phoneNumber,
-        },
+},[])
+const handleSubmit = async (event: React.FormEvent) => {
+  event.preventDefault();
+
+  const seatArray: string[] = selectedSeat.map((seat: any) => seat._id);
+  const passengerArray = passengers.passengers.map((passenger: any) => passenger);
+
+  if (!stripe || !elements || !clientSecret) {
+    return;
+  }
+
+  const userId = Cookies.get('userId');
+  const data = {
+    passengerName: passengerArray,
+    email: passengers?.email,
+    phoneNumber: passengers?.phoneNumber,
+    departureAirport: selectedFlight?.departureAirport,
+    arrivalAirport: selectedFlight?.arrivalAirport,
+    stop: selectedFlight?.stops,
+    flightNumber: selectedFlight?.flightNumber,
+    flightDuration: selectedFlight?.duration,
+    departureTime: selectedFlight?.departureTime,
+    arrivalTime: selectedFlight?.arrivalTime,
+    totalPassengers: passengers.passengers.length,
+    FarePaid: selectedFlight!.price * selectedSeat.length,
+    userId: userId,
+    seatNumber: seatArray,
+    DateofJourney: bookDate,
+    flightModel: aircraftModel,
+    returnDate: returnDate,
+  };
+
+  const result = await stripe.confirmCardPayment(clientSecret, {
+    payment_method: {
+      card: elements.getElement(CardElement)!,
+      billing_details: {
+        name: `${passengers.passengers[0].firstName} ${passengers.passengers[0].lastName}`,
+        email: passengers?.email,
+        phone: passengers?.phoneNumber,
       },
-    });
+    },
+  });
 
-    if (result.error) {
-      Swal.fire({
-        title: 'Payment Failed!',
-        text: 'Payment Failed.',
-        imageUrl: 'https://cdn.dribbble.com/users/2469324/screenshots/6538803/comp_3.gif',
-        imageWidth: 400,
-        imageHeight: 200,
-        imageAlt: 'Custom image',
-      });
-      console.error('Payment error:', result.error.message);
-    } else if (result.paymentIntent?.status === 'succeeded') {
-      console.log('Payment successful!');
-      
-     const handleRequests = async (data: {}) => {
+  if (result.error) {
+    Swal.fire({
+      title: 'Payment Failed!',
+      text: 'Payment Failed.',
+      imageUrl: 'https://cdn.dribbble.com/users/2469324/screenshots/6538803/comp_3.gif',
+      imageWidth: 400,
+      imageHeight: 200,
+      imageAlt: 'Custom image',
+    });
+    console.error('Payment error:', result.error.message);
+  } else if (result.paymentIntent?.status === 'succeeded') {
+    console.log('Payment successful!');
+
+    const handleRequests = async (data: {}) => {
       try {
         const sendTicketAndBookingRequest = await axios.post('http://localhost:3000/api/sendTicket', data, {
           headers: {
             'Content-Type': 'application/json',
           },
-        });                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-    
-        // Log the response if needed
+        });
+
         console.log('Send Ticket and Booking Response:', sendTicketAndBookingRequest.data);
-    
-        // Display a success message with Swal when the request is successful
+
         Swal.fire({
           title: 'Success!',
           text: 'Payment Successful. Your booking and ticket have been saved.',
@@ -118,24 +122,16 @@ seatArray.push(i._id)
           imageHeight: 200,
           imageAlt: 'Success image',
         });
-    
       } catch (error: any) {
-        // Handle any errors that occur
         console.error('Error:', error.response ? error.response.data : error.message);
-        Swal.fire({
-          title: 'Error',
-          text: 'Something went wrong with the booking or ticketing process.',
-          icon: 'error',
-        });
       }
     };
-    
 
-handleRequests(data);
-      // Handle successful payment (e.g., redirect to a confirmation page)
-      router.push('/user/payment/thanksPayment')
-    }
-  };
+    handleRequests(data);
+    router.push('/user/payment/thanksPayment');
+  }
+};
+
 
   return (
     <form onSubmit={handleSubmit}>
@@ -219,9 +215,9 @@ const PaymentPage: React.FC = () => {
                 <h2 className="text-2xl font-semibold mb-4">Passenger Details</h2>
                 {passengerDetails ? (
                   <div>
-                    <p className="text-lg">Name: {passengerDetails[0]?.firstName} {passengerDetails[0].lastName}</p>
+                    {/* <p className="text-lg">Name: {passengerDetails[0]?.firstName} {passengerDetails[0].lastName}</p>
                     <p className="text-lg">Email: {passengerDetails[0].email}</p>
-                    <p className="text-lg">Phone: {passengerDetails[0].phoneNumber}</p>
+                    <p className="text-lg">Phone: {passengerDetails[0].phoneNumber}</p> */}
                   </div>
                 ) : (
                   <p>No passenger details available</p>

@@ -17,7 +17,8 @@ const JobBoard = () => {
   const Navbar = dynamic(() => import('../../components/Navbar'));
   const ChatBox = dynamic(() => import('../../components/ChatBox'));
   const dispatch = useDispatch();
-  const router = useRouter()
+  const router = useRouter();
+  
   const handleDetailsClick = (job: Job) => {
     dispatch(setSelectedJob(job));
     router.push('/user/careers/careerDetails');  
@@ -66,16 +67,13 @@ const JobBoard = () => {
       <Navbar />
       <ChatBox />
 
-      <div className="h-56 mt-[50px] sm:h-[55] xl:h-80 2xl:h-96">
+      <div className="h-56 mt-[50px] sm:h-[85] xl:h-80 2xl:h-[600px]">
         <Carousel>
           <img
             src="https://airline-datacenter.s3.ap-south-1.amazonaws.com/e9f1d460-5e31-4a2c-9348-85d8ba317708.jpeg"
             alt="Career Carousel 1"
           />
-          <img
-            src="https://airline-datacenter.s3.ap-south-1.amazonaws.com/pexels-pixabay-164646.jpg"
-            alt="Career Carousel 2"
-          />
+        
         </Carousel>
       </div>
 

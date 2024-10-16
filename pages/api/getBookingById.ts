@@ -3,7 +3,7 @@ import { gql, GraphQLClient } from "graphql-request";
 
 const getBookingByUserId = async (req: NextApiRequest, res: NextApiResponse) => {
     const { userId } = req.body; 
-
+   console.log(userId,'cgsdcgsdhcgv')
     if (!userId) {
         return res.status(400).json({ msg: "User ID is required" });
     }
@@ -14,17 +14,27 @@ const getBookingByUserId = async (req: NextApiRequest, res: NextApiResponse) => 
     const query = gql`
       query getBookingById($userId: ID!) {
         getBookingById(userId: $userId) {
-         arrivalAirport
-         arrivalTime
-         departureAirport
-         email
-         FarePaid
-         flightDuration
-         flightNumber
-         passengerName
-         phoneNumber
-        stop
-        ticketUrl
+        arrivalAirport
+    arrivalTime
+    DateofJourney
+    departureAirport
+    departureTime
+    email
+    FarePaid
+    flightDuration
+    flightModel
+    flightNumber
+    id
+    passengerName {
+      age
+      disability
+      firstName
+      lastName
+      middleName
+      passportNumber
+      
+    }
+      ticketUrls
         }
       }
     `;
