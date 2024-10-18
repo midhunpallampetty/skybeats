@@ -6,7 +6,7 @@ import { RootState } from '@/redux/store';
 import { setPassengerDetails } from '@/redux/slices/bookdetailSlice';
 import Swal from 'sweetalert2';
 import Cookies from 'js-cookie';
-
+import { clearSelectedReturnFlight } from '@/redux/slices/returnFlightSlice';
 interface PassengerDetails {
   firstName: string;
   middleName: string;
@@ -31,10 +31,33 @@ const BookingDetailsPage: React.FC = () => {
   const [errors, setErrors] = useState<Record<number, Record<string, boolean>>>({});
   const [commonErrors, setCommonErrors] = useState<Record<string, boolean>>({ email: false, phoneNumber: false });
   const passengers=useSelector((state:RootState)=>state.bookdetail.passengerDetails)
+  const returnFlight=useSelector((state:RootState)=>state.returnFlights.selectedReturnFlight)
 
   const token = Cookies.get('jwtToken');
   const userId = Cookies.get('userId');
 
+  useEffect(() => {
+    if (returnFlight) {
+      Swal.fire({
+        title: "Do you want to Continue With Return Flights?",
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "Save",
+        denyButtonText: `Don't save`
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          Swal.fire("Continue With Return Flights!", "", "success");
+          
+        } else if (result.isDenied) {
+          dispatch(clearSelectedReturnFlight());
+
+          Swal.fire("Return Flights are Removed", "", "info");
+        }
+      });
+   
+    }
+  }, [returnFlight, dispatch]);
   useEffect(() => {
     if (!token) {
       router.push('/');

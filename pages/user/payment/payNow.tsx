@@ -7,6 +7,7 @@ import Cookies from 'js-cookie';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import axios from 'axios';
+
 interface PaymentIntentResponse {
   clientSecret: string;
 }
@@ -19,7 +20,8 @@ const PaymentForm: React.FC = () => {
   const aircraftModel = useSelector((state: RootState) => state.aircraftModel.aircraftModel);
   const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
   const passengerDetails = useSelector((state: RootState) => state.bookdetail.passengerDetails);
-  
+  const returnFlight=useSelector((state:RootState)=>state.returnFlights.selectedReturnFlight)
+
   const returnDate=useSelector((state:RootState)=>state.returnDate.returndate)
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const stripe = useStripe();
@@ -46,7 +48,7 @@ if(!token){
     }
   }, [selectedFlight]);
 useEffect(()=>{
-  console.log(passengers,'test fine')
+  console.log(returnFlight,'test fine')
 
 },[])
 const handleSubmit = async (event: React.FormEvent) => {
@@ -79,6 +81,26 @@ const handleSubmit = async (event: React.FormEvent) => {
     flightModel: aircraftModel,
     returnDate: returnDate,
   };
+  const data2 = {
+    passengerName: passengerArray,
+    email: passengers?.email,
+    phoneNumber: passengers?.phoneNumber,
+    departureAirport: returnFlight?.departureAirport,
+    arrivalAirport: returnFlight?.arrivalAirport,
+    stop: returnFlight?.stops,
+    flightNumber: returnFlight?.flightNumber,
+    flightDuration: returnFlight?.duration,
+    departureTime: returnFlight?.departureTime,
+    arrivalTime: returnFlight?.arrivalTime,
+    totalPassengers: passengers.passengers.length,
+    FarePaid: returnFlight!.price * selectedSeat.length,
+    userId: userId,
+  
+    DateofJourney: bookDate,
+    flightModel: aircraftModel,
+    returnDate: returnDate,
+  };
+
 
   const result = await stripe.confirmCardPayment(clientSecret, {
     payment_method: {
@@ -111,7 +133,18 @@ const handleSubmit = async (event: React.FormEvent) => {
             'Content-Type': 'application/json',
           },
         });
+        if(returnFlight){
+          const sendReturnTicketAndBookingRequest = await axios.post('http://localhost:3000/api/bookReturn', data2, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          console.log('Send Ticket and Booking Response:', sendReturnTicketAndBookingRequest.data);
+        }
+         
 
+        
+       
         console.log('Send Ticket and Booking Response:', sendTicketAndBookingRequest.data);
 
         Swal.fire({

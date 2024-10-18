@@ -31,14 +31,14 @@ interface BookingDetails {
 interface BookingDetailsModalProps {
   isOpen: boolean
   onClose: () => void
-  bookings: BookingDetails[]
+  booking: BookingDetails | null // Accept a single booking or null
 }
 
-export default function BookingDetailsModal({ isOpen, onClose, bookings }: BookingDetailsModalProps) {
+export default function BookingDetailsModal({ isOpen, onClose, booking }: BookingDetailsModalProps) {
   const [activeTab, setActiveTab] = useState('details')
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
-  if (!isOpen) {
+  if (!isOpen || !booking) {
     return null
   }
 
@@ -70,92 +70,88 @@ export default function BookingDetailsModal({ isOpen, onClose, bookings }: Booki
           </button>
         </div>
 
-        {bookings.map((booking, bookingIndex) => (
-          <div key={bookingIndex}>
-            {activeTab === 'details' && (
-              <div className="overflow-y-auto h-96">
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-2">Flight Information</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center">
-                      <Plane className="h-5 w-5 mr-2" />
-                      <div>
-                        <p className="font-medium">Flight Number: {booking.flightNumber}</p>
-                        <p className="text-gray-500">{booking.departureAirport} → {booking.arrivalAirport}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <Clock className="h-5 w-5 mr-2" />
-                      <div>
-                        <p className="font-medium">Departure: {booking.departureTime}</p>
-                        <p className="font-medium">Arrival: {booking.arrivalTime}</p>
-                        <p className="text-gray-500">Duration: {booking.flightDuration}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <Calendar className="h-5 w-5 mr-2" />
-                      <p className="font-medium">Date: {booking.DateofJourney}</p>
-                    </div>
-                    <div className="flex items-center">
-                      <CreditCard className="h-5 w-5 mr-2" />
-                      <p className="font-medium">Fare Paid: ${booking.FarePaid}</p>
-                    </div>
+        {activeTab === 'details' && (
+          <div className="overflow-y-auto h-96">
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-2">Flight Information</h3>
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <Plane className="h-5 w-5 mr-2" />
+                  <div>
+                    <p className="font-medium">Flight Number: {booking.flightNumber}</p>
+                    <p className="text-gray-500">{booking.departureAirport} → {booking.arrivalAirport}</p>
                   </div>
                 </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Passenger Information</h3>
-                  {booking.passengerName.map((passenger, index) => (
-                    <div key={index} className="mb-4">
-                      <h4 className="font-semibold">Passenger {index + 1}</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <p className="text-gray-700">Name: {`${passenger.firstName} ${passenger.middleName} ${passenger.lastName}`}</p>
-                        <p className="text-gray-700">Age: {passenger.age}</p>
-                        <p className="text-gray-700">Passport: {passenger.passportNumber}</p>
-                        <p className="text-gray-700">Disability: {passenger.disability}</p>
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex items-center">
+                  <Clock className="h-5 w-5 mr-2" />
+                  <div>
+                    <p className="font-medium">Departure: {booking.departureTime}</p>
+                    <p className="font-medium">Arrival: {booking.arrivalTime}</p>
+                    <p className="text-gray-500">Duration: {booking.flightDuration}</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <Calendar className="h-5 w-5 mr-2" />
+                  <p className="font-medium">Date: {booking.DateofJourney}</p>
+                </div>
+                <div className="flex items-center">
+                  <CreditCard className="h-5 w-5 mr-2" />
+                  <p className="font-medium">Fare Paid: ${booking.FarePaid}</p>
                 </div>
               </div>
-            )}
+            </div>
 
-            {activeTab === 'tickets' && (
-              <div className="overflow-y-auto h-96">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {booking.ticketUrls.map((url, index) => (
-                    <div key={index} className="relative cursor-pointer">
-                      <img
-                        src={url}
-                        alt={`Ticket for ${booking.passengerName[index].firstName} ${booking.passengerName[index].lastName}`}
-                        className="w-full h-48 object-cover rounded-lg"
-                        onClick={() => setSelectedImage(url)}
-                      />
-                      <div className="absolute bottom-2 left-2 bg-gray-900 bg-opacity-75 text-white px-2 py-1 rounded">
-                        <p>Ticket for {booking.passengerName[index].firstName} {booking.passengerName[index].lastName}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Lightbox modal for viewing larger image */}
-                {selectedImage && (
-                  <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-75">
-                    <div className="relative">
-                      <img src={selectedImage} alt="Ticket" className="max-h-screen object-contain rounded-lg" />
-                      <button
-                        className="absolute top-2 right-2 text-white bg-black bg-opacity-50 p-2 rounded-full"
-                        onClick={() => setSelectedImage(null)}
-                      >
-                        Close
-                      </button>
-                    </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Passenger Information</h3>
+              {booking.passengerName.map((passenger, index) => (
+                <div key={index} className="mb-4">
+                  <h4 className="font-semibold">Passenger {index + 1}</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <p className="text-gray-700">Name: {`${passenger.firstName} ${passenger.middleName} ${passenger.lastName}`}</p>
+                    <p className="text-gray-700">Age: {passenger.age}</p>
+                    <p className="text-gray-700">Passport: {passenger.passportNumber}</p>
+                    <p className="text-gray-700">Disability: {passenger.disability}</p>
                   </div>
-                )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'tickets' && (
+          <div className="overflow-y-auto h-96">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {booking.ticketUrls.map((url, index) => (
+                <div key={index} className="relative cursor-pointer">
+                  <img
+                    src={url}
+                    alt={`Ticket for ${booking.passengerName[index].firstName} ${booking.passengerName[index].lastName}`}
+                    className="w-full h-48 object-cover rounded-lg"
+                    onClick={() => setSelectedImage(url)}
+                  />
+                  <div className="absolute bottom-2 left-2 bg-gray-900 bg-opacity-75 text-white px-2 py-1 rounded">
+                    <p>Ticket for {booking.passengerName[index].firstName} {booking.passengerName[index].lastName}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Lightbox modal for viewing larger image */}
+            {selectedImage && (
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-75">
+                <div className="relative">
+                  <img src={selectedImage} alt="Ticket" className="max-h-screen object-contain rounded-lg" />
+                  <button
+                    className="absolute top-2 right-2 text-white bg-black bg-opacity-50 p-2 rounded-full"
+                    onClick={() => setSelectedImage(null)}
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             )}
           </div>
-        ))}
+        )}
       </div>
     </div>
   )

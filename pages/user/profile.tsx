@@ -10,6 +10,7 @@
       import Cookies from 'js-cookie'
       import Swal from 'sweetalert2';
       import axios from 'axios'
+      import WalletModal from '../components/Wallet';
       import { useRouter } from 'next/router'
       import { Edit, Mail, Phone, MapPin, Cake, User, Briefcase, Calendar, Key } from 'lucide-react'
       import { contextType } from 'react-modal';
@@ -23,14 +24,30 @@
           }
         }
       `
-
+      const ITEMS_PER_PAGE = 5
       export default function ProfileComponent() {
         const Navbar=dynamic(()=>import('../components/Navbar'),{ssr:false})
-        const [isModalOpen, setIsModalOpen] = useState(false)
+        const [isModalOpen, setIsModalOpen] = useState(false)  
+        const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+        const [bookings, setBookings] = useState<any[]>([])
+
         const router=useRouter()
         const [editMode, setEditMode] = useState(false)
         const [activeTab, setActiveTab] = useState('profile')
         const userId = Cookies.get('userId')
+        const [currentPage, setCurrentPage] = useState(1) // Pagination state
+        const [walletBalance,setWalletBalance]=useState('')
+  const [sortOrder, setSortOrder] = useState('asc') 
+        const sortedBookings = bookings.sort((a, b) => {
+          const dateA = new Date(a.DateofJourney)
+          const dateB = new Date(b.DateofJourney)
+          return sortOrder === 'asc' ? dateA - dateB : dateB - dateA
+        })
+      
+        // Pagination logic: slice the bookings array based on the current page
+        const indexOfLastBooking = currentPage * ITEMS_PER_PAGE
+        const indexOfFirstBooking = indexOfLastBooking - ITEMS_PER_PAGE
+        const currentBookings = sortedBookings.slice(indexOfFirstBooking, indexOfLastBooking)
         const [user, setUser] = useState({
           firstName: 'Jane',
           lastName: 'Doe',
@@ -45,8 +62,8 @@
           occupation: 'Software Engineer',
           company: 'Tech Innovations Inc.',
         })
-        const [bookings, setBookings] = useState<any[]>([])
         const [birthday,setBirthDay]=useState('')
+        const [selectedBooking, setSelectedBooking] = useState(null); 
         const [contactNo,setContactNo]=useState('')
         const [currentAddress,setCurrentAddress]=useState('')
         const [email,setEmail]=useState('')
@@ -72,7 +89,7 @@
             try {
               const response = await axios.post('/api/getBookingById', {
                 userId: userId,
-              });
+              });                                                                                                
 
               await setBookings(response?.data);
               console.log(bookings, 'congratulations.........');
@@ -82,7 +99,9 @@
           };
           fetchData();
         }, []);
-
+  const toggleModal = () => {
+    setIsModalOpen(prev => !prev);
+  };
         async function handleSubmit() {
           if (!validateForm()) {
               console.log("Form validation failed");
@@ -126,7 +145,7 @@
           }
       }
       
-
+     
 
 const validateForm = () => {
     const newErrors:any = {};
@@ -205,7 +224,18 @@ const validateForm = () => {
       }, [profile]); // This will log whenever userData is updated
       // Empty dependency array to run this once when the component mounts
         
-        
+      const handleSortToggle = () => {
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+      }
+    
+      // Handle page changes
+      const totalPages = Math.ceil(bookings.length / ITEMS_PER_PAGE)
+      const handlePreviousPage = () => {
+        if (currentPage > 1) setCurrentPage(currentPage - 1)
+      }
+      const handleNextPage = () => {
+        if (currentPage < totalPages) setCurrentPage(currentPage + 1)
+      }
 
         
         const handleEditClick = () => {
@@ -292,11 +322,13 @@ const validateForm = () => {
                 />
             
               </Carousel>
-              <ShowBookings isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} bookings={bookings} />
-            </div>
+              <ShowBookings isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} booking={selectedBooking} />
+              <WalletModal isOpen={isModalOpen} onClose={toggleModal} />
+              </div> 
         <div className="min-h-screen  mt-16 ">
             <div className="container mx-auto py-8 px-4">
               <div className="bg-white rounded-lg shadow-lg overflow-hidden max-w-4xl mx-auto">
+             
 
                 <div className="relative px-4 md:px-6 pb-6 -mt-16">
                   <div className="flex flex-col md:flex-row items-center">
@@ -425,6 +457,7 @@ const validateForm = () => {
                 ></textarea>
                 {errors.permanentAddress && <p className="text-red-500 text-sm">{errors.permanentAddress}</p>}
             </div>
+            
         </div>
         <div className="mt-6 flex justify-end">
             {editMode ? (
@@ -451,76 +484,96 @@ const validateForm = () => {
                 >
                     Edit
                 </button>
+                
             )}
         </div>
+        <button
+                    type="button"onClick={toggleModal}
+                    
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                    Wallet
+                </button>
     </div>
 )}
-
 
 
 
 {activeTab === 'bookings' && (
-  <div className="mt-6">
-    <h3 className="text-lg font-semibold mb-4">Booking History</h3>
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Passenger Names
-            </th>
-          
-           
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {bookings.map((booking) => (
-            <tr key={booking.id}>
-              {/* Displaying passenger names */}
-              <td className="px-6 py-4 whitespace-nowrap">
-                {booking.passengerName.map((passenger, index) => (
-                  <div key={index}>
-                    {passenger.firstName} {passenger.middleName} {passenger.lastName}
-                  </div>
-                ))}
-              </td>
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold mb-4">Booking History</h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Passenger Names
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={handleSortToggle}>
+                    Date of Journey {sortOrder === 'asc' ? '▲' : '▼'}
+                  </th>
+                  <th className="px-6 py-3"></th> {/* Empty cell for "More Details" */}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {currentBookings.map((booking) => (
+                  <tr key={booking.id}>
+                    {/* Displaying passenger names */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {booking.passengerName.map((passenger, index) => (
+                        <div key={index}>
+                          {passenger.firstName} {passenger.middleName} {passenger.lastName}
+                        </div>
+                      ))}
+                    </td>
 
-              {/* Displaying ticket download links */}
-              {/* <td className="px-6 py-4 whitespace-nowrap">
-                {booking.ticketUrls.map((ticketUrl, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      const link = document.createElement("a");
-                      link.href = ticketUrl;
-                      link.setAttribute("download", `ticket-${booking.passengerName[index].firstName}.png`); // Download ticket with passenger name
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    }}
-                    className="text-blue-500 underline"
-                  >
-                    Download Ticket {index + 1}
-                  </button>
-                ))}
-              </td> */}
+                    {/* Displaying Date of Journey */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {booking.DateofJourney}
+                    </td>
 
-              {/* More details button */}
-              <td className="px-6 py-4 whitespace-nowrap">
-                <button
-                  onClick={() => setIsModalOpen(true)}// Assuming you want to pass booking id
-                  className="bg-green-600 text-white p-2 rounded-lg font-extrabold"
-                >
-                  More Details
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-)}
+                    {/* More details button */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <button
+                        onClick={() => {
+                          setSelectedBooking(booking) // Set the specific booking
+                          setIsModalOpen(true) // Open the modal
+                        }}
+                        className="bg-green-600 text-white p-2 rounded-lg font-extrabold"
+                      >
+                        More Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Pagination controls */}
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+                className={`px-4 py-2 ${currentPage === 1 ? 'text-gray-400' : 'text-blue-500'}`}
+              >
+                Previous
+              </button>
+
+              <p className="text-gray-500">
+                Page {currentPage} of {totalPages}
+              </p>
+
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                className={`px-4 py-2 ${currentPage === totalPages ? 'text-gray-400' : 'text-blue-500'}`}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
                   {activeTab === 'password' && (
@@ -560,9 +613,12 @@ const validateForm = () => {
                       </div>
                     </div>
                   )}
+                  
                 </div>
+                
               </div>
             </div>
+            
           </div>
           <footer
           className="bg-blue-800/20 text-center mt-20 rounded-md text-white/10 shadow-white/15 shadow-inner ">

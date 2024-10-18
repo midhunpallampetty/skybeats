@@ -13,6 +13,7 @@ import bookDateReducer from './slices/bookDate'
 import returnDateReducer from './slices/returnDate'
 import  passengerCountReducer  from './slices/passengerCountSlice'
 import aircraftModelReducer from './slices/aircraftModelSlice';
+import returnFlightReducer from './slices/returnFlightSlice';
 export const store=configureStore({
     reducer:{
         airports:airportsReducer,
@@ -29,6 +30,7 @@ export const store=configureStore({
         returnDate:returnDateReducer,
         passengerCount:passengerCountReducer,
         aircraftModel: aircraftModelReducer,
+        returnFlights: returnFlightReducer,
     },
 });
 export type RootState = ReturnType<typeof store.getState>;

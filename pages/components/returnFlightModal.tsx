@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import { OptionType } from '@/interfaces/OptionType';
+import { selectReturnFlight } from '@/redux/slices/returnFlightSlice';
 import Swal from 'sweetalert2';
 
 interface Flight {
@@ -28,6 +30,7 @@ interface FlightModalProps {
 const aircraftModelCache = new Map();  // Cache for aircraft models
 
 const FlightModal: React.FC<FlightModalProps> = ({ isVisible, onClose, returnOn, from, to }) => {
+  const dispatch = useDispatch(); 
   const [flights, setFlights] = useState<Flight[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +61,6 @@ const FlightModal: React.FC<FlightModalProps> = ({ isVisible, onClose, returnOn,
   };
 
   const fetchAircraftModel = async (airline: string) => {
-    // Check if the model is already cached
     if (aircraftModelCache.has(airline)) {
       return aircraftModelCache.get(airline);
     }
@@ -69,7 +71,6 @@ const FlightModal: React.FC<FlightModalProps> = ({ isVisible, onClose, returnOn,
         ? response.data?.aircraftDetails[0]
         : 'Unknown Aircraft';
       
-      // Cache the result
       aircraftModelCache.set(airline, model);
       
       return model;
@@ -86,7 +87,7 @@ const FlightModal: React.FC<FlightModalProps> = ({ isVisible, onClose, returnOn,
       ? returnOn
       : returnOn.toLocaleDateString()
     : 'No return date';
-
+    
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" onClick={onClose}>
       <div 
@@ -112,7 +113,7 @@ const FlightModal: React.FC<FlightModalProps> = ({ isVisible, onClose, returnOn,
           ) : (
             flights.length > 0 ? (
               flights.map((flight: Flight) => (
-                <FlightCard key={flight.id} flight={flight} fetchAircraftModel={fetchAircraftModel} />
+                <FlightCard key={flight.id} flight={flight} fetchAircraftModel={fetchAircraftModel} dispatch={dispatch} />
               ))
             ) : (
               <p>No flights available</p>
@@ -139,7 +140,7 @@ const FlightModal: React.FC<FlightModalProps> = ({ isVisible, onClose, returnOn,
   );
 };
 
-const FlightCard: React.FC<{ flight: Flight; fetchAircraftModel: (airline: string) => Promise<string> }> = ({ flight, fetchAircraftModel }) => {
+const FlightCard: React.FC<{ flight: Flight; fetchAircraftModel: (airline: string) => Promise<string>; dispatch: any }> = ({ flight, fetchAircraftModel, dispatch }) => {
   const [aircraftModel, setAircraftModel] = useState<string>('Loading...');
 
   useEffect(() => {
@@ -149,6 +150,17 @@ const FlightCard: React.FC<{ flight: Flight; fetchAircraftModel: (airline: strin
     };
     getAircraftModel();
   }, [flight.airline, fetchAircraftModel]);
+
+  const handleSelectReturnFlight = () => {
+    dispatch(selectReturnFlight(flight));
+
+    Swal.fire({
+      title: 'Return Flight Selected!',
+      text: `${flight.flightNumber} from ${flight.departureAirport} to ${flight.arrivalAirport} has been selected as your return flight.`,
+      icon: 'success',
+      confirmButtonText: 'OK'
+    });
+  };
 
   return (
     <div className="flight-card mb-4 p-4 border rounded-lg shadow-md">
@@ -178,7 +190,7 @@ const FlightCard: React.FC<{ flight: Flight; fetchAircraftModel: (airline: strin
           <p className="text-lg font-bold text-indigo-600">₹{flight.price}</p>
         </div>
       </div>
-      <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-500">
+      <button onClick={handleSelectReturnFlight} className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-500">
         Select Flight
       </button>
     </div>

@@ -24,8 +24,12 @@ const SelectSeats: React.FC = () => {
     const selectedSeats = useSelector((state: RootState) => state.selectedSeats.selectedSeats);
     const [localSelectedSeats, setLocalSelectedSeats] = useState<any[]>([]); // Local state for selected seats
     const seatDetailsRef = useRef<HTMLDivElement>(null);
+    const returnFlight=useSelector((state:RootState)=>state.returnFlights.selectedReturnFlight)
 useEffect(()=>{
 console.log(selectedSeats,'cdcdscdsc')
+console.log(returnFlight,'return flights')
+console.log(selectedFlight,'return flights')
+
 },[selectedSeats])
 useEffect(() => {
     const timer = setTimeout(() => {
