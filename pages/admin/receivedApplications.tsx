@@ -152,7 +152,9 @@ const ReceivedCargo: React.FC = ({ bookingData }: any) => {
          {loading && <DotLoader color="#ffffff" size={60} />}
          <AdminNavbar />
          <div style={backgroundStyle} />
+        
          <div style={contentStyle}>
+         <button className='text-white bg-blue-900 px-4 h-10 rounded-lg font-extrabold'onClick={()=>router.push('/admin/addJobs')} >Add Jobs</button>
             <section className="xl:ml-[250px] xl:w-[1200px] md:w-[800px] sm:w-full bg-transparent" style={{ position: 'relative', zIndex: 10 }}>
                <AdminAside />
                {authorized ? (

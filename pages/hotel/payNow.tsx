@@ -23,7 +23,7 @@ const PaymentForm: React.FC = () => {
   const elements = useElements();
   const token=Cookies.get('jwtToken')
   const router=useRouter()
-
+console.log(guestDetails)
   useEffect(()=>{
   if(!token){
     router.push('/')
@@ -49,9 +49,9 @@ const PaymentForm: React.FC = () => {
       return;
     }  
     const data = {
-      guestName: `${guestDetails[0].firstName} ${guestDetails[0].lastName}`,
-      email: guestDetails[0].email,
-      phoneNumber: guestDetails[0].phoneNumber,
+      guestName: `${guestDetails.firstName} ${guestDetails.lastName}`,
+      email: guestDetails.email,
+      phoneNumber: guestDetails.phoneNumber,
       noOfGuests:getGuestDetails?.guests,
       checkin:getGuestDetails?.checkin,
       checkout:getGuestDetails?.checkout,
@@ -67,9 +67,9 @@ const PaymentForm: React.FC = () => {
       payment_method: {
         card: elements.getElement(CardElement)!,
         billing_details: {
-          name: `${guestDetails[0].firstName} ${guestDetails[0].lastName}`,
-          email: guestDetails[0].email,
-          phone: guestDetails[0].phoneNumber,
+          name: `${guestDetails.firstName} ${guestDetails.lastName}`,
+          email: guestDetails.email,
+          phone: guestDetails.phoneNumber,
         },
       },
     });
@@ -103,7 +103,7 @@ const PaymentForm: React.FC = () => {
         imageAlt: 'Custom image',
       });
 
-      router.push('/user/payment/thanksPayment');
+      router.push('/hotel/thanksPage');
     }
   };
 

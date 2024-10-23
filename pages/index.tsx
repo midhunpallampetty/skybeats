@@ -2,20 +2,36 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from './components/Navbar';
+import { useSession } from "next-auth/react";
+import Cookies from 'js-cookie';
 import ImageCarousel from './components/imageCarousel';
 import NetworkStatus from './components/networkStatus';
 import NetworkSpeedButton from './components/NetworkSpeed';
-import dynamic  from 'next/dynamic';
-const Index: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const AiChatBot=dynamic(()=>import('./components/ChatBox'))
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false); // Simulate loading time
-    }, 4000); // 2 seconds delay for loading
+import dynamic from 'next/dynamic';
 
-    return () => clearTimeout(timer); // Cleanup the timer
+const Index: React.FC = () => {
+  const { data: session } = useSession();
+  const [isLoading, setIsLoading] = useState(true);
+  const AiChatBot = dynamic(() => import('./components/ChatBox'));
+console.log(session,'dscd')
+  useEffect(() => {
+    // Simulate loading time (e.g., splash screen)
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 4000); // 4 seconds delay for loading
+
+    // Cleanup timer
+    return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    // If session exists and the token is available, set it in a cookie
+    if (session && session.user?.token) {
+      Cookies.set('jwtToken', session.user.token, { expires: 7 }); // Expires in 7 days
+      Cookies.set('userId',session.user.usersId)
+      console.log('JWT Token set in cookie:', session.user.token);
+    }
+  }, [session]);
 
   // Inline styles for loading screen and animation
   const loadingScreenStyle = {
@@ -54,7 +70,6 @@ const Index: React.FC = () => {
 
   return (
     <>
-
       <style>
         {loadingKeyframes}
       </style>
@@ -73,7 +88,7 @@ const Index: React.FC = () => {
       ) : (
         <>
           <Navbar />
-<AiChatBot/>
+          <AiChatBot />
           <div className="h-screen relative">
             <Image
               src="/airplane_home.webp"
@@ -88,9 +103,9 @@ const Index: React.FC = () => {
             </div>
           </div>
 
-
           <footer className="bg-gray-900">
             <div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
+              {/* Footer content */}
               <div className="md:flex md:justify-between">
                 <div className="mb-6 md:mb-0">
                   <a href="/" className="flex items-center">
@@ -126,6 +141,7 @@ const Index: React.FC = () => {
                   © 2024 <a href="/" className="hover:underline">Skybeats™</a>. All Rights Reserved.
                 </span>
                 <div className="flex mt-4 sm:justify-center sm:mt-0">
+                  {/* Social media links */}
                   {[
                     { href: '#', svgPath: 'M6.135 3H8V0H6.135a4.147 4.147 0 0 0-4.142 4.142V6H0v3h2v9.938h3V9h2.021l.592-3H5V3.591A.6.6 0 0 1 5.592 3h.543Z', title: 'Facebook page' },
                     { href: '#', svgPath: 'M16.942 1.556a16.3 16.3 0 0 0-4.126-1.3 12.04 12.04 0 0 0-.529 1.1 15.175 15.175 0 0 0-4.573 0 11.585 11.585 0 0 0-.535-1.1 16.274 16.274 0 0 0-4.129 1.3A17.392 17.392 0 0 0 .182 13.218a15.785 15.785 0 0 0 4.963 2.521c.41-.564.773-1.16 1.084-1.785a10.63 10.63 0 0 1-1.706-.83c.143-.106.283-.217.418-.33a11.664 11.664 0 0 0 10.118 0c.137.113.277.224.418.33-.544.328-1.116.606-1.71.832a12.52 12.52 0 0 0 1.084 1.785 16.46 16.46 0 0 0 5.064-2.595 17.286 17.286 0 0 0-2.973-11.59Z', title: 'Discord community' },

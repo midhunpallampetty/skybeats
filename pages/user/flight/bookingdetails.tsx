@@ -62,7 +62,7 @@ const BookingDetailsPage: React.FC = () => {
     if (!token) {
       router.push('/');
     }
-
+  
     // Initialize passenger details based on selected seats
     const initialPassengers = selectedSeat.map(() => ({
       firstName: '',
@@ -73,7 +73,21 @@ const BookingDetailsPage: React.FC = () => {
       disability: '',
     }));
     setPassengerDetailsState(initialPassengers);
+  
+    // Validate initial fields on load
+    initialPassengers.forEach((_, index) => {
+      validateField(index, 'firstName', '');
+      validateField(index, 'lastName', '');
+      validateField(index, 'middleName', '');
+      validateField(index, 'passportNumber', '');
+      validateField(index, 'age', '');
+    });
+  
+    validateCommonField('email', commonDetails.email);
+    validateCommonField('phoneNumber', commonDetails.phoneNumber);
   }, [selectedSeat, token]);
+  
+  
 
   const handleInputChange = (index: number, field: string, value: string) => {
     const updatedPassengers = [...passengerDetails];
@@ -133,17 +147,30 @@ const BookingDetailsPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+  
+    // Validate all passenger fields
+    passengerDetails.forEach((passenger, index) => {
+      Object.keys(passenger).forEach((field) => {
+        validateField(index, field, (passenger as any)[field]);
+      });
+    });
+  
+    // Validate common fields (email, phoneNumber)
+    validateCommonField('email', commonDetails.email);
+    validateCommonField('phoneNumber', commonDetails.phoneNumber);
+  
     const hasPassengerErrors = Object.values(errors).some((errorSet) =>
       Object.values(errorSet).some((error) => error === true)
     );
     const hasCommonErrors = Object.values(commonErrors).some((error) => error === true);
-
+  
     if (!hasPassengerErrors && !hasCommonErrors) {
+      // Proceed to payment if no errors
       dispatch(setPassengerDetails({ ...commonDetails, passengers: passengerDetails }));
-      console.log(passengers,'passengers')
+      console.log(passengers, 'passengers');
       router.push('/user/payment/payNow');
     } else {
+      // Show error message if any errors are found
       Swal.fire({
         text: 'Please correct the errors in the form',
         icon: 'error',
@@ -151,6 +178,7 @@ const BookingDetailsPage: React.FC = () => {
       });
     }
   };
+  
 
   return (
     <div className="bg-gray-900 text-white min-h-screen">

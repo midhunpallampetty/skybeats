@@ -10,6 +10,12 @@ const nextConfig = {
         port: '', // Leave empty for no specific port
         pathname: '/**', // Allow all paths from this domain
       },
+      {
+        protocol: 'https',
+        hostname: 'images2.alphacoders.com',
+        port: '', // Leave empty for no specific port
+        pathname: '/**', // Allow all paths from this domain
+      },
     ],
       
   },

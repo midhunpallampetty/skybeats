@@ -18,14 +18,15 @@ const JobBoard = () => {
   const ChatBox = dynamic(() => import('../../components/ChatBox'));
   const dispatch = useDispatch();
   const router = useRouter();
-  
-  const handleDetailsClick = (job: Job) => {
-    dispatch(setSelectedJob(job));
-    router.push('/user/careers/careerDetails');  
-  };
+
   const [career, setCareer] = useState<Job[]>([]);
   const token = Cookies.get('jwtToken');
   const [expandedJobIndex, setExpandedJobIndex] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [jobsPerPage] = useState(5); // Jobs per page
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  // Fetch career data
   useEffect(() => {
     const fetchCareerData = async () => {
       try {
@@ -34,10 +35,10 @@ const JobBoard = () => {
         if (response.data && response.data.getJobs) {
           setCareer(response.data.getJobs);
         } else {
-          console.error("getJobs array not found in the response data");
+          console.error('getJobs array not found in the response data');
         }
       } catch (error) {
-        console.error("Error fetching career data:", error);
+        console.error('Error fetching career data:', error);
       }
     };
 
@@ -50,17 +51,35 @@ const JobBoard = () => {
     }
   }, [token, router]);
 
+  const handleDetailsClick = (job: Job) => {
+    dispatch(setSelectedJob(job));
+    router.push('/user/careers/careerDetails');
+  };
+
   const toggleShowMore = (index: number) => {
     setExpandedJobIndex(expandedJobIndex === index ? null : index);
   };
 
-  const gridBackgroundStyle = {
-    backgroundImage: `
-      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
-    `,
-    backgroundSize: '40px 40px',
+  // Sorting logic
+  const handleSort = (order: 'asc' | 'desc') => {
+    const sortedJobs = [...career].sort((a, b) => {
+      const designationA = a.designation.toUpperCase();
+      const designationB = b.designation.toUpperCase();
+
+      if (designationA < designationB) return order === 'asc' ? -1 : 1;
+      if (designationA > designationB) return order === 'asc' ? 1 : -1;
+      return 0;
+    });
+    setSortOrder(order);
+    setCareer(sortedJobs);
   };
+
+  // Pagination logic
+  const indexOfLastJob = currentPage * jobsPerPage;
+  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+  const currentJobs = career.slice(indexOfFirstJob, indexOfLastJob);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <>
@@ -73,50 +92,40 @@ const JobBoard = () => {
             src="https://airline-datacenter.s3.ap-south-1.amazonaws.com/e9f1d460-5e31-4a2c-9348-85d8ba317708.jpeg"
             alt="Career Carousel 1"
           />
-        
         </Carousel>
       </div>
 
-      <div className="flex justify-center" style={gridBackgroundStyle}>
+      <div className="flex justify-center" style={{ backgroundImage: `
+        linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
+      `, backgroundSize: '40px 40px' }}>
         <div className="flex flex-col md:flex-row mt-20 max-w-[1200px] w-full">
           <div className="w-full md:w-[350px] p-4 bg-white border border-white/35 rounded-lg ml-4">
-            <div className="mb-4">
-              <h3 className="font-bold mb-2 text-gray-800">Work mode</h3>
-              <div>
-                <input type="checkbox" id="remote" />
-                <label className="ml-2" htmlFor="remote">Remote (13044)</label>
-              </div>
-              <div>
-                <input type="checkbox" id="hybrid" />
-                <label className="ml-2" htmlFor="hybrid">Hybrid (10980)</label>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <h3 className="font-bold mb-2">Experience</h3>
-              <input type="range" min="0" max="20" className="w-full" />
-            </div>
-
-            <div className="mb-4">
-              <h3 className="font-bold mb-2">Department</h3>
-              <div>
-                <input type="checkbox" id="engineering" />
-                <label className="ml-2" htmlFor="engineering">Engineering</label>
-              </div>
-              <div>
-                <input type="checkbox" id="data-science" />
-                <label className="ml-2" htmlFor="data-science">Data Science</label>
-              </div>
+            {/* Filters */}
+            <h3 className="font-bold mb-4">Sort by:</h3>
+            <div className="flex space-x-4">
+              <button
+                onClick={() => handleSort('asc')}
+                className={`bg-gray-200 py-2 px-4 rounded ${sortOrder === 'asc' ? 'bg-blue-500 text-white' : ''}`}
+              >
+                Ascending
+              </button>
+              <button
+                onClick={() => handleSort('desc')}
+                className={`bg-gray-200 py-2 px-4 rounded ${sortOrder === 'desc' ? 'bg-blue-500 text-white' : ''}`}
+              >
+                Descending
+              </button>
             </div>
           </div>
 
           <div className="w-full md:w-3/4 p-4 ml-11">
             <div className="grid grid-cols-1 gap-4">
-              {career.length > 0 ? (
-                career.map((job: Job, index) => (
+              {currentJobs.length > 0 ? (
+                currentJobs.map((job: Job, index) => (
                   <div
                     key={index}
-                    className=" bg-blue-800/50 text-white  w-full min-h-[250px] p-4  rounded-lg hover:shadow-lg  "
+                    className="bg-blue-800/50 text-white w-full min-h-[250px] p-4 rounded-lg hover:shadow-lg"
                   >
                     <div className="flex items-center">
                       <div className="w-24 h-24 rounded overflow-hidden">
@@ -139,8 +148,6 @@ const JobBoard = () => {
                         </button>
                         <p className="text-gray-200">{job.designation}</p>
 
-                      
-
                         <div className="flex mt-3 space-x-2">
                           <button
                             onClick={() => handleDetailsClick(job)}
@@ -148,7 +155,6 @@ const JobBoard = () => {
                           >
                             Details
                           </button>
-
                         </div>
                       </div>
                     </div>
@@ -158,58 +164,30 @@ const JobBoard = () => {
                 <p className="text-center text-gray-500">No jobs available at the moment.</p>
               )}
             </div>
+
+            {/* Pagination Controls */}
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={indexOfLastJob >= career.length}
+                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       <footer className="bg-gray-900 mt-20 text-white py-12">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center px-6">
-          <div className="mb-8 md:mb-0">
-            <h2 className="text-3xl font-bold mb-4">
-              Landingfolio helps you to grow your career fast.
-            </h2>
-            <button className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
-              Start 14 Days Free Trial
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="font-bold mb-4">Platform</h3>
-              <ul className="space-y-2">
-                <li><a href="#" className="hover:underline">About</a></li>
-                <li><a href="#" className="hover:underline">Features</a></li>
-                <li><a href="#" className="hover:underline">Pricing & Plans</a></li>
-                <li><a href="#" className="hover:underline">Contact</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-bold mb-4">Resources</h3>
-              <ul className="space-y-2">
-                <li><a href="#" className="hover:underline">Account</a></li>
-                <li><a href="#" className="hover:underline">Tools</a></li>
-                <li><a href="#" className="hover:underline">Newsletter</a></li>
-                <li><a href="#" className="hover:underline">Support</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-bold mb-4">Subscribe</h3>
-              <p className="mb-2">Subscribe to our newsletter for the latest news and updates.</p>
-              <div className="flex items-center">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="px-4 py-2 rounded-l-lg bg-gray-800 text-white border-none"
-                />
-                <button className="bg-blue-600 px-4 py-2 rounded-r-lg text-white hover:bg-blue-700">
-                  Subscribe
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Footer Content */}
       </footer>
     </>
   );

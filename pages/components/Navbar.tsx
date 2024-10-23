@@ -103,7 +103,7 @@ export default function Component() {
                 { name: "Booking History", href: "/hotel/hotelHistory" },
               ]},
               { name: "Careers", href: "/user/careers", submenu: [
-                { name: "Job Openings", href: "/careers/jobs" },
+                { name: "Job Openings", href: "/user/careers" },
                 { name: "Internships", href: "/careers/internships" },
               ]},
               { name: "Contact Us", href: "/contact"},

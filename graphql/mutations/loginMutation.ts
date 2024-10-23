@@ -10,5 +10,5 @@ export const SIGNIN_MUTATION = gql`
         id
       }
     }
-  }
+  } 
 `;

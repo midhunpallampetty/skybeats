@@ -6,34 +6,55 @@ import { useRouter } from 'next/router';
 import { RootState } from '@/redux/store';
 import { setSelectedUser } from '@/redux/slices/hotelGuestSlice';
 import Cookies from 'js-cookie';
+
 const SelectHotel = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const data = useSelector((state: RootState) => state.hotelBookDetail.selectedHotel);
   const details = useSelector((state: RootState) => state.hotelGuestData.selectedUser);
-  const token=Cookies.get('jwtToken');
+  const token = Cookies.get('jwtToken');
   const [checkin, setCheckin] = useState('');
   const [checkout, setCheckout] = useState('');
   const [guests, setGuests] = useState('');
+  const [rooms, setRooms] = useState(1); // Default number of rooms
+  const [bedType, setBedType] = useState('Single'); // Default bed type
   const [amount, setAmount] = useState(0);
-  useEffect(()=>{
-  if(!token){
-  router.push('/')     
-  }
-  },[])
+  const [minCheckoutDate, setMinCheckoutDate] = useState('');
+  const getGuestDetails=useSelector((state:RootState)=>state.hotelGuestData.selectedUser)
+
+  console.log(data, 'vdvdsvData');
+
+  useEffect(() => {
+    if (!token) {
+      router.push('/');
+    }
+  }, []);
+
   const handleBookHotel = () => {
-    dispatch(setSelectedUser({ checkin, checkout, guests,amount }));
-    alert(JSON.stringify(details)); 
+    dispatch(setSelectedUser({ checkin, checkout, guests, rooms, bedType, amount }));
+    alert(JSON.stringify(details));
     router.push('/hotel/hotelBookDetail');
   };
 
   useEffect(() => {
-    if (checkin && checkout && guests) {
+    if (checkin && checkout && guests && rooms && bedType) {
       const totalStayDays = dateDifference(checkin, checkout);
-      const calculatedAmount = (1000 * parseInt(guests)) * totalStayDays;
+
+      // Determine room price based on bed type
+      let roomPrice = 0;
+      if (bedType === 'Single') {
+        roomPrice = 1000;
+      } else if (bedType === 'Double') {
+        roomPrice = 2500;
+      } else if (bedType === 'Suite') {
+        roomPrice = 3000;
+      }
+
+      // Calculate total amount
+      const calculatedAmount = roomPrice * parseInt(guests) * parseInt(rooms) * totalStayDays;
       setAmount(calculatedAmount);
     }
-  }, [checkin, checkout, guests]); 
+  }, [checkin, checkout, guests, rooms, bedType]);
 
   function dateDifference(d1: string, d2: string) {
     const date1 = parseDate(d1);
@@ -42,111 +63,173 @@ const SelectHotel = () => {
     const dayDifference = timeDifference / (1000 * 60 * 60 * 24);
     return Math.abs(dayDifference);
   }
-
+  const getTodayDate = () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months start at 0!
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
   function parseDate(dateStr: string) {
-    const [day, month, year] = dateStr.split('-').map(Number); 
+    const [day, month, year] = dateStr.split('-').map(Number);
     return new Date(year, month - 1, day);
   }
-
+  const formatCheckinDateForMinCheckout = (checkinDate: string) => {
+    const [day, month, year] = checkinDate.split('-').map(Number);
+    const formattedDate = new Date(year, month - 1, day);
+    const yyyy = formattedDate.getFullYear();
+    const mm = String(formattedDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(formattedDate.getDate() + 1).padStart(2, '0'); // Ensuring checkout is after check-in
+    return `${yyyy}-${mm}-${dd}`;
+  };
   return (
     <>
       <Navbar />
-      <div className='mt-28'>
+      <div className="mt-28">
         <div className="container mx-auto p-4">
           {/* Hotel Title */}
-          <h1 className="text-3xl font-bold text-white">{data?.name}</h1>
+          <div className="bg-gradient-to-r from-[#295b64] to-[#0f397944] p-8 rounded-lg text-center">
+            <h1 className="text-5xl font-bold text-white shadow-lg">{data?.name}</h1>
+          </div>
 
           {/* Hotel Images */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-            <img className='rounded-lg' src="https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?cs=srgb&dl=pexels-pixabay-261102.jpg&fm=jpg" alt="Hotel Image 1" />
-            <img className='rounded-lg' src="https://media.istockphoto.com/id/472899538/photo/downtown-cleveland-hotel-entrance-and-waiting-taxi-cab.jpg?s=612x612&w=0&k=20&c=rz-WSe_6gKfkID6EL9yxCdN_UIMkXUBsr67884j-X9o=" alt="Hotel Image 2" />
-            <img className='rounded-lg' src="https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg" alt="Hotel Image 3" />
-            <img className='rounded-lg' src="https://fariyas.com/wp-content/uploads/2023/08/Slide-2.jpg" alt="Hotel Image 4" />
-            <img className='rounded-lg' src="https://media.istockphoto.com/id/487042276/photo/hotel-sign.jpg?s=612x612&w=0&k=20&c=DjEVAoFnjB2cWwX28cxSKWkxsbze7o9jgkYrhyfmq9E=" alt="Hotel Image 5" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
+            <img
+              className="rounded-lg transform hover:scale-105 transition-all"
+              src="https://identityinteriorbd.com/wp-content/uploads/2024/03/h4-1.jpg"
+              alt="Hotel Image 1"
+            />
+            <img
+              className="rounded-lg transform hover:scale-105 transition-all"
+              src="https://algedra.com.tr/files/hotels_interior/hotel_interior_design_1.jpg"
+              alt="Hotel Image 2"
+            />
+            <img
+              className="rounded-lg transform hover:scale-105 transition-all"
+              src="https://www.hotellobbies.net/wp-content/uploads/2019/03/luxury-hotel-interior-design-idear-for-bedroom.jpg"
+              alt="Hotel Image 3"
+            />
+            <img
+              className="rounded-lg transform hover:scale-105 transition-all"
+              src="https://i.pinimg.com/564x/69/c0/21/69c0214153dcc630840393cd8226b6d2.jpg"
+              alt="Hotel Image 4"
+            />
+            <img
+              className="rounded-lg transform hover:scale-105 transition-all"
+              src="https://foyr.com/learn/wp-content/uploads/2021/12/hotel-interior-design.jpg"
+              alt="Hotel Image 5"
+            />
           </div>
 
-          <div className='w-[500px] h-20 border-2 border-white/30 rounded-md flex items-center'>
-            <svg xmlns="http://www.w3.org/2000/svg" fill='white' width='25' viewBox="0 0 576 512">
+          {/* Rating Section */}
+          <div className="w-24 h-20 shadow-inner shadow-white/25 rounded-md flex items-center mt-6 bg-[#0f3131] backdrop-blur-md ">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="white" width="25" viewBox="0 0 576 512"className='ml-2'>
               <path d="M288 376.4l.1-.1 26.4 14.1 85.2 45.5-16.5-97.6-4.8-28.7 20.7-20.5 70.1-69.3-96.1-14.2-29.3-4.3-12.9-26.6L288.1 86.9l-.1 .3 0 289.2zm175.1 98.3c2 12-3 24.2-12.9 31.3s-23 8-33.8 2.3L288.1 439.8 159.8 508.3C149 514 135.9 513.1 126 506s-14.9-19.3-12.9-31.3L137.8 329 33.6 225.9c-8.6-8.5-11.7-21.2-7.9-32.7s13.7-19.9 25.7-21.7L195 150.3 259.4 18c5.4-11 16.5-18 28.8-18s23.4 7 28.8 18l64.3 132.3 143.6 21.2c12 1.8 22 10.2 25.7 21.7s.7 24.2-7.9 32.7L438.5 329l24.6 145.7z" />
             </svg>
-            <p className='text-white ml-3'>{data?.location_rating}</p>
+            <p className="text-white font-extrabold text-xl ml-4">{data?.location_rating}</p>
           </div>
 
-          <div className=" text-white flex flex-col md:flex-row mt-8">
+          {/* Hotel Info & Booking Section */}
+          <div className="text-white flex flex-col md:flex-row mt-8">
             <div className="flex-1">
               {data?.amenities?.map((amenity, index) => (
-                <div className="mt-2" key={index}>
-                  <span className="font-semibold">{amenity}</span>
+                <div className="mt-2 flex items-center" key={index}>
+                  <span className="font-semibold bg-blue-600 px-2 py-1 rounded-lg">{amenity}</span>
                 </div>
               ))}
 
-              <div className="mt-4">
-                <h2 className="text-2xl font-bold">About this place</h2>
-                <p className="mt-2">
-                  SANTIPHAP ROOM - is a spacious en-suite located on the top floor of the renovated 40-year-old shophouse called "Ba hao". The room is a Thai-contemporary inspired, overlooking one of the most sacred "Trimit Temple" and a balcony with little garden.
+              <div className="mt-6">
+                <h2 className="text-3xl font-bold">About this place</h2>
+                <p className="mt-2 text-lg">
+                  SANTIPHAP ROOM - is a spacious en-suite located on the top floor of the renovated 40-year-old shophouse
+                  called "Ba hao". The room is a Thai-contemporary inspired, overlooking one of the most sacred "Trimit
+                  Temple" and a balcony with little garden.
                 </p>
               </div>
             </div>
 
-            <div className="bg-black/5 md:w-1/3 md:ml-8 mt-8 md:mt-0">
-              <div className="border p-4 rounded-lg shadow-md">
-                <p className="text-2xl font-bold">₹1000 / night</p>
-                <div className="mt-4">
-                  <label htmlFor="checkin">Check-in</label>
+            {/* Booking Card */}
+            <div className="bg-black/40 md:w-1/3 md:ml-8 mt-8 md:mt-0 backdrop-blur-lg rounded-lg shadow-white/30 shadow-inner">
+              <div className="           p-6 rounded-lg">
+                <p className="text-3xl font-bold">₹1000 / night</p>
+                <div className="mt-6">
+                  <label htmlFor="checkin" className="text-lg">Check-in</label>
                   <input
                     onChange={(e) => {
                       const date = new Date(e.target.value);
-                      const formattedDate =
-                        ("0" + date.getDate()).slice(-2) + "-" +
-                        ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
-                        date.getFullYear();
+                      const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
                       setCheckin(formattedDate);
+
+                      // Set min date for checkout (must be at least 1 day after check-in)
+                      setMinCheckoutDate(formatCheckinDateForMinCheckout(formattedDate));
                     }}
                     type="date"
                     id="checkin"
-                    className="w-full text-black border p-2 rounded"
+                    className="w-full mt-1 p-2 rounded-lg bg-black/50 border text-white"
+                    min={getTodayDate()} // Set minimum date for check-in as today
                   />
                 </div>
-                <div className="mt-4">
-                  <label htmlFor="checkout">Check-out</label>
+                <div className="mt-6">
+                  <label htmlFor="checkout" className="text-lg">Check-out</label>
                   <input
-                    type="date"
                     onChange={(e) => {
                       const date = new Date(e.target.value);
-                      const formattedDate =
-                        ("0" + date.getDate()).slice(-2) + "-" +
-                        ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
-                        date.getFullYear();
+                      const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
                       setCheckout(formattedDate);
                     }}
+                    type="date"
                     id="checkout"
-                    className="w-full text-black border p-2 rounded"
+                    className="w-full mt-1 p-2 rounded-lg bg-black/50 border text-white"
+                    min={minCheckoutDate} // Set minimum date for checkout as the day after check-in
                   />
                 </div>
-                <div className="mt-4">
-                  <label htmlFor="guests">Guests</label>
+
+                <div className="mt-6">
+                  <label htmlFor="guests" className="text-lg">Guests</label>
                   <input
                     onChange={(e) => setGuests(e.target.value)}
                     type="number"
                     id="guests"
-                    className="w-full text-black border p-2 rounded"
-                    placeholder="1"
+                    min={1}
+                    className="w-full mt-1 p-2 rounded-lg bg-black/50 border text-white"
                   />
                 </div>
-                <div className="mt-4">
-                  <label htmlFor="amount">Total amount:</label>
+
+                <div className="mt-6">
+                  <label htmlFor="rooms" className="text-lg">Rooms</label>
                   <input
-                    value={`₹${amount}`}
-                    id="amount"
-                    readOnly
-                    className="w-full text-black border p-2 rounded"
+                    onChange={(e) => setRooms(parseInt(e.target.value))}
+                    type="number"
+                    id="rooms"
+                    min={1}
+                    className="w-full mt-1 p-2 rounded-lg bg-black/50 border text-white"
                   />
                 </div>
+
+                <div className="mt-6">
+                  <label htmlFor="bedType" className="text-lg">Room Type</label>
+                  <select
+                    id="bedType"
+                    value={bedType}
+                    onChange={(e) => setBedType(e.target.value)}
+                    className="w-full mt-1 p-2 rounded-lg bg-black/50 border text-white"
+                  >
+                    <option value="Single">Single</option>
+                    <option value="Double">Double</option>
+                    <option value="Suite">Suite</option>
+                  </select>
+                </div>
+
+                <div className="mt-6 flex justify-between items-center">
+                  <p className="text-lg">Total Amount:</p>
+                  <p className="text-2xl font-bold">₹{amount}</p>
+                </div>
+
                 <button
                   onClick={handleBookHotel}
-                  className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+                  className="mt-6 w-full py-3 bg-blue-600 hover:bg-blue-800 transition-all text-white rounded-lg"
                 >
-                  Book Now
+                  Book Hotel
                 </button>
               </div>
             </div>

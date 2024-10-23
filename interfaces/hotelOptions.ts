@@ -3,4 +3,6 @@ export interface User{
     checkout:string
     guests:string,
     amount:number,
+    bedType:string,
+    rooms:number
 }

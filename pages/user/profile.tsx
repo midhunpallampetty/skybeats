@@ -19,7 +19,7 @@
         query GetUserById($userId: String!) {
           getUserById(userId: $userId) {
             email
-            isBlocked
+          
             username
           }
         }
@@ -100,12 +100,12 @@
           fetchData();
         }, []);
   const toggleModal = () => {
-    setIsModalOpen(prev => !prev);
+    setIsWalletModalOpen(prev => !prev);
   };
         async function handleSubmit() {
           if (!validateForm()) {
               console.log("Form validation failed");
-              return; // Stop submission if form is invalid
+              return; // Stop submission if form is invalid 
           }
       
           Swal.fire("Updated Profile");
@@ -314,18 +314,23 @@ const validateForm = () => {
         <>
         <Navbar/>
 
-        <div className="h-[250px] mt-[100px] w-[99] rounded-lg sm:h-[55] xl:h-[200px] 2xl:h-[200px]">
-              <Carousel>
-                <img
-                  src="https://airline-datacenter.s3.ap-south-1.amazonaws.com/pexels-steve-2130475.jpg"
-                  alt="Career Carousel 1"
-                />
-            
-              </Carousel>
+        <div className="w-full p-6 flex flex-col items-center overflow-y-scroll m-16">
+        <section className="mb-8  w-4/5">
+            <div className="relative w-full h-44 bg-blue-800 rounded-lg overflow-hidden">
+              <img
+                src="https://images3.alphacoders.com/135/1350069.jpeg"
+                alt="Event Banner"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute bottom-4 left-4 bg-purple-600 px-4 py-2 rounded-full text-white">
+                My Profile
+              </div>
+            </div>
+          </section>
               <ShowBookings isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} booking={selectedBooking} />
-              <WalletModal isOpen={isModalOpen} onClose={toggleModal} />
+              <WalletModal isOpen={isWalletModalOpen} onClose={toggleModal} />
               </div> 
-        <div className="min-h-screen  mt-16 ">
+        <div className="min-h-screen  mt-2 ">
             <div className="container mx-auto py-8 px-4">
               <div className="bg-white rounded-lg shadow-lg overflow-hidden max-w-4xl mx-auto">
              

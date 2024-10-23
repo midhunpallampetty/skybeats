@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
 import Link from 'next/link';
-import {  signIn, signOut } from "next-auth/react";
+import {  signIn, signOut ,useSession} from "next-auth/react";
 import GoogleButton from '../components/GoogleButton';
 import { useMutation } from '@apollo/client';
 import { SIGNIN_MUTATION } from '@/graphql/mutations/loginMutation';
@@ -18,6 +18,9 @@ const SignIn: React.FC = () => {
     email: '',
     password: ''
   });
+  const { data: session } = useSession();
+
+  console.log(session?.token); 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {

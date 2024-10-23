@@ -10,6 +10,14 @@ const getHotelBookings = async (req: NextApiRequest, res: NextApiResponse) => {
         email
         guestName
         phoneNumber
+        checkin
+        checkout
+        hotelLocation
+        hotelName
+        noOfGuests
+        createdAt
+        amount
+
       }
     }
     `;
