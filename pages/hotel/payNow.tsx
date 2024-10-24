@@ -15,7 +15,7 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 
 const PaymentForm: React.FC = () => {
   const hotelBookingDetail = useSelector((state: RootState) => state.hotelBookDetail.selectedHotel);
-
+  const userId=Cookies.get('userId')
   const getGuestDetails=useSelector((state:RootState)=>state.hotelGuestData.selectedUser)
   const guestDetails = useSelector((state: RootState) => state.bookdetail.guestDetails);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -58,6 +58,7 @@ console.log(guestDetails)
       amount:getGuestDetails?.amount,
       hotelName:hotelBookingDetail?.name,
       hotelLocation:JSON.stringify(hotelBookingDetail?.gps_coordinates),
+      userId:userId
       
 
       

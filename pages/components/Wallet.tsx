@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
 import { useState, useEffect } from 'react';
-import { Wallet, ArrowUpRight, ArrowDownLeft, Plus, Send, ChevronUp, ChevronDown, X } from 'lucide-react';
+import { Wallet, ArrowUpRight, Plus, X, ChevronUp, ChevronDown } from 'lucide-react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 
@@ -9,62 +9,76 @@ export default function WalletModal({ isOpen, onClose }) {
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState('');
   const [showTransactions, setShowTransactions] = useState(false);
+  const [transactions, setTransactions] = useState(null);
+  const [currentPage, setCurrentPage] = useState(0); // New state for pagination
+  const transactionsPerPage = 3; // Number of transactions to display per page
   const userId = Cookies.get('userId');
-  const [transactions, setTransactions] = useState([
-    { type: 'deposit', amount: 50, date: '2023-10-15' },
-    { type: 'withdrawal', amount: 20, date: '2023-10-14' },
-    { type: 'transfer', amount: 30, date: '2023-10-13' },
-  ]);
+
+  // Fetch wallet balance and transactions
+  useEffect(() => {
+    const fetchTransactions = async () => {     
+      try {
+        const response = await axios.post('/api/transactionHistory', { userId }, {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+        setTransactions(response.data.ListTransactions); // Access ListTransactions array
+      } catch (error) {
+        console.error('Error fetching transaction history:', error);
+      }
+    };
+
+    if (userId) {
+      fetchTransactions();
+    }
+  }, [userId]);
 
   useEffect(() => {
-    const fetchWalletBalance = async () => {
+    const fetchBalance = async () => {     
       try {
         const response = await axios.post('/api/getWallet', { userId }, {
           headers: {
             "Content-Type": "application/json"
           }
         });
-        
-        console.log('User ID:', userId);
-        console.log('Wallet Data:', response.data);  // Check the response structure
-        
-        setBalance(response?.data?.walletBalance || 0);  // Set balance correctly
+        setBalance(response.data.walletBalance); // Access ListTransactions array
+        console.log(response.data.walletBalance)
       } catch (error) {
-        console.error('Error fetching wallet data:', error);
+        console.error('Error fetching transaction history:', error);
       }
     };
 
     if (userId) {
-      fetchWalletBalance();  // Fetch wallet balance only if userId exists
+      fetchBalance();
     }
   }, [userId]);
 
-  const handleDeposit = () => {
-    if (amount && !isNaN(Number(amount))) {
-      const depositAmount = Number(amount);
-      setBalance(prevBalance => prevBalance + depositAmount);
-      setTransactions(prevTransactions => [
-        { type: 'deposit', amount: depositAmount, date: new Date().toISOString().split('T')[0] },
-        ...prevTransactions
-      ]);
-      setAmount('');
-    }
-  };
 
-  const handleWithdraw = () => {
-    if (amount && !isNaN(Number(amount)) && Number(amount) <= balance) {
-      const withdrawAmount = Number(amount);
-      setBalance(prevBalance => prevBalance - withdrawAmount);
-      setTransactions(prevTransactions => [
-        { type: 'withdrawal', amount: withdrawAmount, date: new Date().toISOString().split('T')[0] },
-        ...prevTransactions
-      ]);
-      setAmount('');
-    }
-  };
+  // Handle withdraw
 
+
+  // Toggle showing transactions
   const toggleTransactions = () => {
     setShowTransactions(!showTransactions);
+  };
+
+  // Pagination: Calculate start and end index for the current page
+  const startIndex = currentPage * transactionsPerPage;
+  const endIndex = startIndex + transactionsPerPage;
+  const paginatedTransactions = transactions ? transactions.slice(startIndex, endIndex) : [];
+
+  // Handle pagination
+  const handleNextPage = () => {                  
+    if (endIndex < transactions.length) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
   };
 
   if (!isOpen) return null; // Don't render modal if it's not open
@@ -76,7 +90,7 @@ export default function WalletModal({ isOpen, onClose }) {
           <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
             <X className="h-6 w-6" />
           </button>
-          
+
           <div className="flex items-center gap-2 text-xl font-bold mb-1">
             <Wallet className="h-6 w-6" />
             My Wallet
@@ -89,34 +103,65 @@ export default function WalletModal({ isOpen, onClose }) {
           </div>
 
           <div className="space-y-4">
-            <div>
-              <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-              <input
-                id="amount"
-                type="text"
-                placeholder="Enter amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={handleDeposit}
-                className="flex-1 flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <Plus className="mr-2 h-4 w-4" /> Deposit
-              </button>
-              <button
-                onClick={handleWithdraw}
-                className="flex-1 flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <ArrowUpRight className="mr-2 h-4 w-4" /> Withdraw
-              </button>
-            </div>
+            
+                                                                          
           </div>
 
-          {/* Remaining transactions and modal structure stays the same */}
+          {/* Toggle button for transactions */}
+          <div className="mt-6">
+            <button
+              onClick={toggleTransactions}
+              className="flex items-center justify-center w-full text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md"
+            >
+              {showTransactions ? (
+                <>
+                  <ChevronUp className="mr-2 h-4 w-4" /> Hide Transactions
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="mr-2 h-4 w-4" /> Show Transactions
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Conditionally render paginated transactions */}
+          {showTransactions && paginatedTransactions.length > 0 ? (
+            <div className="mt-4 space-y-4">
+              <h3 className="text-lg font-bold text-gray-700">Transaction History</h3>
+              <ul className="space-y-2">
+                {paginatedTransactions.map((transaction, index) => (
+                  <li key={transaction.transactionId} className="flex justify-between items-center">
+                    <span className={`text-sm ${transaction.transactionType === 'deposit' ? 'text-green-500' : 'text-red-500'}`}>
+                      {transaction.transactionType.charAt(0).toUpperCase() + transaction.transactionType.slice(1)}
+                    </span>
+                    <span className="text-sm font-medium">₹{transaction.amount.toFixed(2)}</span>
+                    <span className="text-sm text-gray-500">{new Date(transaction.createdAt).toLocaleDateString()}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Pagination controls */}
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={handlePreviousPage}
+                  disabled={currentPage === 0}
+                  className={`text-sm font-medium ${currentPage === 0 ? 'text-gray-300' : 'text-blue-600'}`}
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={handleNextPage}
+                  disabled={endIndex >= transactions.length}
+                  className={`text-sm font-medium ${endIndex >= transactions.length ? 'text-gray-300' : 'text-blue-600'}`}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          ) : (
+            showTransactions && <p className="mt-4 text-sm text-gray-500">No transactions available.</p>
+          )}
         </div>
       </div>
     </div>

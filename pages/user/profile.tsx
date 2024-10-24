@@ -536,6 +536,7 @@ const validateForm = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {booking.DateofJourney}
                     </td>
+                   
 
                     {/* More details button */}
                     <td className="px-6 py-4 whitespace-nowrap">

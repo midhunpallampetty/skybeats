@@ -7,6 +7,7 @@ import Cookies from 'js-cookie';
 const allCargoRequests = () => {
   const Navbar = dynamic(() => import('../../components/Navbar'), { ssr: false });
   const [cargoRequests, setCargoRequests] = useState([]); // Initialize as an empty array
+  const [loading, setLoading] = useState(true); // Add loading state
   const userId = Cookies.get('userId');
 
   useEffect(() => {
@@ -26,6 +27,11 @@ const allCargoRequests = () => {
 
       } catch (error) {
         console.error('Error fetching cargo requests:', error);
+      } finally {
+        // Add a delay of 1.5 seconds before setting loading to false
+        setTimeout(() => {
+          setLoading(false);
+        }, 1500);
       }
     };
 
@@ -33,7 +39,9 @@ const allCargoRequests = () => {
       CargoRequests();
     }
   }, [userId]);
-console.log(cargoRequests)
+
+  console.log(cargoRequests);
+
   return (
     <>
       <Navbar />
@@ -58,31 +66,58 @@ console.log(cargoRequests)
           <section className="w-4/5">
             <h2 className="text-2xl font-semibold text-white mb-4">Cargo Requests</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-              {/* Check if cargoRequests is an array before mapping */}
-              {cargoRequests && cargoRequests.length > 0 ? (
-                cargoRequests.map((request, index) => (
-                  <div key={index} className="bg-blue-950 rounded-lg  overflow-hidden shadow shadow-white/15 font-extrabold text-white">
+              {/* Skeleton loading */}
+              {loading ? (
+                // Show skeletons while data is being fetched
+                Array.from({ length: 4 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="bg-blue-950 rounded-lg overflow-hidden shadow shadow-white/15 font-extrabold text-white animate-pulse"
+                  >
                     <div className="p-8">
                       <div className="flex items-center">
-                        <img
-                          src="https://images7.alphacoders.com/134/thumb-1920-1343309.png"
-                          alt={request.packageName}
-                          className="w-32 h-32 rounded-lg object-cover mr-6"
-                        />
-                        <div className="text-base">
-                          <p>Package Name: {request.packageName}</p>
-                          <p>Receiver Name: {request.receiverName}</p>
-                          <p>Description: {request.descriptionOfGoods}</p>
-                          <p>Tracking ID: {request.trackingId}</p>
-                          <p>Date Received: {new Date(request.Date_Received).toLocaleDateString()}</p>
-                          <p>Status: {request.approved ? "Approved" : request.rejected ? "Rejected" : "Pending"}</p>
+                        <div className="w-32 h-32 rounded-lg bg-gray-700 mr-6"></div>
+                        <div className="space-y-2 w-full">
+                          <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+                          <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+                          <div className="h-4 bg-gray-700 rounded w-full"></div>
+                          <div className="h-4 bg-gray-700 rounded w-2/3"></div>
+                          <div className="h-4 bg-gray-700 rounded w-1/4"></div>
                         </div>
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-white">No cargo requests found.</p>
+                // Display cargo requests once loaded
+                cargoRequests && cargoRequests.length > 0 ? (
+                  cargoRequests.map((request, index) => (
+                    <div
+                      key={index}
+                      className="bg-blue-950 rounded-lg overflow-hidden shadow shadow-white/15 font-extrabold text-white"
+                    >
+                      <div className="p-8">
+                        <div className="flex items-center">
+                          <img
+                            src="https://images7.alphacoders.com/134/thumb-1920-1343309.png"
+                            alt={request.packageName}
+                            className="w-32 h-32 rounded-lg object-cover mr-6"
+                          />
+                          <div className="text-base">
+                            <p>Package Name: {request.packageName}</p>
+                            <p>Receiver Name: {request.receiverName}</p>
+                            <p>Description: {request.descriptionOfGoods}</p>
+                            <p>Tracking ID: {request.trackingId}</p>
+                            <p>Date Received: {new Date(request.Date_Received).toLocaleDateString()}</p>
+                            <p>Status: {request.approved ? "Approved" : request.rejected ? "Rejected" : "Pending"}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-white">No cargo requests found.</p>
+                )
               )}
             </div>
           </section>

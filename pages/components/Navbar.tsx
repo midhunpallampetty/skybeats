@@ -97,6 +97,7 @@ export default function Component() {
               { name: "Cargo", href: "/", submenu: [
                 { name: "Request Cargo", href: "/user/cargo/RequestCargo" },
                 { name: "Track Cargo", href: "/user/cargo/TrackCargo" },
+                { name: "All Cargos", href: "/user/cargo/allCargoRequests" },
               ]},
               { name: "Hotels", href: "/hotel", submenu: [
                 { name: "Book Hotels", href: "/hotel" },

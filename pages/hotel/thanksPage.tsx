@@ -1,11 +1,11 @@
 import React from 'react'
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-
+import { useRouter } from 'next/router';
 export default function BookingConfirmation() {
     const getGuestDetails=useSelector((state:RootState)=>state.hotelGuestData.selectedUser)
 
-  
+  const router=useRouter()
   console.log(getGuestDetails)
     return (
       <div className="min-h-screen bg-blue-950 flex items-center justify-center p-4 ">
@@ -63,6 +63,9 @@ export default function BookingConfirmation() {
           <div className="border-t border-gray-200 px-6 py-4 flex justify-center">
             <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out">
               View Full Booking Details
+            </button>
+            <button onClick={()=>router.push('/')} className="bg-blue-500 ml-2 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out">
+              Return Home
             </button>
           </div>
         </div>

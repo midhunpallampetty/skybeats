@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Carousel } from 'flowbite-react';
@@ -23,8 +24,9 @@ const JobBoard = () => {
   const token = Cookies.get('jwtToken');
   const [expandedJobIndex, setExpandedJobIndex] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [jobsPerPage] = useState(5); // Jobs per page
+  const [jobsPerPage] = useState(2); // Set jobs per page to 2
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [selectedDesignation, setSelectedDesignation] = useState<string>('');
 
   // Fetch career data
   useEffect(() => {
@@ -74,6 +76,17 @@ const JobBoard = () => {
     setCareer(sortedJobs);
   };
 
+  // Filter by designation
+  const handleFilterByDesignation = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const designation = event.target.value;
+    setSelectedDesignation(designation);
+
+    if (designation) {
+      const filteredJobs = career.filter((job) => job.designation === designation);
+      setCareer(filteredJobs);
+    }
+  };
+
   // Pagination logic
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
@@ -102,20 +115,37 @@ const JobBoard = () => {
         <div className="flex flex-col md:flex-row mt-20 max-w-[1200px] w-full">
           <div className="w-full md:w-[350px] p-4 bg-white border border-white/35 rounded-lg ml-4">
             {/* Filters */}
-            <h3 className="font-bold mb-4">Sort by:</h3>
-            <div className="flex space-x-4">
-              <button
-                onClick={() => handleSort('asc')}
-                className={`bg-gray-200 py-2 px-4 rounded ${sortOrder === 'asc' ? 'bg-blue-500 text-white' : ''}`}
-              >
-                Ascending
-              </button>
-              <button
-                onClick={() => handleSort('desc')}
-                className={`bg-gray-200 py-2 px-4 rounded ${sortOrder === 'desc' ? 'bg-blue-500 text-white' : ''}`}
-              >
-                Descending
-              </button>
+            <h3 className="font-bold mb-4">Filters</h3>
+            <div className="space-y-4">
+              {/* Sort by Asc/Desc */}
+              <div>
+                <label className="font-bold mb-2 block">Sort by:</label>
+                <select
+                  onChange={(e) => handleSort(e.target.value as 'asc' | 'desc')}
+                  value={sortOrder}
+                  className="w-full py-2 px-4 bg-gray-200 rounded"
+                >
+                  <option value="asc">Ascending</option>
+                  <option value="desc">Descending</option>
+                </select>
+              </div>
+
+              {/* Filter by Designation */}
+              <div>
+                <label className="font-bold mb-2 block">Filter by Designation:</label>
+                <select
+                  onChange={handleFilterByDesignation}
+                  value={selectedDesignation}
+                  className="w-full py-2 px-4 bg-gray-200 rounded"
+                >
+                  <option value="">All</option>
+                  {career.map((job, index) => (
+                    <option key={index} value={job.designation}>
+                      {job.designation}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 

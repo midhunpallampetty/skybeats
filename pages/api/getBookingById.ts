@@ -20,6 +20,7 @@ const getBookingByUserId = async (req: NextApiRequest, res: NextApiResponse) => 
     departureAirport
     departureTime
     email
+    cancelled
     FarePaid
     flightDuration
     flightModel

@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plane, Clock, Calendar, CreditCard } from 'lucide-react'
+import axios from 'axios';
+import Swal from 'sweetalert2'
 
 interface Passenger {
   age: string
@@ -26,6 +28,7 @@ interface BookingDetails {
   id: string
   passengerName: Passenger[]
   ticketUrls: string[]
+  cancelled?: boolean
 }
 
 interface BookingDetailsModalProps {
@@ -37,10 +40,65 @@ interface BookingDetailsModalProps {
 export default function BookingDetailsModal({ isOpen, onClose, booking }: BookingDetailsModalProps) {
   const [activeTab, setActiveTab] = useState('details')
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [bookingState, setBookingState] = useState<BookingDetails | null>(booking); // Local state for booking
+  
+  // If the booking prop changes (i.e., when the modal opens), update the booking state
+  useEffect(() => {
+    setBookingState(booking);
+  }, [booking]);
 
-  if (!isOpen || !booking) {
-    return null
+  if (!isOpen || !bookingState) {
+    return null;
   }
+
+  const handleCancelFlight = async (bookingId: string) => {
+    try {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to cancel this flight? This action cannot be undone.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, cancel it!',
+        cancelButtonText: 'No, keep it'
+      });
+  
+      if (result.isConfirmed) {
+        const response = await axios.post(
+          '/api/cancelFlights',
+          { bookingId },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+  
+        await Swal.fire({
+          title: "Canceled!",
+          text: "Your ticket is canceled. Refund has been initiated to your wallet.",
+          imageUrl: "https://data2.nssmag.com/images/galleries/39862/New-Project-57.jpg",
+          imageWidth: 400,
+          imageHeight: 200,
+          imageAlt: "Custom image"
+        });
+  
+        console.log('Cancellation successful:', response.data);
+  
+        setBookingState((prevBooking) => 
+          prevBooking ? { ...prevBooking, cancelled: true } : prevBooking
+        );
+  
+        setSelectedImage(null); 
+        onClose(); 
+      } else {
+        console.log('Cancellation aborted by user');
+      }
+    } catch (error) {
+      console.error('Error cancelling flight:', error);
+    }
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
@@ -78,32 +136,56 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }: Bookin
                 <div className="flex items-center">
                   <Plane className="h-5 w-5 mr-2" />
                   <div>
-                    <p className="font-medium">Flight Number: {booking.flightNumber}</p>
-                    <p className="text-gray-500">{booking.departureAirport} → {booking.arrivalAirport}</p>
+                    <p className="font-medium">Flight Number: {bookingState.flightNumber}</p>
+                    <p className="text-gray-500">{bookingState.departureAirport} → {bookingState.arrivalAirport}</p>
                   </div>
                 </div>
+
                 <div className="flex items-center">
                   <Clock className="h-5 w-5 mr-2" />
                   <div>
-                    <p className="font-medium">Departure: {booking.departureTime}</p>
-                    <p className="font-medium">Arrival: {booking.arrivalTime}</p>
-                    <p className="text-gray-500">Duration: {booking.flightDuration}</p>
+                    <p className="font-medium">Departure: {bookingState.departureTime}</p>
+                    <p className="font-medium">Arrival: {bookingState.arrivalTime}</p>
+                    <p className="text-gray-500">Duration: {bookingState.flightDuration}</p>
                   </div>
                 </div>
+
                 <div className="flex items-center">
                   <Calendar className="h-5 w-5 mr-2" />
-                  <p className="font-medium">Date: {booking.DateofJourney}</p>
+                  <p className="font-medium">Date: {bookingState.DateofJourney}</p>
                 </div>
+
                 <div className="flex items-center">
                   <CreditCard className="h-5 w-5 mr-2" />
-                  <p className="font-medium">Fare Paid: ${booking.FarePaid}</p>
+                  <p className="font-medium">Fare Paid: ${bookingState.FarePaid}</p>
+                </div>
+
+                <div className="flex items-center">
+                  <CreditCard className="h-5 w-5 mr-2" />
+                  <p className="font-medium">Cancel Booking:</p>
+                  {!bookingState.cancelled ? (
+                    <button
+                      className="text-white bg-red-600 p-1.5 rounded-lg font-extrabold"
+                      onClick={() => handleCancelFlight(bookingState.id)}
+                    >
+                      Cancel
+                    </button>
+                  ) : (
+                    <button
+                      className="text-gray-400 bg-gray-300 p-1.5 rounded-lg font-extrabold cursor-not-allowed"
+                      disabled
+                    >
+                      Cancelled
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
 
+            {/* Passenger Information */}
             <div>
               <h3 className="text-lg font-semibold mb-2">Passenger Information</h3>
-              {booking.passengerName.map((passenger, index) => (
+              {bookingState.passengerName.map((passenger, index) => (
                 <div key={index} className="mb-4">
                   <h4 className="font-semibold">Passenger {index + 1}</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -118,40 +200,46 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }: Bookin
           </div>
         )}
 
-        {activeTab === 'tickets' && (
-          <div className="overflow-y-auto h-96">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {booking.ticketUrls.map((url, index) => (
-                <div key={index} className="relative cursor-pointer">
-                  <img
-                    src={url}
-                    alt={`Ticket for ${booking.passengerName[index].firstName} ${booking.passengerName[index].lastName}`}
-                    className="w-full h-48 object-cover rounded-lg"
-                    onClick={() => setSelectedImage(url)}
-                  />
-                  <div className="absolute bottom-2 left-2 bg-gray-900 bg-opacity-75 text-white px-2 py-1 rounded">
-                    <p>Ticket for {booking.passengerName[index].firstName} {booking.passengerName[index].lastName}</p>
-                  </div>
-                </div>
-              ))}
+{activeTab === 'tickets' && (
+  <div className="overflow-y-auto h-96">
+    {bookingState.cancelled ? (
+      <div className="text-center text-red-600 font-bold">
+        This booking has been canceled. Tickets are no longer available.
+      </div>
+    ) : (
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {bookingState.ticketUrls.map((url, index) => (
+          <div key={index} className="relative cursor-pointer">
+            <img
+              src={url}
+              alt={`Ticket for ${bookingState.passengerName[index].firstName} ${bookingState.passengerName[index].lastName}`}
+              className="w-full h-48 object-cover rounded-lg"
+              onClick={() => setSelectedImage(url)}
+            />
+            <div className="absolute bottom-2 left-2 bg-gray-900 bg-opacity-75 text-white px-2 py-1 rounded">
+              <p>Ticket for {bookingState.passengerName[index].firstName} {bookingState.passengerName[index].lastName}</p>
             </div>
-
-            {/* Lightbox modal for viewing larger image */}
-            {selectedImage && (
-              <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-75">
-                <div className="relative">
-                  <img src={selectedImage} alt="Ticket" className="max-h-screen object-contain rounded-lg" />
-                  <button
-                    className="absolute top-2 right-2 text-white bg-black bg-opacity-50 p-2 rounded-full"
-                    onClick={() => setSelectedImage(null)}
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
-        )}
+        ))}
+      </div>
+    )}
+
+    {selectedImage && (
+      <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-75">
+        <div className="relative">
+          <img src={selectedImage} alt="Ticket" className="max-h-screen object-contain rounded-lg" />
+          <button
+            className="absolute top-2 right-2 text-white bg-black bg-opacity-50 p-2 rounded-full"
+            onClick={() => setSelectedImage(null)}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+)}
+
       </div>
     </div>
   )
