@@ -89,19 +89,20 @@ console.log(session,'dscd')
         <>
           <Navbar />
           <AiChatBot />
-          <div className="h-screen relative">
-            <Image
-              src="/airplane_home.webp"
-              layout="fill"
-              alt="Loading Error"
-              loading="lazy"
-              className="opacity-100"
-              objectFit="cover"
-            />
-            <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-10">
-              {/* You can add more content here */}
-            </div>
-          </div>
+          <div className="h-[80vh] relative">
+  <Image
+    src="https://airline-datacenter.s3.ap-south-1.amazonaws.com/5668d540-7c4a-4e62-a7f6-d4eeacfeeeec.png"
+    layout="fill"
+    alt="Loading Error"
+    loading="lazy"
+    className="opacity-100"
+    objectFit="cover"
+  />
+  <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-10">
+    
+    <h1 className="text-white text-6xl font-bold text-center">Welcome to Skybeats</h1>
+  </div>
+</div>
 
           <footer className="bg-gray-900">
             <div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">

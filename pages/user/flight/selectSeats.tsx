@@ -14,7 +14,6 @@ import axios from 'axios'
 const SelectSeats: React.FC = () => {
     const userId = Cookies.get('userId')
       const [isLoading, setIsLoading] = useState(true);
-
     const router = useRouter()
     const passengerCount = useSelector((state: RootState) => state.passengerCount.selectedPassenger);
     const dispatch = useDispatch<AppDispatch>();
@@ -25,7 +24,9 @@ const SelectSeats: React.FC = () => {
     const [localSelectedSeats, setLocalSelectedSeats] = useState<any[]>([]); // Local state for selected seats
     const seatDetailsRef = useRef<HTMLDivElement>(null);
     const returnFlight=useSelector((state:RootState)=>state.returnFlights.selectedReturnFlight)
-useEffect(()=>{
+
+console.log(selectedSeats)
+    useEffect(()=>{
 console.log(selectedSeats,'cdcdscdsc')
 console.log(returnFlight,'return flights')
 console.log(selectedFlight,'return flights')
@@ -38,6 +39,17 @@ useEffect(() => {
 
     return () => clearTimeout(timer); // Cleanup the timer
   }, []);
+                                                    
+  useEffect(() => {
+    if (!selectedFlight || !selectedSeats || !seats) {
+      router.push('/user/flight/listflights');  // Redirect to list flights page
+    }
+  }, [selectedFlight, selectedSeats, seats, router]);  // Dependencies
+
+  // If any of the values are missing, don't render the page content
+  if (!selectedFlight || !selectedSeats || !seats) {
+    return null;  // Return null to avoid rendering any content
+  }
     // Calculate the total number of passengers
     const totalPassengers = passengerCount!.adults + passengerCount!.seniors + passengerCount!.children + passengerCount!.infants;
 
@@ -46,7 +58,7 @@ useEffect(() => {
             try {
                 const response: any = await axios.post(
                     '/api/airRadar',
-                    { flightNumber: selectedFlight?.airline },
+                    { flightNumber: selectedFlight?.flightNumber,airline:selectedFlight?.airline },
                     { headers: { 'Content-Type': 'application/json' } }
                 );
                 const aircraftModel = response.data?.aircraftDetails[0] || '';
@@ -63,7 +75,7 @@ useEffect(() => {
             fetchAircraftModel();
         }
     }, [selectedFlight?.airline]);
-
+    
     // async function holdSeat(input: {}) {
     //     try {
     //         const response = await axios.post(
@@ -225,6 +237,21 @@ useEffect(() => {
                 </div>
 
                 <div className="flex flex-col items-center">
+                <div className="flex justify-center mt-8 space-x-4">
+                        <button
+                            onClick={handleContinueWithSelectedSeat}
+                            className="px-4 py-2 bg-green-500 text-white rounded shadow hover:bg-green-600"
+                        >
+                            Continue with Selected Seats
+                        </button>
+
+                        <button
+                            onClick={handleSkipSelection}
+                            className="px-4 py-2 bg-red-500 text-white rounded shadow hover:bg-red-600"
+                        >
+                            Skip Selection
+                        </button>
+                    </div>
                     <h2 className="text-2xl font-bold mb-4 text-white">Flight Seat Selection <span className='text-sm '>{aircraftModel}</span></h2>
 
                     <div className="w-full bg-blue-600 text-white text-center py-2 mb-4 rounded">Cockpit</div>
@@ -249,23 +276,11 @@ useEffect(() => {
                         )}
                     </div>
 
-                    <div className="flex justify-center mt-8 space-x-4">
-                        <button
-                            onClick={handleContinueWithSelectedSeat}
-                            className="px-4 py-2 bg-green-500 text-white rounded shadow hover:bg-green-600"
-                        >
-                            Continue with Selected Seats
-                        </button>
-
-                        <button
-                            onClick={handleSkipSelection}
-                            className="px-4 py-2 bg-red-500 text-white rounded shadow hover:bg-red-600"
-                        >
-                            Skip Selection
-                        </button>
-                    </div>
+                  
                 </div>
+                
             </div>
+            
             </>
             )}
         </>

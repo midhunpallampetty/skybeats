@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { bookData } from '@/interfaces/bookData';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import Swal from 'sweetalert2';
 
 const Navbar = dynamic(() => import('../components/Navbar'));
 const MapModal = dynamic(() => import('../components/mapModal'), { ssr: false });
@@ -18,7 +19,7 @@ const BookingHistory: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedLocation, setSelectedLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-
+  const userId = Cookies.get('userId');
   const itemsPerPage = 5;
   const router = useRouter();
   const token = Cookies.get('jwtToken');
@@ -29,10 +30,64 @@ const BookingHistory: React.FC = () => {
     }
   }, []);
 
+  const handleCancelFlight = async (bookingId: string) => {
+    try {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to cancel this flight? This action cannot be undone.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, cancel it!',
+        cancelButtonText: 'No, keep it'
+      });
+
+      if (result.isConfirmed) {
+        const response = await axios.post(
+          '/api/cancelHotel',
+          { bookingId },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        await Swal.fire({
+          title: "Canceled!",
+          text: "Your ticket is canceled. Refund has been initiated to your wallet.",
+          imageUrl: "https://data2.nssmag.com/images/galleries/39862/New-Project-57.jpg",
+          imageWidth: 400,
+          imageHeight: 200,
+          imageAlt: "Custom image"
+        });
+
+        console.log('Cancellation successful:', response.data);
+
+        // Update the bookings state to reflect the cancellation
+        setBookings((prevBookings) => prevBookings.filter((booking) => booking.id !== bookingId));
+
+      } else {
+        console.log('Cancellation aborted by user');
+      }
+    } catch (error) {
+      console.error('Error cancelling flight:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response: any = await axios.get('/api/getHotelBookings');
+        const response: any = await axios.post('/api/getHotelBookings',
+          { userId },
+          {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }
+        );
+        console.log(response);
         const bookingsWithParsedLocation = response?.data.map((booking: any) => ({
           ...booking,
           hotelLocation: booking.hotelLocation ? JSON.parse(booking.hotelLocation) : null,
@@ -146,12 +201,24 @@ const BookingHistory: React.FC = () => {
             <div className="flex justify-between items-center bg-transparent border border-white/5 p-4 rounded-lg mb-4">
               <div className="flex space-x-2">
                 <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={() => openDetailsModal(booking)}
+                  className={`py-2 px-4 font-bold rounded ${booking.cancelled ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-700'
+                    }`}
+                  onClick={() => {
+                    if (!booking.cancelled) {
+                      openDetailsModal(booking);
+                    }
+                  }}
+                  disabled={booking.cancelled} // Disable if canceled
                 >
                   Details
                 </button>
-                <button className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Cancel</button>
+                <button
+                  className={`py-2 px-4 font-bold rounded ${booking.cancelled ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'}`}
+                  onClick={() => handleCancelFlight(booking.id)}
+                  disabled={booking.cancelled}
+                >
+                  Cancel
+                </button>
                 {booking.hotelLocation && (
                   <button
                     className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"

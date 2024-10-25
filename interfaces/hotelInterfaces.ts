@@ -45,4 +45,5 @@ export interface hotelOptionsState {
     amenities: string[];
     excluded_amenities: string[];
     essential_info: string[];
+    HotelByLocation:String[];
   }

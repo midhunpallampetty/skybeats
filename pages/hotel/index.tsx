@@ -31,6 +31,8 @@ const router=useRouter()
   const [pixabayImages,setpixabayImages]=useState([])
   const [airports, setAirports] = useState<Airport[]>([]);
   const [filteredAirports, setFilteredAirports] = useState<OptionType[]>([]);
+  const [sortOption, setSortOption] = useState('name-asc');
+  
   const { loading, error, data } = useQuery(GET_NEARBY_HOTELS)
   const [myCity, SetmyCity] = useState<IMycity>({ city: "", Location: "", Region: "" });
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -74,6 +76,21 @@ const router=useRouter()
     console.log('got data  gaxiosgaxiosgaxiosgaxiosgaxiosgaxios',testData)
 
   };
+  const sortHotels = (hotels: any[], option: string) => {
+    switch (option) {
+      case 'name-asc':
+        return hotels.sort((a, b) => a.name.localeCompare(b.name)); // Sort by name ascending
+      case 'name-desc':
+        return hotels.sort((a, b) => b.name.localeCompare(a.name)); // Sort by name descending
+      case 'rating-asc':
+        return hotels.sort((a, b) => a.overall_rating - b.overall_rating); // Sort by rating ascending
+      case 'rating-desc':
+        return hotels.sort((a, b) => b.overall_rating - a.overall_rating); // Sort by rating descending
+      default:
+        return hotels;
+    }
+  };
+  
   useEffect(() => {
     const fetchImage = async () => {
       try {
@@ -108,7 +125,7 @@ const router=useRouter()
     currentPage * itemsPerPage
   );
   const totalPages = Math.ceil(hotelOptions?.HotelByLocation?.length / itemsPerPage);
-
+  const sortedHotels = sortHotels([...currentHotels || []], sortOption);
   const [nearByHotel, setnearByHotel] = useState({});
   const scrollRef = useRef<HTMLDivElement>(null);
   const openModal = () => setModalIsOpen(true);
@@ -284,88 +301,114 @@ const router=useRouter()
           </svg>
           {myCity?.city}, {myCity?.Region}, {myCity?.Location}
         </span>
-        <div className="overflow-hidden relative">
-          {/* Left Scroll Button */}
-          <div className="absolute top-1/2 transform -translate-y-1/2 left-2 z-10">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              onClick={scrollLeft}
-              fill="gray"
-              viewBox="0 0 256 512"
-            >
-              <path d="M9.4 278.6c-12.5-12.5-12.5-32.8 0-45.3l128-128c9.2-9.2 22.9-11.9 34.9-6.9s19.8 16.6 19.8 29.6l0 256c0 12.9-7.8 24.6-19.8 29.6s-25.7 2.2-34.9-6.9l-128-128z" />
-            </svg>
-          </div>
+       <div className="overflow-hidden relative">
+  {/* Left Scroll Button */}
+  <div className="absolute top-1/2 transform -translate-y-1/2 left-2 z-10">
+    <button
+      onClick={scrollLeft}
+      aria-label="Scroll left"
+      className="focus:outline-none"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        fill="gray"
+        viewBox="0 0 256 512"
+      >
+        <path d="M9.4 278.6c-12.5-12.5-12.5-32.8 0-45.3l128-128c9.2-9.2 22.9-11.9 34.9-6.9s19.8 16.6 19.8 29.6l0 256c0 12.9-7.8 24.6-19.8 29.6s-25.7 2.2-34.9-6.9l-128-128z" />
+      </svg>
+    </button>
+  </div>
 
-          <div className="absolute top-1/2 transform -translate-y-1/2 right-2 z-10">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              onClick={scrollRight}
-              fill="gray"
-              viewBox="0 0 256 512"
-            >
-              <path d="M246.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-9.2-9.2-22.9-11.9-34.9-6.9s-19.8 16.6-19.8 29.6l0 256c0 12.9-7.8 24.6-19.8 29.6s25.7 2.2 34.9-6.9l128-128z" />
-            </svg>
-          </div>
+  {/* Right Scroll Button */}
+  <div className="absolute top-1/2 transform -translate-y-1/2 right-2 z-10">
+    <button
+      onClick={scrollRight}
+      aria-label="Scroll right"
+      className="focus:outline-none"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        fill="gray"
+        viewBox="0 0 256 512"
+      >
+        <path d="M246.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-9.2-9.2-22.9-11.9-34.9-6.9s-19.8 16.6-19.8 29.6l0 256c0 12.9-7.8 24.6-19.8 29.6s25.7 2.2 34.9-6.9l128-128z" />
+      </svg>
+    </button>
+  </div>
 
-          <div
-            ref={scrollRef}
-            className="flex mt-10 gap-8 overflow-x-auto scroll-smooth"
-            style={{ scrollBehavior: 'smooth' }}
-          >
-            {data &&
-              data?.NearByHotels?.map((hotel: any) => (
-                <div
-                  key={hotel.name}
-                  className="flex-none w-80 relative max-w-sm rounded-lg shadow bg-transparent border border-white/10 cursor-pointer"
-                  onClick={openModal}
-                >
-                  <a href="#">
-                    <img
-                      className="rounded-t-lg"
-                      src="https://r1imghtlak.mmtcdn.com/b18f69d831c411eea1dd0a58a9feac02.jpg?&output-quality=75&downsize=520:350&crop=520:350;81,0&output-format=jpg&downsize=480:336&crop=480:336"
-                      alt=""
-                    />
-                    <div className="absolute top-2 right-2 bg-green-400 text-white text-xs font-bold py-1 px-2 rounded-lg">
-                      ⭐ {hotel.overall_rating.toFixed(1)}
-                    </div>
-                  </a>
-                  <div className="p-5">
-                    <a href="#">
-                      <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        {hotel.name.length > 10
-                          ? `${hotel.name.substring(0, 30)}`
-                          : hotel.name}
-                      </h5>
-                    </a>
-                  </div>
-                </div>
-              ))}
+  <div
+    ref={scrollRef}
+    className="flex mt-10 gap-8 overflow-x-auto scroll-smooth"
+    style={{ scrollBehavior: 'smooth' }}
+  >
+    {data &&
+      data.NearByHotels?.map((hotel: any) => (
+        <div
+          key={hotel.name}
+          className="flex-none w-80 relative max-w-sm rounded-lg shadow bg-transparent border border-white/10 cursor-pointer transition-transform transform hover:scale-105"
+          onClick={openModal}
+        >
+          <a href="#">
+            <img
+              className="rounded-t-lg w-full h-48 object-cover" // Added height and object-fit
+              src="https://r1imghtlak.mmtcdn.com/b18f69d831c411eea1dd0a58a9feac02.jpg?&output-quality=75&downsize=520:350&crop=520:350;81,0&output-format=jpg&downsize=480:336&crop=480:336"
+              alt={`Image of ${hotel.name}`} // Improved alt text for accessibility
+            />
+            <div className="absolute top-2 right-2 bg-green-400 text-white text-xs font-bold py-1 px-2 rounded-lg">
+              ⭐ {hotel.overall_rating.toFixed(1)}
+            </div>
+          </a>
+          <div className="p-5">
+            <a href="#">
+              <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                {hotel.name.length > 30
+                  ? `${hotel.name.substring(0, 30)}...`
+                  : hotel.name}
+              </h5>
+            </a>
           </div>
         </div>
+      ))}
+  </div>
+</div>
+
 
       </section>
+      
       <section className='h-auto bg-gradient-to-r from-[#0f172a] to-[#131723] p-8'>
+      <div className="flex justify-end mb-4">
+  <select
+    value={sortOption}
+    onChange={(e) => setSortOption(e.target.value)}
+    className="px-4 py-2 bg-blue-950 border border-gray-300 rounded-full text-white font-extrabold" 
+  >
+    <option value="name-asc">Sort by Name (A-Z)</option>
+    <option value="name-desc">Sort by Name (Z-A)</option>
+    <option value="rating-asc">Sort by Rating (Low to High)</option>
+    <option value="rating-desc">Sort by Rating (High to Low)</option>
+  </select>
+</div>
+
         {hotelOptions.HotelByLocation && (
           <h1 className='text-white/50 font-semibold text-2xl mb-5 ml-[850px]'>
             Found {hotelOptions.HotelByLocation?.length} Hotels
           </h1>
         )}
-        <div className="flex justify-center items-center h-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {currentHotels?.map((hotel:any) => (
+ <div className="flex justify-center items-center h-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {sortedHotels.map((hotel: any) => (
           <a key={hotel.id} href="#" className="flex flex-col border border-white/10 md:flex-row bg-[#141f3b] text-white rounded-xl overflow-hidden shadow-lg">
             <div className="relative">
-              <img className="object-cover w-full md:w-full h-56 md:h-auto" src={imageUrl || 'https://cdn.pixabay.com/photo/2021/12/11/07/59/hotel-6862159_960_720.jpg'} alt="Hotel" />
+              <img className="object-cover w-full md:w-full h-56 md:h-auto" src={imageUrl || 'https://airline-datacenter.s3.ap-south-1.amazonaws.com/4e14efa5-20b9-4642-973b-33175281372b.jpeg'} alt="Hotel" />
               <button className="absolute top-3 left-3 bg-white text-red-500 p-2 rounded-full">
                 ❤️
               </button>
             </div>
             <div className="flex flex-col rounded-tr-xl rounded-br-xl justify-between p-6 w-full">
               <div>
-                <span className="bg-blue-600 text-xs px-2 py-1 rounded-full">  {hotel.overall_rating.toFixed(1)}</span>
+                <span className="bg-blue-600 text-xs px-2 py-1 rounded-full">{hotel.overall_rating.toFixed(1)}</span>
                 <h5 className="mt-4 mb-2 text-2xl font-bold tracking-tight">
                   {truncateWords(hotel.name, 10)}
                 </h5>
@@ -373,14 +416,15 @@ const router=useRouter()
                   <p className="text-gray-400">{selectedCity.label.toLowerCase()}</p>
                 )}
               </div>
-              <button onClick={()=>{dispatch(setHotelBookDetail(hotel));router.push('/hotel/selectHotel')}} className="self-end mt-4 bg-green-400 text-white py-2 px-4 font-extrabold rounded-full hover:bg-green-600">
+              <button onClick={() => { dispatch(setHotelBookDetail(hotel)); router.push('/hotel/selectHotel'); }} className="self-end mt-4 bg-green-400 text-white py-2 px-4 font-extrabold rounded-full hover:bg-green-600">
                 Book Now
               </button>
             </div>
           </a>
         ))}
       </div>
-        </div>
+    </div>
+
       </section>
       <div className="flex justify-center mt-6">
   {Array.from({ length: totalPages }, (_, index) => (

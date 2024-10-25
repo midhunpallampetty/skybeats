@@ -67,8 +67,9 @@
         const [contactNo,setContactNo]=useState('')
         const [currentAddress,setCurrentAddress]=useState('')
         const [email,setEmail]=useState('')
+        const [dateSortDirection, setDateSortDirection] = useState('asc'); // State to track sorting order (asc/desc)
         const [errors, setErrors] = useState<any>({});
-        
+        const [showCanceled, setShowCanceled] = useState(false); 
         const [gender,setGender]=useState('')
         const [permananentAddress,setPermananentAddress]=useState('');
         const [userData,setuserData]=useState<any[]>([])
@@ -80,6 +81,9 @@
           currentAddress: '',
           permananentAddress: ''
       });
+      const toggleShowCanceled = () => {
+        setShowCanceled((prev) => !prev); 
+      };
         const [newPassword, setNewPassword] = useState('')
         const [oldPassword, setOldPassword] = useState('')
         useEffect(() => {
@@ -146,7 +150,9 @@
       }
       
      
-
+  
+      
+   
 const validateForm = () => {
     const newErrors:any = {};
     
@@ -505,81 +511,102 @@ const validateForm = () => {
 
 
 {activeTab === 'bookings' && (
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold mb-4">Booking History</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Passenger Names
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={handleSortToggle}>
-                    Date of Journey {sortOrder === 'asc' ? '▲' : '▼'}
-                  </th>
-                  <th className="px-6 py-3"></th> {/* Empty cell for "More Details" */}
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {currentBookings.map((booking) => (
-                  <tr key={booking.id}>
-                    {/* Displaying passenger names */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {booking.passengerName.map((passenger, index) => (
-                        <div key={index}>
-                          {passenger.firstName} {passenger.middleName} {passenger.lastName}
-                        </div>
-                      ))}
-                    </td>
+  <div className="mt-6">
+    <h3 className="text-lg font-semibold mb-4">Booking History</h3>
 
-                    {/* Displaying Date of Journey */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {booking.DateofJourney}
-                    </td>
-                   
+    {/* Toggle Button for Show/Hide Canceled Orders */}
+    <button
+      onClick={toggleShowCanceled}
+      className="bg-blue-600 text-white p-2 rounded-lg mb-4"
+    >
+      {showCanceled ? "Hide Canceled Orders" : "Show Canceled Orders"}
+    </button>
 
-                    {/* More details button */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => {
-                          setSelectedBooking(booking) // Set the specific booking
-                          setIsModalOpen(true) // Open the modal
-                        }}
-                        className="bg-green-600 text-white p-2 rounded-lg font-extrabold"
-                      >
-                        More Details
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {/* Pagination controls */}
-            <div className="flex justify-between mt-4">
-              <button
-                onClick={handlePreviousPage}
-                disabled={currentPage === 1}
-                className={`px-4 py-2 ${currentPage === 1 ? 'text-gray-400' : 'text-blue-500'}`}
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Passenger Names
+            </th>
+            <th
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+              onClick={handleSortToggle}
+            >
+              Date of Journey {dateSortDirection === 'asc' ? '▲' : '▼'}
+            </th>
+            <th className="px-6 py-3"></th> {/* Empty cell for "More Details" */}
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {currentBookings
+            .filter((booking) => showCanceled || !booking.cancelled) // Filter based on showCanceled
+            .sort((a, b) => {
+              const dateA = new Date(a.DateofJourney);
+              const dateB = new Date(b.DateofJourney);
+              return dateSortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+            })
+            .map((booking) => (
+              <tr
+                key={booking.id}
+                className={booking.cancelled ? 'bg-red-100' : ''} // Red background for canceled bookings
               >
-                Previous
-              </button>
+                {/* Displaying passenger names */}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {booking.passengerName.map((passenger, index) => (
+                    <div key={index}>
+                      {passenger.firstName} {passenger.middleName} {passenger.lastName}
+                    </div>
+                  ))}
+                </td>
 
-              <p className="text-gray-500">
-                Page {currentPage} of {totalPages}
-              </p>
+                {/* Displaying Date of Journey */}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {booking.DateofJourney}
+                </td>
 
-              <button
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages}
-                className={`px-4 py-2 ${currentPage === totalPages ? 'text-gray-400' : 'text-blue-500'}`}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                {/* More details button */}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <button
+                    onClick={() => {
+                      setSelectedBooking(booking); // Set the specific booking
+                      setIsModalOpen(true); // Open the modal
+                    }}
+                    className="bg-green-600 text-white p-2 rounded-lg font-extrabold"
+                  >
+                    More Details
+                  </button>
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+
+      {/* Pagination controls */}
+      <div className="flex justify-between mt-4">
+        <button
+          onClick={handlePreviousPage}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 ${currentPage === 1 ? 'text-gray-400' : 'text-blue-500'}`}
+        >
+          Previous
+        </button>
+
+        <p className="text-gray-500">Page {currentPage} of {totalPages}</p>
+
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 ${currentPage === totalPages ? 'text-gray-400' : 'text-blue-500'}`}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
 
 
                   {activeTab === 'password' && (

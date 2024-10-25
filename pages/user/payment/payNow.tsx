@@ -170,25 +170,32 @@ const handleSubmit = async (event: React.FormEvent) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <CardElement
-        options={{
-          style: {
-            base: {
-              color: '#ffffff',
-              fontFamily: 'Arial, sans-serif',
-              fontSize: '16px',
-              '::placeholder': {
-                color: '#aab7c4',
-                
-              },
-            },
-            invalid: {
-              color: '#fa755a',
-              iconColor: '#fa755a',
-            },
-          },
-        }}
-      />
+<CardElement
+  options={{
+    style: {
+      base: {
+        color: '#ffffff',
+        fontFamily: 'Arial, sans-serif',
+        fontSize: '16px',
+        '::placeholder': {
+          color: '#aab7c4',
+        },
+        border: '1px solid #aab7c4',  // Add a border to the input field
+        padding: '16 px', // Add padding to make it look better
+        backgroundColor: '#1a202c',  // Optional: Background color for the input field
+        borderRadius: '4px', // Optional: Rounded corners
+        height: '50px',  // Set the height of the input field
+      },
+      invalid: {
+        color: '#fa755a',
+        iconColor: '#fa755a',
+        border: '1px solid #fa755a', // Border color for invalid input
+      },
+    },
+  }}
+/>
+
+
       <div className="mt-6 flex justify-end">
         <button
           type="submit"

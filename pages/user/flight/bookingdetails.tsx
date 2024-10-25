@@ -181,7 +181,7 @@ const BookingDetailsPage: React.FC = () => {
   
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen">
+    <div className="bg-gray-700/50 text-white min-h-screen">
       <div className="relative h-64">
         <Image
           src="/ai-generated.jpg"
@@ -195,7 +195,7 @@ const BookingDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="container shadow-white/35 shadow-inner border border-white/20 mx-auto p-6 mt-6 bg-[#07152C] rounded-lg">
+      <div className="container shadow-white/35 shadow-inner border border-white/20 mx-auto p-6 mt-6 bg-black/45 rounded-lg">
         {selectedFlight ? (
           <>
             <div className="flex justify-between mb-4">
