@@ -8,11 +8,10 @@ const client = new ApolloClient({
 });
 
 export default async function handler(req:NextApiRequest, res:NextApiResponse) {
-  // Only handle POST requests
   if (req.method === 'POST') {
     try {
       // Extract the input from the request body
-      const { packageName, senderName, receiverName, descriptionOfGoods,Weight,userId } = req.body;
+      const { packageName, senderName, receiverName, descriptionOfGoods,Weight,userId,height,width,StartLocation,Destination } = req.body;
 
       // Send the GraphQL mutation request
       const { data } = await client.mutate({
@@ -23,7 +22,7 @@ export default async function handler(req:NextApiRequest, res:NextApiResponse) {
               senderName
               receiverName
               descriptionOfGoods
-              Weight
+             
               trackingId,
               
             }
@@ -36,11 +35,25 @@ export default async function handler(req:NextApiRequest, res:NextApiResponse) {
               receiverName,
               descriptionOfGoods,
               Weight,
-              userId
+              userId,
+              height,
+              width,
+              StartLocation,
+              Destination
               
           },
         },
       });
+      console.log("Mutation variables:", packageName,
+        senderName,
+        receiverName,
+        descriptionOfGoods,
+        Weight,
+        userId,
+        height,
+        width,
+        StartLocation,
+        Destination);
 
       // Send the response back with the data
       res.status(200).json(data.requestCargo);

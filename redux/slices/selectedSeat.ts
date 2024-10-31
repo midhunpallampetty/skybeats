@@ -5,6 +5,7 @@ interface Seat {
   col: number;
   class: string;
   _id: string;
+  price:number;
 }
 
 interface SelectedSeatsState {

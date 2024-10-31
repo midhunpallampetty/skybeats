@@ -69,7 +69,7 @@ export default function ThanksPayment() {
           </div>
           <div className="border-t border-gray-200 mt-8"></div>
           <div className="text-center p-8">
-            <button
+            {/* <button
               onClick={handleDownloadTicket}
               className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full inline-flex items-center transition duration-300 ease-in-out transform hover:scale-105"
             >
@@ -77,7 +77,7 @@ export default function ThanksPayment() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               Download E-Ticket
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

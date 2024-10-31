@@ -14,6 +14,7 @@ import returnDateReducer from './slices/returnDate'
 import  passengerCountReducer  from './slices/passengerCountSlice'
 import aircraftModelReducer from './slices/aircraftModelSlice';
 import returnFlightReducer from './slices/returnFlightSlice';
+import foodReducer from './slices/foodSlice';
 export const store=configureStore({
     reducer:{
         airports:airportsReducer,
@@ -22,6 +23,7 @@ export const store=configureStore({
         bookdetail: bookdetailReducer,
         selectedSeats: selectedSeatsReducer,
         hotelOptions:bookHotelReducer,
+        food: foodReducer,
         hotelBookDetail:hotelBookDetailReducer,
         hotelBookUserData:hotelUserReducer,
         hotelGuestData:hotelGuestReducer,

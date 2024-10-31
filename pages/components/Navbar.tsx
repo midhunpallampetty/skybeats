@@ -90,10 +90,7 @@ export default function Component() {
         >
           <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-blue-700 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-transparent">
             {[
-              { name: "Flights", href: "/user/flight/listflights", submenu: [
-                
-                { name: "Booking History", href: "/user/flight/bookingHistory" },
-              ]},
+              { name: "Flights", href: "/user/flight/listflights"},
               { name: "Cargo", href: "/", submenu: [
                 { name: "Request Cargo", href: "/user/cargo/RequestCargo" },
                 { name: "Track Cargo", href: "/user/cargo/TrackCargo" },
@@ -105,7 +102,7 @@ export default function Component() {
               ]},
               { name: "Careers", href: "/user/careers", submenu: [
                 { name: "Job Openings", href: "/user/careers" },
-                { name: "Internships", href: "/careers/internships" },
+                
               ]},
               { name: "Contact Us", href: "/contact"},
               { name: "Chat Support", href: "/user/clientChat" },

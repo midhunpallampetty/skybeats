@@ -28,7 +28,9 @@ interface BookingDetails {
   id: string
   passengerName: Passenger[]
   ticketUrls: string[]
-  cancelled?: boolean
+  cancelled?: boolean;
+  cancelledSeats:string[];
+  seatNumber:string[]
 }
 
 interface BookingDetailsModalProps {
@@ -99,7 +101,56 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }: Bookin
       console.error('Error cancelling flight:', error);
     }
   };
-
+  async function handleSingleSeatCancellation(bookingId: string, seatNumber: string) {
+    const data = {
+      bookingId,
+      seatNumber
+    };
+  
+    // Show Swal confirmation dialog
+    Swal.fire({
+      title: "Do you want to cancel this seat?",
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Cancel Seat",
+      denyButtonText: `Don't cancel`
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const requestCancellation = await axios.post('/api/cancelByOne', data, {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          });
+  
+          // Show success message if cancellation succeeds
+          if (requestCancellation.status === 200) {
+            Swal.fire("Cancelled!", "The seat has been cancelled successfully.", "success");
+  
+            // Update the booking state to disable the cancelled seat in UI
+            setBookingState(prevBooking => {
+              if (prevBooking) {
+                return {
+                  ...prevBooking,
+                  cancelledSeats: [...prevBooking.cancelledSeats, seatNumber]
+                };
+              }
+              return prevBooking;
+            });
+          } else {
+            Swal.fire("Error", "Failed to cancel the seat", "error");
+          }
+        } catch (error) {
+          console.error("Error during seat cancellation:", error);
+          Swal.fire("Error", "An error occurred", "error");
+        }
+      } else if (result.isDenied) {
+        Swal.fire("Changes are not saved", "", "info");
+      }
+    });
+  }
+  
+  
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6">
@@ -147,6 +198,7 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }: Bookin
                     <p className="font-medium">Departure: {bookingState.departureTime}</p>
                     <p className="font-medium">Arrival: {bookingState.arrivalTime}</p>
                     <p className="text-gray-500">Duration: {bookingState.flightDuration}</p>
+                    
                   </div>
                 </div>
 
@@ -168,7 +220,7 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }: Bookin
                       className="text-white bg-red-600 p-1.5 rounded-lg font-extrabold"
                       onClick={() => handleCancelFlight(bookingState.id)}
                     >
-                      Cancel
+                      Cancel All
                     </button>
                   ) : (
                     <button
@@ -196,7 +248,7 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }: Bookin
                   </div>
                 </div>
               ))}
-            </div>
+            </div>              
           </div>
         )}
 
@@ -208,20 +260,47 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }: Bookin
       </div>
     ) : (
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {bookingState.ticketUrls.map((url, index) => (
-          <div key={index} className="relative cursor-pointer">
-            <img
-              src={url}
-              alt={`Ticket for ${bookingState.passengerName[index].firstName} ${bookingState.passengerName[index].lastName}`}
-              className="w-full h-48 object-cover rounded-lg"
-              onClick={() => setSelectedImage(url)}
-            />
-            <div className="absolute bottom-2 left-2 bg-gray-900 bg-opacity-75 text-white px-2 py-1 rounded">
-              <p>Ticket for {bookingState.passengerName[index].firstName} {bookingState.passengerName[index].lastName}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+      {bookingState.ticketUrls.map((url, index) => {
+        // Check if the current seat number is in the cancelledSeats array
+        const seatNumber = bookingState.seatNumber[index];
+        const isCancelled = bookingState.cancelledSeats.includes(seatNumber);
+    
+        return (
+      <div
+  key={index}
+  className={`relative ${isCancelled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+  onClick={() => !isCancelled && setSelectedImage(url)} // Disable onClick if cancelled
+>
+  <img
+    src={url}
+    alt={`Ticket for ${bookingState.passengerName[index].firstName} ${bookingState.passengerName[index].lastName}`}
+    className="w-full h-48 object-cover rounded-lg"
+  />
+
+  <div className="absolute bottom-2 left-2 bg-gray-900 bg-opacity-75 text-white px-2 py-1 rounded">
+    <p>Ticket for {bookingState.passengerName[index].firstName} {bookingState.passengerName[index].lastName}</p>
+    {isCancelled ? (
+      <p className="text-red-500">Cancelled</p>
+    ) : (
+    <button
+  className="mt-2 text-sm text-red-500 bg-white py-1 px-2 rounded hover:bg-red-100"
+  onClick={(e) => {
+    e.stopPropagation(); // Prevents triggering the parent div's onClick
+    handleSingleSeatCancellation(bookingState.id, bookingState.seatNumber[index]);
+  }}
+>
+  Cancel Seat                                                                                                  
+</button>
+
+    )}
+  </div>
+</div>
+
+          
+        );
+      })}
+    </div>
+    
     )}
 
     {selectedImage && (

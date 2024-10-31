@@ -25,7 +25,7 @@ const super_adminDashboard: React.FC = () => {
 
    const totalPages = Math.ceil(bookings.length / usersPerPage);
    const token = Cookies.get('jwtToken');
-
+                                    
    useEffect(() => {
       if (!token) {
          router.push('/admin/signin')

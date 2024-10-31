@@ -401,7 +401,6 @@ const ListFlights: React.FC = () => {
                       onClick={() => {
                         dispatch(setBookDetail(flight));
                         dispatch(setSelectedPassengers(passengers));
-                        alert(passengerCount);
                         console.log(flight, 'ffdsfsdf');
                         dispatch(clearSelectedSeat());
                         router.push('/user/flight/selectSeats');

@@ -21,11 +21,11 @@ const PaymentForm: React.FC = () => {
   const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
   const passengerDetails = useSelector((state: RootState) => state.bookdetail.passengerDetails);
   const returnFlight=useSelector((state:RootState)=>state.returnFlights.selectedReturnFlight)
-
+  const passengers=useSelector((state:RootState)=>state.bookdetail.passengerDetails)
+  
   const returnDate=useSelector((state:RootState)=>state.returnDate.returndate)
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const stripe = useStripe();
-  const passengers=useSelector((state:RootState)=>state.bookdetail.passengerDetails)
 
   const router=useRouter()
   const elements = useElements();
@@ -35,6 +35,7 @@ if(!token){
   router.push('/');
 }
 },[])
+
 
   useEffect(() => {
     if (selectedFlight) {
@@ -168,6 +169,7 @@ const handleSubmit = async (event: React.FormEvent) => {
 
 
 
+
   return (
     <form onSubmit={handleSubmit}>
 <CardElement
@@ -211,7 +213,23 @@ const handleSubmit = async (event: React.FormEvent) => {
 const PaymentPage: React.FC = () => {
   const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
   const passengerDetails = useSelector((state: RootState) => state.bookdetail.passengerDetails);
-
+  const selectedItem= useSelector((state: RootState) => state.food.selectedItems);
+  const [addOnRate, setAddOnRate] = useState(0);
+  const passengers=useSelector((state:RootState)=>state.bookdetail.passengerDetails)
+  const totalFare = (selectedFlight.price * passengers.passengers.length)+addOnRate;
+  const [isBreakdownVisible, setBreakdownVisible] = useState(false);
+  useEffect(() => {
+    let total = 0;
+    if (selectedItem) {
+      for (let item of selectedItem) {
+        total += item.price;
+      }
+    }
+    setAddOnRate(total);
+  }, [selectedItem]); // Dependency array to watch for changes in selectedItem
+  const toggleBreakdown = () => {
+    setBreakdownVisible(prev => !prev);
+  };
   return (
     <Elements stripe={stripePromise}>
       <div className="bg-gray-900 text-white min-h-screen">
@@ -242,8 +260,20 @@ const PaymentPage: React.FC = () => {
                 <div>
                   <p className="text-right">Fare Type: Regular</p>
                   <p className="text-right">Total Passengers: 1</p>
-                  <p className="text-right">Total Fare: ₹{selectedFlight.price}</p>
-                </div>
+                  <div>
+      <p className="text-right cursor-pointer" onClick={toggleBreakdown}>
+        Total Fare: ₹{totalFare.toFixed(2)}
+      </p>
+
+      {isBreakdownVisible && (
+        <div className="text-right mt-2 bg-blue-900/30  p-2 rounded">
+          <p>Price Breakdown:</p>
+          <p>Base Price: ₹{selectedFlight.price.toFixed(2)} * {passengers.passengers.length} = ₹{(selectedFlight.price * passengers.passengers.length).toFixed(2)}</p>
+          <p>Add-Ons: ₹{addOnRate.toFixed(2)}</p>
+          <p>Total: ₹{totalFare.toFixed(2)}</p>
+        </div>
+      )}
+    </div>             </div>
               </div>
 
               <div className="flex justify-between mb-4">

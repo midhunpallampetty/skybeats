@@ -45,7 +45,7 @@ const CREATE_BOOKING_MUTATION = gql`
 `;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const ticketImagePath = path.join(process.cwd(), 'public', 'ticket.png');
+  const ticketImagePath = path.join(process.cwd(), 'public', 'ticket-Photoroom.png');
   const logoImagePath = path.join(process.cwd(), 'public', 'logo-Photoroom-light.png');
 
   if (req.method === 'POST') {

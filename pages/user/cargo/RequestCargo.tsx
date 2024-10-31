@@ -13,9 +13,14 @@ function RequestCargo() {
     receiverName: "",
     descriptionOfGoods: "",
     Weight: "",
-    userId:userId
+    userId:userId,
+    height:0,
+    width:0,
+    StartLocation:"",
+    Destination:""
   });
   const [uploading, setUploading] = useState(false);
+  const [errors, setErrors] = useState({});
 const [url,setUrl]=useState('')
   const [image, setImage] = useState<File | null>(null);
 
@@ -27,11 +32,59 @@ const [url,setUrl]=useState('')
       [name]: value,
     }));
   };
-  
+  // const validateForm = () => {
+  //   const newErrors = {};
+
+  //   if (!formData.packageName) newErrors.packageName = 'Package name is required';
+  //   if (!formData.senderName) newErrors.senderName = 'Sender name is required';
+  //   if (!formData.receiverName) newErrors.receiverName = 'Receiver name is required';
+  //   if (!formData.StartLocation) newErrors.StartLocation = 'Sender location is required';
+  //   if (!formData.Destination) newErrors.Destination = 'Receiver location is required';
+  //   if (!formData.descriptionOfGoods) newErrors.descriptionOfGoods = 'Description of goods is required';
+  //   if (!formData.Weight) newErrors.Weight = 'Weight is required';
+
+  //   setErrors(newErrors);
+    
+  //   // Return true if there are no errors
+  //   return Object.keys(newErrors).length === 0;
+  // };
   const [isLoading, setIsLoading] = useState(true);
   const handleButtonClick = async (e: any) => {
     e.preventDefault(); // Prevent form from reloading the page
+  
+    // Validate form data
+    const {
+      packageName,
+      senderName,
+      receiverName,
+      descriptionOfGoods,
+      Weight,
+      StartLocation,
+      Destination,
+    } = formData;
+  
+    if (
+      !packageName || 
+      !senderName || 
+      !receiverName || 
+      !descriptionOfGoods || 
+      !Weight || 
+      !StartLocation || 
+      !Destination
+    ) {
+      Swal.fire({
+        title: "Validation Error!",
+        text: "All fields are required. Please fill out all fields.",
+        icon: "warning",
+        background: "#0d324e",
+        color: "#fff",
+        confirmButtonColor: "#1e90ff",
+      });
+      return; // Stop the function if validation fails
+    }
+  
     try {
+      // Proceed with submitting the form
       const res = await fetch("/api/requestCargo", {
         method: "POST",
         headers: {
@@ -42,31 +95,36 @@ const [url,setUrl]=useState('')
   
       if (res.ok) {
         const data = await res.json();
-        console.log("Cargo booking successful:", data);
         Swal.fire({
           title: "Request Submitted!",
           html: `Your cargo booking request has been submitted successfully. TrackingID: 
                  <b>${data.trackingId}</b>`,
           icon: "success",
-          background: "#0d324e", 
-          color: "#fff", 
+          background: "#0d324e",
+          color: "#fff",
           confirmButtonColor: "#1e90ff",
         });
+  
+        // Reset form data after successful submission
         setFormData({
           packageName: "",
           senderName: "",
           receiverName: "",
           descriptionOfGoods: "",
           Weight: "",
-          userId: Cookies.get('userId') || ""
+          userId: Cookies.get('userId') || "",
+          height: 0,
+          width: 0,
+          StartLocation: "",
+          Destination: "",
         });
       } else {
         Swal.fire({
           title: "Error!",
           text: "Cargo booking failed. Please try again later.",
           icon: "error",
-          background: "#0d324e", 
-          color: "#fff", 
+          background: "#0d324e",
+          color: "#fff",
           confirmButtonColor: "#1e90ff",
         });
       }
@@ -75,8 +133,8 @@ const [url,setUrl]=useState('')
         title: "Error!",
         text: "An unexpected error occurred. Please try again later.",
         icon: "error",
-        background: "#0d324e", 
-        color: "#fff", 
+        background: "#0d324e",
+        color: "#fff",
         confirmButtonColor: "#1e90ff",
       });
       console.error("Error in cargo booking:", error);
@@ -164,7 +222,7 @@ const [url,setUrl]=useState('')
         </Carousel>
       </div>
       <p className="text-center text-white font-extrabold text-4xl mt-4">Explore Cargo Facility With World's Best Airline</p>
-      <form className="max-w-lg mx-auto mt-28">
+      <form className="max-w-[800px] mx-auto mt-16">
       {/* Package Name */}
       <div className="mb-5">
         <label htmlFor="packageName" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -176,7 +234,7 @@ const [url,setUrl]=useState('')
           value={formData.packageName} // Corrected value for packageName
           id="packageName"
           name="packageName"
-          className="block w-full p-4 text-gray-900 rounded-lg bg-[#0d324e] text-base focus:ring-blue-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500"
+          className="block w-full p-4 text-whiterounded-lg bg-[#0d324e]  text-white font-extrabold focus:ring-blue-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500"
           placeholder="Enter the package name"
         />
       </div>
@@ -192,7 +250,7 @@ const [url,setUrl]=useState('')
           value={formData.senderName} // Corrected value for senderName
           id="senderName"
           name="senderName"
-          className="block w-full bg-[#0d324e] h-14 text-gray-900 text-sm rounded-lg focus:ring-blue-500 p-2.5 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="block w-full bg-[#0d324e] h-14 text-white font-extrabold text-sm rounded-lg focus:ring-blue-500 p-2.5 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           placeholder="Enter the sender's name"
         />
       </div>
@@ -208,11 +266,38 @@ const [url,setUrl]=useState('')
           type="text"
           id="receiverName"
           name="receiverName"
-          className="block w-full text-gray-900 bg-[#0d324e] text-sm rounded-lg h-14 p-2.5 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="block w-full text-white bg-[#0d324e] text-sm rounded-lg h-14 p-2.5 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           placeholder="Enter the receiver's name"
         />
       </div>
-
+      <div className="mb-5">
+        <label htmlFor="receiverName" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Sender Location
+        </label>
+        <input
+          onChange={handleChange}
+          value={formData.StartLocation} // Corrected value for receiverName
+          type="text"
+          id="StartLocation"
+          name="StartLocation"
+          className="block w-full text-white bg-[#0d324e] text-sm rounded-lg h-14 p-2.5 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="Enter Your Location"
+        />
+      </div>
+      <div className="mb-5">
+        <label htmlFor="receiverName" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Receiver Location
+        </label>
+        <input
+          onChange={handleChange}
+          value={formData.Destination} // Corrected value for receiverName
+          type="text"
+          id="Destination"
+          name="Destination"
+          className="block w-full text-white bg-[#0d324e] text-sm rounded-lg h-14 p-2.5 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="Enter Receiver Location"
+        />                                                                                                                                         
+      </div>
       {/* Description of Goods */}
       <div className="mb-5">
         <label htmlFor="descriptionOfGoods" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -244,7 +329,7 @@ const [url,setUrl]=useState('')
           placeholder="Enter the weight of the package"
         />
       </div>
-    
+     
       {/* Submit Button */}
       <div className="mt-5">
         <button

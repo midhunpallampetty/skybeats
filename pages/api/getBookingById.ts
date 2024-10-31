@@ -36,6 +36,8 @@ const getBookingByUserId = async (req: NextApiRequest, res: NextApiResponse) => 
       
     }
       ticketUrls
+      cancelledSeats
+      seatNumber
         }
       }
     `;

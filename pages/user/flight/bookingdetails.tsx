@@ -5,7 +5,9 @@ import { useRouter } from 'next/router';
 import { RootState } from '@/redux/store';
 import { setPassengerDetails } from '@/redux/slices/bookdetailSlice';
 import Swal from 'sweetalert2';
+import FoodMenuModal from '@/pages/components/foodMenuModal';
 import Cookies from 'js-cookie';
+
 import { clearSelectedReturnFlight } from '@/redux/slices/returnFlightSlice';
 interface PassengerDetails {
   firstName: string;
@@ -30,12 +32,11 @@ const BookingDetailsPage: React.FC = () => {
   const [commonDetails, setCommonDetails] = useState<CommonDetails>({ email: '', phoneNumber: '' });
   const [errors, setErrors] = useState<Record<number, Record<string, boolean>>>({});
   const [commonErrors, setCommonErrors] = useState<Record<string, boolean>>({ email: false, phoneNumber: false });
-  const passengers=useSelector((state:RootState)=>state.bookdetail.passengerDetails)
-  const returnFlight=useSelector((state:RootState)=>state.returnFlights.selectedReturnFlight)
+  const passengers = useSelector((state: RootState) => state.bookdetail.passengerDetails)
+  const returnFlight = useSelector((state: RootState) => state.returnFlights.selectedReturnFlight)
 
   const token = Cookies.get('jwtToken');
   const userId = Cookies.get('userId');
-
   useEffect(() => {
     if (returnFlight) {
       Swal.fire({
@@ -48,21 +49,21 @@ const BookingDetailsPage: React.FC = () => {
         /* Read more about isConfirmed, isDenied below */
         if (result.isConfirmed) {
           Swal.fire("Continue With Return Flights!", "", "success");
-          
+
         } else if (result.isDenied) {
           dispatch(clearSelectedReturnFlight());
 
           Swal.fire("Return Flights are Removed", "", "info");
         }
       });
-   
+
     }
   }, [returnFlight, dispatch]);
   useEffect(() => {
     if (!token) {
       router.push('/');
     }
-  
+
     // Initialize passenger details based on selected seats
     const initialPassengers = selectedSeat.map(() => ({
       firstName: '',
@@ -73,7 +74,7 @@ const BookingDetailsPage: React.FC = () => {
       disability: '',
     }));
     setPassengerDetailsState(initialPassengers);
-  
+
     // Validate initial fields on load
     initialPassengers.forEach((_, index) => {
       validateField(index, 'firstName', '');
@@ -82,12 +83,12 @@ const BookingDetailsPage: React.FC = () => {
       validateField(index, 'passportNumber', '');
       validateField(index, 'age', '');
     });
-  
+
     validateCommonField('email', commonDetails.email);
     validateCommonField('phoneNumber', commonDetails.phoneNumber);
   }, [selectedSeat, token]);
-  
-  
+
+
 
   const handleInputChange = (index: number, field: string, value: string) => {
     const updatedPassengers = [...passengerDetails];
@@ -147,23 +148,23 @@ const BookingDetailsPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     // Validate all passenger fields
     passengerDetails.forEach((passenger, index) => {
       Object.keys(passenger).forEach((field) => {
         validateField(index, field, (passenger as any)[field]);
       });
     });
-  
+                                                                                                      
     // Validate common fields (email, phoneNumber)
     validateCommonField('email', commonDetails.email);
     validateCommonField('phoneNumber', commonDetails.phoneNumber);
-  
+
     const hasPassengerErrors = Object.values(errors).some((errorSet) =>
       Object.values(errorSet).some((error) => error === true)
     );
     const hasCommonErrors = Object.values(commonErrors).some((error) => error === true);
-  
+
     if (!hasPassengerErrors && !hasCommonErrors) {
       // Proceed to payment if no errors
       dispatch(setPassengerDetails({ ...commonDetails, passengers: passengerDetails }));
@@ -178,7 +179,7 @@ const BookingDetailsPage: React.FC = () => {
       });
     }
   };
-  
+
 
   return (
     <div className="bg-gray-700/50 text-white min-h-screen">
@@ -195,26 +196,43 @@ const BookingDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="container shadow-white/35 shadow-inner border border-white/20 mx-auto p-6 mt-6 bg-black/45 rounded-lg">
-        {selectedFlight ? (
-          <>
+      <div className="container  shadow-inner border border-white/20 mx-auto p-6 mt-6 bg-black/45 rounded-lg">
+    {selectedFlight ? (
+        <>
             <div className="flex justify-between mb-4">
-              <div>
-                <h2 className="text-2xl font-semibold">{selectedFlight.departureAirport} → {selectedFlight.arrivalAirport}</h2>
-                <p>{selectedFlight.departureTime} - {selectedFlight.arrivalTime}</p>
-                <p>{selectedFlight.duration}</p>
-              </div>
-              <div>
-                <p className="text-right">Fare Type: Regular</p>
-                <p className="text-right">Total Passengers: {selectedSeat.length}</p>
-                <p className="text-right">Total Fare: ₹{selectedFlight.price * selectedSeat.length}</p>
-              </div>
+                <div className="flex-1">
+                    <h2 className="text-2xl font-semibold">{selectedFlight.departureAirport} → {selectedFlight.arrivalAirport}</h2>
+                    <p>{selectedFlight.departureTime} - {selectedFlight.arrivalTime}</p>
+                    <p>{selectedFlight.duration}</p>
+                </div>
+                <div className="flex-1 text-right">
+                    <p>Fare Type: Regular</p>
+                    <p>Total Passengers: {selectedSeat.length}</p>
+                    <p>Total Fare: ₹{selectedFlight.price * selectedSeat.length}</p>
+                </div>
             </div>
-          </>
-        ) : (
-          <p>No flight selected</p>
-        )}
-      </div>
+
+            {/* Additional Fares section */}
+            <div className="text-center mb-6">
+                <h1 className="text-lg font-semibold">Additional Fares</h1>
+                {selectedSeat.map((seat, index) => (
+                    <p key={index}>
+                        {seat.price === 499 && "Economy"}
+                        {seat.price === 899 && "First Class"}
+                        {seat.price === 1099 && "Business Class"}
+                        : ₹{seat.price}
+                    </p>
+
+                ))}
+                <button className='bg-blue-700/35 rounded-sm font-extrabold p-1'>Add Aditional </button>
+                <FoodMenuModal/>
+            </div>
+
+        </>
+    ) : (
+        <p>No flight selected</p>
+    )}
+</div>
 
       {/* Common details (Email, Phone Number) */}
       <div className="container mx-auto p-6 mt-6 border border-white/20 bg-[#07152C] rounded-lg shadow-lg">
@@ -227,9 +245,8 @@ const BookingDetailsPage: React.FC = () => {
                 type="text"
                 value={commonDetails.email}
                 onChange={(e) => handleCommonInputChange('email', e.target.value)}
-                className={`mt-1 block w-full bg-gray-800 border ${
-                  commonErrors.email ? 'border-red-500' : 'border-gray-700'
-                } rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                className={`mt-1 block w-full bg-gray-800 border ${commonErrors.email ? 'border-red-500' : 'border-gray-700'
+                  } rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 placeholder="Enter email"
               />
               {commonErrors.email && <p className="text-red-500 text-sm mt-1">Email is invalid.</p>}
@@ -241,9 +258,8 @@ const BookingDetailsPage: React.FC = () => {
                 type="text"
                 value={commonDetails.phoneNumber}
                 onChange={(e) => handleCommonInputChange('phoneNumber', e.target.value)}
-                className={`mt-1 block w-full bg-gray-800 border ${
-                  commonErrors.phoneNumber ? 'border-red-500' : 'border-gray-700'
-                } rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                className={`mt-1 block w-full bg-gray-800 border ${commonErrors.phoneNumber ? 'border-red-500' : 'border-gray-700'
+                  } rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 placeholder="Enter phone number"
               />
               {commonErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">Phone number is invalid.</p>}
@@ -263,9 +279,8 @@ const BookingDetailsPage: React.FC = () => {
                     type="text"
                     value={passengerDetails[index]?.firstName}
                     onChange={(e) => handleInputChange(index, 'firstName', e.target.value)}
-                    className={`mt-1 block w-full bg-gray-800 border ${
-                      errors[index]?.firstName ? 'border-red-500' : 'border-gray-700'
-                    } rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    className={`mt-1 block w-full bg-gray-800 border ${errors[index]?.firstName ? 'border-red-500' : 'border-gray-700'
+                      } rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                     placeholder="Enter first name"
                   />
                   {errors[index]?.firstName && <p className="text-red-500 text-sm mt-1">First name is invalid.</p>}
@@ -277,9 +292,8 @@ const BookingDetailsPage: React.FC = () => {
                     type="text"
                     value={passengerDetails[index]?.middleName}
                     onChange={(e) => handleInputChange(index, 'middleName', e.target.value)}
-                    className={`mt-1 block w-full bg-gray-800 border ${
-                      errors[index]?.middleName ? 'border-red-500' : 'border-gray-700'
-                    } rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    className={`mt-1 block w-full bg-gray-800 border ${errors[index]?.middleName ? 'border-red-500' : 'border-gray-700'
+                      } rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                     placeholder="Enter middle name"
                   />
                   {errors[index]?.middleName && <p className="text-red-500 text-sm mt-1">Middle name is invalid.</p>}
@@ -291,9 +305,8 @@ const BookingDetailsPage: React.FC = () => {
                     type="text"
                     value={passengerDetails[index]?.lastName}
                     onChange={(e) => handleInputChange(index, 'lastName', e.target.value)}
-                    className={`mt-1 block w-full bg-gray-800 border ${
-                      errors[index]?.lastName ? 'border-red-500' : 'border-gray-700'
-                    } rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    className={`mt-1 block w-full bg-gray-800 border ${errors[index]?.lastName ? 'border-red-500' : 'border-gray-700'
+                      } rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                     placeholder="Enter last name"
                   />
                   {errors[index]?.lastName && <p className="text-red-500 text-sm mt-1">Last name is invalid.</p>}
@@ -305,9 +318,8 @@ const BookingDetailsPage: React.FC = () => {
                     type="text"
                     value={passengerDetails[index]?.age}
                     onChange={(e) => handleInputChange(index, 'age', e.target.value)}
-                    className={`mt-1 block w-full bg-gray-800 border ${
-                      errors[index]?.age ? 'border-red-500' : 'border-gray-700'
-                    } rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    className={`mt-1 block w-full bg-gray-800 border ${errors[index]?.age ? 'border-red-500' : 'border-gray-700'
+                      } rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                     placeholder="Enter age"
                   />
                   {errors[index]?.age && <p className="text-red-500 text-sm mt-1">Age is invalid.</p>}
@@ -319,9 +331,8 @@ const BookingDetailsPage: React.FC = () => {
                     type="text"
                     value={passengerDetails[index]?.passportNumber}
                     onChange={(e) => handleInputChange(index, 'passportNumber', e.target.value)}
-                    className={`mt-1 block w-full bg-gray-800 border ${
-                      errors[index]?.passportNumber ? 'border-red-500' : 'border-gray-700'
-                    } rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    className={`mt-1 block w-full bg-gray-800 border ${errors[index]?.passportNumber ? 'border-red-500' : 'border-gray-700'
+                      } rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                     placeholder="Enter passport number"
                   />
                   {errors[index]?.passportNumber && (
