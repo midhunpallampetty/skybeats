@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from './components/Navbar';
-import { useSession } from "next-auth/react";
+import { useSession } from 'next-auth/react';
 import Cookies from 'js-cookie';
 import ImageCarousel from './components/imageCarousel';
 import NetworkStatus from './components/networkStatus';
@@ -13,7 +13,7 @@ const Index: React.FC = () => {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(true);
   const AiChatBot = dynamic(() => import('./components/ChatBox'));
-console.log(session,'dscd')
+console.log(session,'dscd');
   useEffect(() => {
     // Simulate loading time (e.g., splash screen)
     const timer = setTimeout(() => {
@@ -28,7 +28,7 @@ console.log(session,'dscd')
     // If session exists and the token is available, set it in a cookie
     if (session && session.user?.token) {
       Cookies.set('jwtToken', session.user.token, { expires: 7 }); // Expires in 7 days
-      Cookies.set('userId',session.user.usersId)
+      Cookies.set('userId',session.user.usersId);
       console.log('JWT Token set in cookie:', session.user.token);
     }
   }, [session]);

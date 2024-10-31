@@ -1,5 +1,5 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { NextApiRequest, NextApiResponse } from 'next';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { gql, GraphQLClient } from 'graphql-request';
 import { createCanvas, loadImage } from 'canvas';
 import path from 'path';
@@ -123,7 +123,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         input: bookingWithTicketUrls,
         flightModel,
       };
-console.log(variables,'dscsdc')
+console.log(variables,'dscsdc');
       // Call the GraphQL mutation to create the booking (uncomment when ready)
       await client.request(CREATE_BOOKING_MUTATION, variables);
 

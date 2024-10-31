@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
@@ -15,20 +16,20 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 
 const PaymentForm: React.FC = () => {
   const hotelBookingDetail = useSelector((state: RootState) => state.hotelBookDetail.selectedHotel);
-  const userId=Cookies.get('userId')
-  const getGuestDetails=useSelector((state:RootState)=>state.hotelGuestData.selectedUser)
+  const userId=Cookies.get('userId');
+  const getGuestDetails=useSelector((state:RootState)=>state.hotelGuestData.selectedUser);
   const guestDetails = useSelector((state: RootState) => state.bookdetail.guestDetails);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const stripe = useStripe();
   const elements = useElements();
-  const token=Cookies.get('jwtToken')
-  const router=useRouter()
-console.log(guestDetails)
+  const token=Cookies.get('jwtToken');
+  const router=useRouter();
+console.log(guestDetails);
   useEffect(()=>{
   if(!token){
-    router.push('/')
+    router.push('/');
   }
-  },[])
+  },[]);
   useEffect(() => {
     if (getGuestDetails) {
       axios.post<PaymentIntentResponse>('/api/create-payment-intent', { amount: getGuestDetails!.amount * 100 })
@@ -43,7 +44,7 @@ console.log(guestDetails)
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    alert(getGuestDetails?.amount)
+    alert(getGuestDetails?.amount);
 
     if (!stripe || !elements || !clientSecret) {
       return;

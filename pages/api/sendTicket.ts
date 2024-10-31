@@ -1,5 +1,5 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { NextApiRequest, NextApiResponse } from 'next';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { gql, GraphQLClient } from 'graphql-request';
 import { createCanvas, loadImage } from 'canvas';
 import path from 'path';

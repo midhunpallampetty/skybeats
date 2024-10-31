@@ -1,13 +1,13 @@
-"use client";
-import React, { useState, useEffect, useRef } from "react";
-import Image from "next/image";
+'use client';
+import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import OtpModal from '../components/otpModal';
-import Link from "next/link";
-import * as THREE from "three";
-import FOG from "vanta/dist/vanta.fog.min";
-import { useMutation } from "@apollo/client";
-import { SIGNUP_MUTATION } from "@/graphql/mutations/userSignupMutation";
-import Cookies from "js-cookie";
+import Link from 'next/link';
+import * as THREE from 'three';
+import FOG from 'vanta/dist/vanta.fog.min';
+import { useMutation } from '@apollo/client';
+import { SIGNUP_MUTATION } from '@/graphql/mutations/userSignupMutation';
+import Cookies from 'js-cookie';
 const validateUsername = (username: string) => {
   if (username.length < 4) {
     return 'Username must be at least 4 characters long';
@@ -33,9 +33,9 @@ const validatePassword = (password: string) => {
 const Signup: React.FC = () => {
   const [vantaEffect, setVantaEffect] = useState<any>(null);
   const myRef = useRef<HTMLDivElement | null>(null);
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [customError, setCustomError] = useState({ username: '', email: '', password: '' });
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [userSignup, { loading, error }] = useMutation(SIGNUP_MUTATION);
@@ -65,9 +65,9 @@ const Signup: React.FC = () => {
   }, [vantaEffect]);
 
   useEffect(() => {
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow = 'hidden';
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = 'auto';
     };
   }, []);
 
@@ -85,8 +85,8 @@ const Signup: React.FC = () => {
       return;
     }
 
-    try {685785
-      console.log(email, password, username, "data reached yahooooo~");
+    try {685785;
+      console.log(email, password, username, 'data reached yahooooo~');
       const { data } = await userSignup({
         variables: {
           username,
@@ -94,20 +94,20 @@ const Signup: React.FC = () => {
           password,
         },
       });
-      console.log("Signup Successful", data.userSignup);
+      console.log('Signup Successful', data.userSignup);
       const token=data.userSignup.token;
-      Cookies.set('jwtToken',token,{expires:30})
+      Cookies.set('jwtToken',token,{expires:30});
 
       setIsOtpModalOpen(true);
     } catch (error) {
-      console.log("Error during signup", error);
+      console.log('Error during signup', error);
     }
   };
 
   return (
     <div
       ref={myRef}
-      className={`h-screen overflow-hidden flex flex-col bg-[#0E1139] text-white`}
+      className={'h-screen overflow-hidden flex flex-col bg-[#0E1139] text-white'}
     >
       <div className="absolute top-0 bottom-0 right-0 mt-4 ml-4 hidden sm:block">
         <Image
@@ -155,7 +155,7 @@ const Signup: React.FC = () => {
         />
       </div>
 
-      <nav className={`fixed w-full z-20 top-0 left-0 bg-transparent`}>
+      <nav className={'fixed w-full z-20 top-0 left-0 bg-transparent'}>
         <div className="max-w-full flex flex-wrap items-center justify-between mx-auto p-4">
           <Link
             href="/"
@@ -199,11 +199,11 @@ const Signup: React.FC = () => {
 
       <section className="flex flex-col items-center justify-center px-6 py-8 mx-auto h-full">
         <div
-          className={`w-full max-w-md border border-white/20 lg:w-[450px] rounded-lg shadow `}
+          className={'w-full max-w-md border border-white/20 lg:w-[450px] rounded-lg shadow '}
         >
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1
-              className={`text-xl font-bold leading-tight text-white md:text-2xl `}
+              className={'text-xl font-bold leading-tight text-white md:text-2xl '}
             >
               Register as New Account
             </h1>
@@ -233,7 +233,7 @@ const Signup: React.FC = () => {
               <div>
                 <label
                   htmlFor="email"
-                  className={`block mb-2 text-sm font-medium text-white`}
+                  className={'block mb-2 text-sm font-medium text-white'}
                 >
                   Your email
                 </label>
@@ -255,7 +255,7 @@ const Signup: React.FC = () => {
               <div>
                 <label
                   htmlFor="password"
-                  className={`block mb-2 text-sm font-medium text-white`}
+                  className={'block mb-2 text-sm font-medium text-white'}
                 >
                   Your password
                 </label>
@@ -283,7 +283,7 @@ const Signup: React.FC = () => {
                 <p className="text-red-500 mb-4">Error: {error.message}</p>
               )}
               <div className="text-sm font-medium text-white dark:white-black">
-                Already Registered?{" "}
+                Already Registered?{' '}
                 <Link
                   href="/user/signin"
                   className="text-blue-700 hover:underline dark:text-blue-500"

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+'use client';
+import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
@@ -10,17 +11,17 @@ const JobApplicationForm = () => {
     const [image, setImage] = useState<File | null>(null);
     const [imageUrl, setImageUrl] = useState<string>('');
     const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        phone: "",
-        coverLetter: "",
+        name: '',
+        email: '',
+        phone: '',
+        coverLetter: '',
         cv: null,
     });
 
     const truncateDescription = (text: string, wordLimit: number) => {
-        const words = text.split(" ");
+        const words = text.split(' ');
         if (words.length > wordLimit) {
-            return words.slice(0, wordLimit).join(" ") + "...";
+            return words.slice(0, wordLimit).join(' ') + '...';
         }
         return text;
     };
@@ -99,15 +100,15 @@ const JobApplicationForm = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                Swal.fire("Application Submitted!", `Your application for ${data.name} has been submitted successfully.`);
+                Swal.fire('Application Submitted!', `Your application for ${data.name} has been submitted successfully.`);
                 console.log('Application submitted:', data);
             } else {
                 console.error('Failed to submit application');
-                Swal.fire("Error!", "Failed to submit your application. Please try again later.", "error");
+                Swal.fire('Error!', 'Failed to submit your application. Please try again later.', 'error');
             }
         } catch (error) {
             console.error('Error:', error);
-            Swal.fire("Error!", "An unexpected error occurred. Please try again later.", "error");
+            Swal.fire('Error!', 'An unexpected error occurred. Please try again later.', 'error');
         }
     };
 

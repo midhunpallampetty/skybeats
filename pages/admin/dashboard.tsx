@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import { ADMIN_LOGIN_MUTATION } from '@/graphql/mutations/adminLoginMutation';
 import { useMutation } from '@apollo/client';
@@ -151,22 +151,22 @@ const SuperAdminDashboard: React.FC = () => {
                         {authorized ? (
                             cardsData.map((user, index) => (
                                 <button
-                                    className={`max-w-sm bg-transparent border-4 ${(role !== "hoteladmin" && user.name === "Hotel Management") ||
-                                            (role !== "hradmin" && user.name === "Career Management") || (role !== "flightoperator" && user.name === "Flight Management") ||( role !=='cargomanager' && user.name === "Cargo Management") 
-                                            ? "border-gray-400 cursor-not-allowed opacity-50"
-                                            : "border-gray-600/60 cursor-pointer"
+                                    className={`max-w-sm bg-transparent border-4 ${(role !== 'hoteladmin' && user.name === 'Hotel Management') ||
+                                            (role !== 'hradmin' && user.name === 'Career Management') || (role !== 'flightoperator' && user.name === 'Flight Management') ||( role !=='cargomanager' && user.name === 'Cargo Management') 
+                                            ? 'border-gray-400 cursor-not-allowed opacity-50'
+                                            : 'border-gray-600/60 cursor-pointer'
                                         } rounded-lg shadow-lg relative focus:outline-none`}
                                     onClick={() => {
                                         if (
-                                            !(role !== "hoteladmin" && user.name === "Hotel Management") &&
-                                            !(role !== "hradmin" && user.name === "Career Management") &&!(role !== "flightoperator" && user.name === "Flight Management") &&!(role !== "cargomanager" && user.name === "Cargo Management")
+                                            !(role !== 'hoteladmin' && user.name === 'Hotel Management') &&
+                                            !(role !== 'hradmin' && user.name === 'Career Management') &&!(role !== 'flightoperator' && user.name === 'Flight Management') &&!(role !== 'cargomanager' && user.name === 'Cargo Management')
                                         ) {
                                             router.push(user?.Redirect);
                                         }
                                     }}
                                     disabled={
-                                        (role !== "hoteladmin" && user.name === "Hotel Management") ||
-                                        (role !== "hradmin" && user.name === "Career Management")
+                                        (role !== 'hoteladmin' && user.name === 'Hotel Management') ||
+                                        (role !== 'hradmin' && user.name === 'Career Management')
                                     }
                                 >
                                     <div className="relative">

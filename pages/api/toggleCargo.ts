@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { trackingId } = req.body; // The tracking ID should come in the request body.
 
   if (!trackingId) {
-    return res.status(400).json({ error: "Tracking ID is required" });
+    return res.status(400).json({ error: 'Tracking ID is required' });
   }
 
   try {
@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(200).json(result.data.toggleApprovalStatus);
   } catch (error) {
-    console.error("Error in API request:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error('Error in API request:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }

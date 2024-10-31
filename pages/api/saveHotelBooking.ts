@@ -22,13 +22,13 @@ const CREATE_HOTEL_BOOKING_MUTATION = gql`
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const bookingInput = req.body;
-  console.log( bookingInput,'nfvbhdgvbdbhdg')
+  console.log( bookingInput,'nfvbhdgvbdbhdg');
     try {
       const variables = { input: bookingInput };
       const data = await client.request(CREATE_HOTEL_BOOKING_MUTATION, variables);
       res.status(200).json(data);
     } catch (error: any) {
-      console.log('something went wrong')
+      console.log('something went wrong');
       res.status(500).json({ message: 'Error creating booking', error: error.message });
     }
   } else {

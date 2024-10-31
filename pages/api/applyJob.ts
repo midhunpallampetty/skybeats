@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const { name, email, phone, coverLetter, cv } = req.body;
-    console.log(req.body)
+    console.log(req.body);
 
     try {
       // Make a request to your existing backend GraphQL API

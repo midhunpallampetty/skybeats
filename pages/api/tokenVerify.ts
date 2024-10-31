@@ -1,5 +1,5 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { GraphQLClient, gql } from "graphql-request";
+import { NextApiRequest, NextApiResponse } from 'next';
+import { GraphQLClient, gql } from 'graphql-request';
 
 const getUsers = async (req: NextApiRequest, res: NextApiResponse) => {
     const graphQLClient = new GraphQLClient('http://localhost:3300/graphql');
@@ -23,7 +23,7 @@ const getUsers = async (req: NextApiRequest, res: NextApiResponse) => {
         }
 
         const variables = { token };
-        console.log('type i',typeof variables)
+        console.log('type i',typeof variables);
         const data: any = await graphQLClient.request(query, variables);
         console.log('Received GraphQL response:', data.isAuthorised.message);
 

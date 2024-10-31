@@ -1,7 +1,7 @@
-'use client'
+'use client';
 import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from '@/pages/components/Navbar';
-import { ApolloClient, gql } from '@apollo/client'
+import { ApolloClient, gql } from '@apollo/client';
 import { Airport } from '@/interfaces/Airport';
 import { setHotelBookDetail } from '@/redux/slices/hotelBookDetailSlice';
 import Modal from 'react-modal';
@@ -26,25 +26,25 @@ import { RootState } from '@/redux/store';
 
 const Hotels: React.FC = () => {
   
-const dispatch=useDispatch()
-const router=useRouter()
-  const [pixabayImages,setpixabayImages]=useState([])
+const dispatch=useDispatch();
+const router=useRouter();
+  const [pixabayImages,setpixabayImages]=useState([]);
   const [airports, setAirports] = useState<Airport[]>([]);
   const [filteredAirports, setFilteredAirports] = useState<OptionType[]>([]);
   const [sortOption, setSortOption] = useState('name-asc');
   
-  const { loading, error, data } = useQuery(GET_NEARBY_HOTELS)
-  const [myCity, SetmyCity] = useState<IMycity>({ city: "", Location: "", Region: "" });
+  const { loading, error, data } = useQuery(GET_NEARBY_HOTELS);
+  const [myCity, SetmyCity] = useState<IMycity>({ city: '', Location: '', Region: '' });
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [selectedCity, setSelectedCity] = useState<SingleValue<OptionType> | null>(null);
   const [location, setLocation] = useState<string | null>(null);
-  const testData=useSelector((state:RootState)=>state.hotelBookDetail.selectedHotel)
+  const testData=useSelector((state:RootState)=>state.hotelBookDetail.selectedHotel);
 
   const [imageUrl, setImageUrl] = useState('');
   // const [hotelOptions, setHotelOptions] = useState<any>([]);
-  const hotelOptions=useSelector((state:RootState)=>state.hotelOptions.hotelOptions)
+  const hotelOptions=useSelector((state:RootState)=>state.hotelOptions.hotelOptions);
   const [hotels, setHotels] = useState([]);
   const itemsPerPage = 6; 
   const [currentPage, setCurrentPage] = useState(1);
@@ -68,12 +68,12 @@ const router=useRouter()
       essential_info: hotel.essential_info,
     };
 
-        router.push('/hotel/selectHotel')
+        router.push('/hotel/selectHotel');
   };                 
 
   const handlePageChange = (pageNumber:number) => {
     setCurrentPage(pageNumber);
-    console.log('got data  gaxiosgaxiosgaxiosgaxiosgaxiosgaxios',testData)
+    console.log('got data  gaxiosgaxiosgaxiosgaxiosgaxiosgaxios',testData);
 
   };
   const sortHotels = (hotels: any[], option: string) => {
@@ -103,7 +103,7 @@ const router=useRouter()
           },
         });
 
-        setpixabayImages(response.data.hits)
+        setpixabayImages(response.data.hits);
         console.log(pixabayImages,'testbvfhvghvb');
         if (pixabayImages.length > 0) {
           const randomImage =  JSON.parse(JSON.stringify(pixabayImages[Math.floor(Math.random() * pixabayImages.length)]));
@@ -119,7 +119,7 @@ const router=useRouter()
   }, []);
 
   // const hotelOptions=((state:RootState)=>state.hotels.hotels)
-  console.log('accessed d')
+  console.log('accessed d');
   const currentHotels = hotelOptions?.HotelByLocation?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -168,12 +168,12 @@ const router=useRouter()
   };
   useEffect(() => {
     const myCity = axios.get('https://ipinfo.io').then((response: any) => {
-      SetmyCity({ city: response.data.city, Location: "", Region: "" })
-    })
-  }, [])
+      SetmyCity({ city: response.data.city, Location: '', Region: '' });
+    });
+  }, []);
 
 
-  console.log(myCity, 'mycity is', new Date())
+  console.log(myCity, 'mycity is', new Date());
 
 
 
@@ -206,7 +206,7 @@ const router=useRouter()
       console.log('Please select all fields');
     }
   };
-  console.log(hotelOptions, 'bhthbnghrbgrhebgh')
+  console.log(hotelOptions, 'bhthbnghrbgrhebgh');
   function truncateWords(text: string, wordLimit: number): string {
     const words = text.split(' ');
     if (words.length > wordLimit) {

@@ -1,6 +1,7 @@
+    'use client';
     import React, { useState, useRef, useEffect } from 'react';
     import axios from 'axios';
-    import Swal from 'sweetalert2'
+    import Swal from 'sweetalert2';
     type Message = {
       text: string;
       sender: 'user' | 'ai';
@@ -45,15 +46,15 @@
           utterance.pitch = 1;
 
           utterance.onstart = () => {
-            console.log("Speech started");
+            console.log('Speech started');
           };
 
           utterance.onend = () => {
-            console.log("Speech ended");
+            console.log('Speech ended');
           };
 
           utterance.onerror = (e) => {
-            console.error("Speech synthesis error: ", e);
+            console.error('Speech synthesis error: ', e);
           };
 
 
@@ -71,7 +72,7 @@
       
           try {
             const response = await axios({
-              url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyAb4vvMHcfULLD9louz1CxjE79FPhBVR-k`,
+              url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyAb4vvMHcfULLD9louz1CxjE79FPhBVR-k',
               method: 'post',
               data: {
                 contents: [
@@ -116,14 +117,14 @@
       const handleVoiceToText = () => {
         startVoiceRecognition((transcript: any, error: any) => {
           if (error) {
-            console.error("Recognition error:", error);
+            console.error('Recognition error:', error);
           } else {
             setInputValue(transcript);
             setText(transcript);
 
 
             setTimeout(() => {
-              const sendButton = document.getElementById("sendMessage");
+              const sendButton = document.getElementById('sendMessage');
               if (sendButton) {
                 sendButton.click();
               }
@@ -142,7 +143,7 @@
             background: 'black',
             showConfirmButton: false,
           });
-          console.error("Your browser does not support speech recognition.");
+          console.error('Your browser does not support speech recognition.');
           return;
         }
 
@@ -153,35 +154,35 @@
 
         recognition.onstart = () => {
           Swal.fire({
-            imageUrl: "https://i.pinimg.com/originals/6b/a1/74/6ba174bf48e9b6dc8d8bd19d13c9caa9.gif",
+            imageUrl: 'https://i.pinimg.com/originals/6b/a1/74/6ba174bf48e9b6dc8d8bd19d13c9caa9.gif',
             imageWidth: 400,
             imageHeight: 200,
-            imageAlt: "Custom image",
+            imageAlt: 'Custom image',
             background: 'black',
             showConfirmButton: false,
           });
-          console.log("Voice recognition started. You can speak now...");
+          console.log('Voice recognition started. You can speak now...');
         };
 
         recognition.onresult = (event: any) => {
-          Swal.close()
+          Swal.close();
           const transcript = event.results[0][0].transcript;
 
-          console.log("You said: ", transcript);
+          console.log('You said: ', transcript);
           if (callback && typeof callback === 'function') {
             callback(transcript);
           }
         };
 
         recognition.onerror = (event: any) => {
-          console.error("Error occurred in recognition: ", event.error);
+          console.error('Error occurred in recognition: ', event.error);
           if (callback && typeof callback === 'function') {
             callback(null, event.error);
           }
         };
 
         recognition.onend = () => {
-          console.log("Voice recognition ended.");
+          console.log('Voice recognition ended.');
         };
 
         recognition.start();

@@ -1,6 +1,6 @@
-'use client'
-import React, { useState, useEffect } from 'react'
-import dynamic from 'next/dynamic'
+'use client';
+import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { Carousel } from 'flowbite-react';
 
 function TrackCargo() {
@@ -31,7 +31,7 @@ function TrackCargo() {
       const data = await response.json();
       console.log('Fetched tracking data:', data);
       setTrackingData(data);  // Store the fetched data
-      console.log(trackingData.data[0].packageName, 'ydfhvfdgv')
+      console.log(trackingData.data[0].packageName, 'ydfhvfdgv');
     } catch (error: any) {
       console.error('Error fetching tracking data:', error.message);
     }

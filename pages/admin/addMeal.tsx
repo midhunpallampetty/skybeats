@@ -8,17 +8,17 @@ import S3 from 'aws-sdk/clients/s3';
 function addMeal() {
   const AdminNavbar = dynamic(() => import('../components/AdminNavbar'));
   const AdminAside = dynamic(() => import('../components/Adminaside'));
-  const Modal = dynamic(() => import('react-modal'))
+  const Modal = dynamic(() => import('react-modal'));
   const [image, setImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [itemName, setItemName] = useState('')
-  const [stock, setStock] = useState(0)
-  const [foodType, setFoodType] = useState('')
-  const [price,setPrice]=useState(0)
-  const [foodImage, setFoodImage] = useState<any>('')
+  const [itemName, setItemName] = useState('');
+  const [stock, setStock] = useState(0);
+  const [foodType, setFoodType] = useState('');
+  const [price,setPrice]=useState(0);
+  const [foodImage, setFoodImage] = useState<any>('');
   const [shouldAddMeal, setShouldAddMeal] = useState(false); 
-  console.log(itemName,stock,foodType,foodImage)
+  console.log(itemName,stock,foodType,foodImage);
   useEffect(() => {
     if (shouldAddMeal && itemName && stock && foodType && foodImage &&price) {
       addMealToAPI();
@@ -35,7 +35,7 @@ function addMeal() {
         price,
         
       };
-console.log(mealData,'cdcsd')
+console.log(mealData,'cdcsd');
       // Send POST request to add meal API
       const response = await axios.post('/api/addMeal', mealData, {
         headers: {
@@ -77,7 +77,7 @@ console.log(mealData,'cdcsd')
       await axios.put(uploadUrl, image);
 
       console.log(`Upload completed.with key:${key}`);
-      const formatedImage = { imageUrl: 'https://airline-datacenter.s3.ap-south-1.amazonaws.com/' + key }
+      const formatedImage = { imageUrl: 'https://airline-datacenter.s3.ap-south-1.amazonaws.com/' + key };
       axios.post('http://localhost:3000/api/saveCloud', formatedImage, {
         headers: {
           'Content-Type': 'application/json',
@@ -89,12 +89,12 @@ console.log(mealData,'cdcsd')
       setUploading(false);
       setIsModalOpen(false);
       Swal.fire({
-        title: "uploaded!",
-        text: "Data Reached There",
-        imageUrl: "https://cdn.dribbble.com/users/374672/screenshots/3295528/compbig.gif",
+        title: 'uploaded!',
+        text: 'Data Reached There',
+        imageUrl: 'https://cdn.dribbble.com/users/374672/screenshots/3295528/compbig.gif',
         imageWidth: 400,
         imageHeight: 200,
-        imageAlt: "Custom image",
+        imageAlt: 'Custom image',
 
       });
  
@@ -140,7 +140,7 @@ console.log(mealData,'cdcsd')
 
 
   const backgroundStyle: React.CSSProperties = {
-    backgroundImage: "url('/admin-bg.png')",
+    backgroundImage: 'url(\'/admin-bg.png\')',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     height: '100vh',

@@ -1,10 +1,11 @@
+'use client';
 import React,{useState} from 'react';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
-import Link from 'next/link'
+import Link from 'next/link';
 const AdminNavbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const router=useRouter()
+  const router=useRouter();
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);

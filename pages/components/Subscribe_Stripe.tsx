@@ -10,7 +10,7 @@ type SubscribeComponentProps = {
 };
 const SubscribeComponent:React.FC<SubscribeComponentProps> = () => {
   const price = useSelector((state: RootState) => state.bookdetail.selectedFlight?.price);
-  const description = "Flight on 2024"; 
+  const description = 'Flight on 2024'; 
 
   const handleSubmit = async () => {
     const stripe = await loadStripe(

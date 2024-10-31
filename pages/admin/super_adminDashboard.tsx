@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import { ADMIN_LOGIN_MUTATION } from '@/graphql/mutations/adminLoginMutation';
 import { useMutation } from '@apollo/client';
@@ -8,15 +8,15 @@ import dynamic from 'next/dynamic';
 import { DotLoader } from 'react-spinners';
 import { Users } from '@/interfaces/Users';
 const super_adminDashboard: React.FC = () => {
-   const [authorized, setAuthorized] = useState(false)
-   const AdminNavbar=dynamic(()=>import('../components/AdminNavbar'))
-   const Adminaside=dynamic(()=>import('../components/Adminaside'))
+   const [authorized, setAuthorized] = useState(false);
+   const AdminNavbar=dynamic(()=>import('../components/AdminNavbar'));
+   const Adminaside=dynamic(()=>import('../components/Adminaside'));
    const [email, setEmail] = useState('');
-   const [role, setRole] = useState('')
-   const [users, setUsers] = useState<Users[]>([])
+   const [role, setRole] = useState('');
+   const [users, setUsers] = useState<Users[]>([]);
    const [currentPage, setCurrentPage] = useState(1);
    const usersPerPage = 6; 
-   const router = useRouter()
+   const router = useRouter();
    const totalPages = Math.ceil(users.length / usersPerPage);
    const token = Cookies.get('jwtToken');
    const handleBlockUser = async (userId: string) => {
@@ -48,9 +48,9 @@ const super_adminDashboard: React.FC = () => {
 
    useEffect(() => {
       if (!token) {
-         router.push('/admin/signin')
+         router.push('/admin/signin');
       }
-   }, [token])
+   }, [token]);
    const handlePageChange = (pageNumber: number) => {
       setCurrentPage(pageNumber);
    };
@@ -62,12 +62,12 @@ const super_adminDashboard: React.FC = () => {
    useEffect(() => {
       (async () => {
          try {
-            const response = await fetch('/api/getUsers')
-            console.log('data', response)
+            const response = await fetch('/api/getUsers');
+            console.log('data', response);
             const data = await response.json();
             if (response) {
-               setUsers(data)
-               console.log(users)
+               setUsers(data);
+               console.log(users);
             } else {
                console.log('failed getting users');
 
@@ -76,10 +76,10 @@ const super_adminDashboard: React.FC = () => {
          } catch (error) {
             console.log('External api error');
 
-            throw new Error('Error occured while fetch api data')
+            throw new Error('Error occured while fetch api data');
          }
       })();
-   }, [])
+   }, []);
    useEffect(() => {
       (async () => {
          try {
@@ -96,11 +96,11 @@ const super_adminDashboard: React.FC = () => {
             const data = await response.json();
             console.log('Received data:', data);
 
-            setRole(data)
+            setRole(data);
 
 
 
-            console.log(role, 'datahvbfdhvb')
+            console.log(role, 'datahvbfdhvb');
             if (!response.ok) {
                console.error('Error from API:', data.message);
             }
@@ -109,14 +109,14 @@ const super_adminDashboard: React.FC = () => {
 
          }
       })();
-   }, [token])
+   }, [token]);
    useEffect(() => {
       if (role !== null) {
          console.log('Role has been updated:', role);
          if (role != '') {
             console.log('Setting authorised to true');
-            setAuthorized(true)
-            console.log('role is fine', role)
+            setAuthorized(true);
+            console.log('role is fine', role);
          }
          console.log('test', authorized);
 
@@ -126,13 +126,13 @@ const super_adminDashboard: React.FC = () => {
       console.log('Authorised state updated:', authorized);
    }, [authorized]);
 
-   console.log(users, 'user')
+   console.log(users, 'user');
    const [password, setPassword] = useState('');
    const [adminType, setadminType] = useState('');
-   const [adminLogin, { loading, error, data }] = useMutation(ADMIN_LOGIN_MUTATION)
+   const [adminLogin, { loading, error, data }] = useMutation(ADMIN_LOGIN_MUTATION);
    const handleDropdown = (e: any) => {
-      setadminType(e.target.value)
-   }
+      setadminType(e.target.value);
+   };
    const handleSignin = async (event: React.MouseEvent<HTMLButtonElement>) => {
       try {
          const { data } = await adminLogin({
@@ -141,19 +141,19 @@ const super_adminDashboard: React.FC = () => {
                password,
                adminType
             }
-         })
+         });
          if (data && data.adminLogin) {
-            console.log('login success', data.adminLogin)
+            console.log('login success', data.adminLogin);
          } else {
-            throw new Error('Inavlid credentials')
+            throw new Error('Inavlid credentials');
             console.log('login failed invalid credentials');
          }
       } catch (error) {
 
          console.log('Operation of admin login not successful');
-         throw new Error("can't perform admin login operation");
+         throw new Error('can\'t perform admin login operation');
       }
-   }
+   };
    const containerStyle: React.CSSProperties = {
       position: 'relative',
       width: '100vw',
@@ -287,6 +287,6 @@ const super_adminDashboard: React.FC = () => {
          </div>
       </div>
    );
-}
+};
 
 export default super_adminDashboard;

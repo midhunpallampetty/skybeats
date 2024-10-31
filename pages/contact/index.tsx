@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useState } from 'react';
 
 const ContactPage: React.FC = () => {
@@ -17,7 +18,7 @@ const ContactPage: React.FC = () => {
       {/* Background image */}
       <div 
         className="absolute inset-0 bg-cover bg-center z-0" 
-        style={{ backgroundImage: "url('https://airline-datacenter.s3.ap-south-1.amazonaws.com/4ab849db-833b-400e-ac4a-2b3b3509c303.jpeg')" }}
+        style={{ backgroundImage: 'url(\'https://airline-datacenter.s3.ap-south-1.amazonaws.com/4ab849db-833b-400e-ac4a-2b3b3509c303.jpeg\')' }}
       ></div>
       
       {/* Overlay */}

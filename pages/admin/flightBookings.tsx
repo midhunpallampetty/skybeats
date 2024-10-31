@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
@@ -12,25 +12,25 @@ import { DotLoader } from 'react-spinners';
 import { bookData } from '@/interfaces/bookData';
 const super_adminDashboard: React.FC = () => {
    const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
-   const [authorized, setAuthorized] = useState(false)
+   const [authorized, setAuthorized] = useState(false);
    const [email, setEmail] = useState('');
-   const [role, setRole] = useState('')
+   const [role, setRole] = useState('');
    const AdminNavbar  = dynamic(() => import('../components/AdminNavbar'), { ssr: false });
    const Adminaside  = dynamic(() => import('../components/Adminaside'), { ssr: false });
 
-   const [bookings, setBookings] = useState<bookData[]>([])
+   const [bookings, setBookings] = useState<bookData[]>([]);
    const [currentPage, setCurrentPage] = useState(1);
    const usersPerPage = 2;
-   const router = useRouter()
+   const router = useRouter();
 
    const totalPages = Math.ceil(bookings.length / usersPerPage);
    const token = Cookies.get('jwtToken');
                                     
    useEffect(() => {
       if (!token) {
-         router.push('/admin/signin')
+         router.push('/admin/signin');
       }
-   }, [token])
+   }, [token]);
    const handlePageChange = (pageNumber: number) => {
       setCurrentPage(pageNumber);
    };
@@ -55,11 +55,11 @@ const super_adminDashboard: React.FC = () => {
             const data = await response.json();
             console.log('Received data:', data);
 
-            setRole(data)
+            setRole(data);
 
 
 
-            console.log(role, 'datahvbfdhvb')
+            console.log(role, 'datahvbfdhvb');
             if (!response.ok) {
                console.error('Error from API:', data.message);
             }
@@ -68,14 +68,14 @@ const super_adminDashboard: React.FC = () => {
 
          }
       })();
-   }, [token])
+   }, [token]);
    useEffect(() => {
       if (role !== null) {
          console.log('Role has been updated:', role);
          if (role === 'flightoperator') {
             console.log('Setting authorised to true');
-            setAuthorized(true)
-            console.log('role is fine', role)
+            setAuthorized(true);
+            console.log('role is fine', role);
          }
          console.log('test', authorized);
 
@@ -85,13 +85,13 @@ const super_adminDashboard: React.FC = () => {
       console.log('Authorised state updated:', authorized);
    }, [authorized]);
 
-   console.log(bookings, 'user')
+   console.log(bookings, 'user');
    const [password, setPassword] = useState('');
    const [adminType, setadminType] = useState('');
-   const [adminLogin, { loading, error, data }] = useMutation(ADMIN_LOGIN_MUTATION)
+   const [adminLogin, { loading, error, data }] = useMutation(ADMIN_LOGIN_MUTATION);
    const handleDropdown = (e: any) => {
-      setadminType(e.target.value)
-   }
+      setadminType(e.target.value);
+   };
    useEffect(() => {
       const fetchData = async () => {
          try {
@@ -114,19 +114,19 @@ const super_adminDashboard: React.FC = () => {
                password,
                adminType
             }
-         })
+         });
          if (data && data.adminLogin) {
-            console.log('login success', data.adminLogin)
+            console.log('login success', data.adminLogin);
          } else {
-            throw new Error('Inavlid credentials')
+            throw new Error('Inavlid credentials');
             console.log('login failed invalid credentials');
          }
       } catch (error) {
 
          console.log('Operation of admin login not successful');
-         throw new Error("can't perform admin login operation");
+         throw new Error('can\'t perform admin login operation');
       }
-   }
+   };
    const containerStyle: React.CSSProperties = {
       position: 'relative',
       width: '100vw',
@@ -278,6 +278,6 @@ const super_adminDashboard: React.FC = () => {
          </div>
       </div>
    );
-}
+};
 
 export default super_adminDashboard;

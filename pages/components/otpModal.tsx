@@ -1,10 +1,10 @@
 // components/OtpModal.tsx
 
-"use client";
-import React, { useState } from "react";
-import { useMutation } from "@apollo/client";
-import { VERIFY_OTP_MUTATION } from "@/graphql/mutations/verifyOtpMutation";
-import { useRouter } from "next/navigation";
+'use client';
+import React, { useState } from 'react';
+import { useMutation } from '@apollo/client';
+import { VERIFY_OTP_MUTATION } from '@/graphql/mutations/verifyOtpMutation';
+import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
@@ -15,7 +15,7 @@ interface OtpModalProps {
 }
 
 const OtpModal: React.FC<OtpModalProps> = ({ email, isOpen, onClose }) => {
-  const [otp, setOtp] = useState<string>("");
+  const [otp, setOtp] = useState<string>('');
   const [isVisible, setIsVisible] = useState(false);
   const [verifyOtp, { loading, error }] = useMutation(VERIFY_OTP_MUTATION);
   const router = useRouter();
@@ -33,11 +33,11 @@ const OtpModal: React.FC<OtpModalProps> = ({ email, isOpen, onClose }) => {
         },
       });
 
-      console.log("OTP Verified Successfully", data);
+      console.log('OTP Verified Successfully', data);
 
-      router.push("/");
+      router.push('/');
     } catch (error) {
-      console.log("Error during OTP verification", error);
+      console.log('Error during OTP verification', error);
     }
   };
 
@@ -52,7 +52,7 @@ const OtpModal: React.FC<OtpModalProps> = ({ email, isOpen, onClose }) => {
         </p>
         <div className="relative">
           <input
-            type={isVisible ? "text" : "password"}
+            type={isVisible ? 'text' : 'password'}
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
             className="w-full p-2 border text-black border-gray-300 rounded-lg mb-4"
@@ -61,7 +61,7 @@ const OtpModal: React.FC<OtpModalProps> = ({ email, isOpen, onClose }) => {
           <button
             onClick={toggleVisibility}
             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800"
-            aria-label={isVisible ? "Hide OTP" : "Show OTP"}
+            aria-label={isVisible ? 'Hide OTP' : 'Show OTP'}
           >
             <FontAwesomeIcon icon={isVisible ? faEyeSlash : faEye} size="lg" />
           </button>
@@ -72,7 +72,7 @@ const OtpModal: React.FC<OtpModalProps> = ({ email, isOpen, onClose }) => {
           className="w-full py-2.5 px-5 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-extrabold"
           disabled={loading}
         >
-          {loading ? "Verifying..." : "Verify OTP"}
+          {loading ? 'Verifying...' : 'Verify OTP'}
         </button>
         <button
           onClick={onClose}

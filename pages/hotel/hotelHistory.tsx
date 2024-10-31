@@ -34,7 +34,7 @@ const BookingHistory: React.FC = () => {
     try {
       const result = await Swal.fire({
         title: 'Are you sure?',
-        text: "Do you want to cancel this flight? This action cannot be undone.",
+        text: 'Do you want to cancel this flight? This action cannot be undone.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -49,18 +49,18 @@ const BookingHistory: React.FC = () => {
           { bookingId },
           {
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
           }
         );
 
         await Swal.fire({
-          title: "Canceled!",
-          text: "Your ticket is canceled. Refund has been initiated to your wallet.",
-          imageUrl: "https://data2.nssmag.com/images/galleries/39862/New-Project-57.jpg",
+          title: 'Canceled!',
+          text: 'Your ticket is canceled. Refund has been initiated to your wallet.',
+          imageUrl: 'https://data2.nssmag.com/images/galleries/39862/New-Project-57.jpg',
           imageWidth: 400,
           imageHeight: 200,
-          imageAlt: "Custom image"
+          imageAlt: 'Custom image'
         });
 
         console.log('Cancellation successful:', response.data);
@@ -83,7 +83,7 @@ const BookingHistory: React.FC = () => {
           { userId },
           {
             headers: {
-              "Content-Type": "application/json"
+              'Content-Type': 'application/json'
             }
           }
         );

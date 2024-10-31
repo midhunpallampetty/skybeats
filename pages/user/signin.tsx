@@ -1,9 +1,9 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
 import Link from 'next/link';
-import {  signIn, signOut ,useSession} from "next-auth/react";
+import {  signIn, signOut ,useSession} from 'next-auth/react';
 import GoogleButton from '../components/GoogleButton';
 import { useMutation } from '@apollo/client';
 import { SIGNIN_MUTATION } from '@/graphql/mutations/loginMutation';
@@ -43,7 +43,7 @@ const SignIn: React.FC = () => {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
-const router=useRouter()
+const router=useRouter();
 const handleSignin = async (event: React.FormEvent<HTMLFormElement>) => {
   event.preventDefault();
   
@@ -73,9 +73,9 @@ const handleSignin = async (event: React.FormEvent<HTMLFormElement>) => {
 
       if (user.isBlocked) {
         Swal.fire({
-          title: "User Blocked!",
-          text: "Operation failed!",
-          icon: "error"
+          title: 'User Blocked!',
+          text: 'Operation failed!',
+          icon: 'error'
         });
         console.log('User is blocked. Cannot sign in.');
         setCustomError((prevState) => ({
@@ -86,7 +86,7 @@ const handleSignin = async (event: React.FormEvent<HTMLFormElement>) => {
       }
 
       Cookies.set('jwtToken', token, { expires: 30 });
-      Cookies.set('userId',user.id,{expires:30})
+      Cookies.set('userId',user.id,{expires:30});
 
       if (user) {
         router.push({
@@ -105,7 +105,7 @@ const handleSignin = async (event: React.FormEvent<HTMLFormElement>) => {
       general: 'An error occurred during sign in. Please try again.'
     }));
   }
-}
+};
 
   
   const toggleTheme = () => {
@@ -217,7 +217,7 @@ const handleSignin = async (event: React.FormEvent<HTMLFormElement>) => {
                 )}
 <button
   className="flex items-center justify-center bg-transparent border font-semibold border-gray-800 w-full h-10 rounded-lg space-x-2 hover:bg-gray-100"
-  onClick={() => signIn("google")}
+  onClick={() => signIn('google')}
 >
   <svg
     xmlns="http://www.w3.org/2000/svg"

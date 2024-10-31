@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useState } from 'react';
 import socketIOClient from 'socket.io-client';
 import Cookies from 'js-cookie';
@@ -17,7 +18,7 @@ const Chat = () => {
             // Listen for incoming messages
             socket.on('message', (data: any) => {
                 setChat((prevChat) => [...prevChat, data]);
-                console.log('data received',data.message)
+                console.log('data received',data.message);
             });
 
             // Cleanup when the component unmounts

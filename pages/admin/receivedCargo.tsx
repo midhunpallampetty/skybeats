@@ -30,9 +30,9 @@ const ReceivedCargo: React.FC = ({ bookingData }: any) => {
    const [booking, setBooking] = useState(bookingData);
  useEffect(()=>{
  if(!token){
-   router.push('/admin/signin')
+   router.push('/admin/signin');
  }
- },[token])
+ },[token]);
    useEffect(() => {
       if (!token) {
          router.push('/admin/signin');
@@ -91,7 +91,7 @@ const ReceivedCargo: React.FC = ({ bookingData }: any) => {
             },
             body: JSON.stringify({ trackingId }),
          });
-         Swal.fire("Approved!");
+         Swal.fire('Approved!');
          if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
          }

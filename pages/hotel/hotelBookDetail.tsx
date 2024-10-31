@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useSelector, useDispatch } from 'react-redux';
@@ -53,7 +54,7 @@ const HotelBookDetail: React.FC = () => {
       phoneNumber,
     }));
 
-    console.log("Updated Passenger Details State:", updatedGuestDetails);
+    console.log('Updated Passenger Details State:', updatedGuestDetails);
 
     // Redirect to the payment page
     router.push('/hotel/payNow'); 

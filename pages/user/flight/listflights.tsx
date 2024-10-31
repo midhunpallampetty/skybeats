@@ -9,11 +9,11 @@ import debounce from 'lodash.debounce';
 import { setBookDetail } from '@/redux/slices/bookdetailSlice';
 import axios from 'axios';
 import { Flight } from '../../../interfaces/flight';
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
 import Image from 'next/image';
 import { clearSelectedSeat } from '@/redux/slices/selectedSeat';
 import FlightModal from '../../components/returnFlightModal';
-import dynamic from 'next/dynamic'
+import dynamic from 'next/dynamic';
 import { Airport } from '@/interfaces/Airport';
 import { RootState } from '@/redux/store';
 import { setFlights } from '@/redux/slices/flightsSlice';
@@ -25,10 +25,10 @@ import { useRouter } from 'next/router';
 
 const ListFlights: React.FC = () => {
   const Navbar = dynamic(() => import('../../components/Navbar'), { ssr: true });
-  const router = useRouter()
-  const dispatch = useDispatch()
+  const router = useRouter();
+  const dispatch = useDispatch();
   const airports = useSelector((state: RootState) => state.airports.airports);
-  const filteredAirports = useSelector((state: RootState) => state.airports.filteredAirports)
+  const filteredAirports = useSelector((state: RootState) => state.airports.filteredAirports);
   const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
@@ -41,27 +41,27 @@ const ListFlights: React.FC = () => {
     children: 0,
     infants: 0,
   });
-  const passengerCount = useSelector((state: RootState) => state.passengerCount.selectedPassenger)
+  const passengerCount = useSelector((state: RootState) => state.passengerCount.selectedPassenger);
   const [selectedFrom, setSelectedFrom] = useState<SingleValue<OptionType>>(null);
   const [selectedTo, setSelectedTo] = useState<SingleValue<OptionType>>(null);
-  const flights = useSelector((state: RootState) => state.flights.flights)
-  const bookDate = useSelector((state: RootState) => state.bookDate.date)
+  const flights = useSelector((state: RootState) => state.flights.flights);
+  const bookDate = useSelector((state: RootState) => state.bookDate.date);
   const [sortOption, setSortOption] = useState<string>('price');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [flightsPerPage] = useState<number>(5);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const token = Cookies.get('jwtToken')
+  const token = Cookies.get('jwtToken');
   useEffect(() => {
     if (!token) {
-      router.push('/')
+      router.push('/');
     }
-  }, [])
+  }, []);
   const increment = (type: any) => {
     if (totalPassengers < 10) { // Check if total passengers are less than 10
       if ((type === 'children' || type === 'infants') && !hasAdultOrSenior()) {
         // Prevent adding child/infant without adult/senior
         Swal.fire({
-          title: "You must have at least one adult or senior citizen to select infants or children.",
+          title: 'You must have at least one adult or senior citizen to select infants or children.',
           background: '#282c34',  // Dark background
           color: '#fff',  // Text color
           confirmButtonColor: '#4CAF50',  // Custom button color
@@ -76,7 +76,7 @@ const ListFlights: React.FC = () => {
       }
     } else {
       Swal.fire({
-        title: "Maximum 10 passengers allowed.",
+        title: 'Maximum 10 passengers allowed.',
         background: '#282c34',  // Dark background
         color: '#fff',  // Text color
         confirmButtonColor: '#4CAF50',  // Custom button color
@@ -115,19 +115,19 @@ const ListFlights: React.FC = () => {
   const hasAdultOrSenior = () => passengers.adults + passengers.seniors > 0;
   const options = [
     {
-      value: "adults",
+      value: 'adults',
       label: `Adults (${passengers.adults})`,
     },
     {
-      value: "seniors",
+      value: 'seniors',
       label: `Senior Citizen (${passengers.seniors})`,
     },
     {
-      value: "children",
+      value: 'children',
       label: `Children (${passengers.children})`,
     },
     {
-      value: "infants",
+      value: 'infants',
       label: `Infants (${passengers.infants})`,
     },
   ];
@@ -151,7 +151,7 @@ const ListFlights: React.FC = () => {
         })));
       } catch (error) {
         Swal.fire({
-          text: "Error Searching Flights",
+          text: 'Error Searching Flights',
           background: 'dark'
         });
         console.error('Error fetching airports:', error);
@@ -175,7 +175,7 @@ const ListFlights: React.FC = () => {
         (airport) =>
           airport.label.toLowerCase().includes(inputValue.toLowerCase())
       );
-      dispatch(setFilteredAirports(filteredOptions))
+      dispatch(setFilteredAirports(filteredOptions));
     }, 300), [airports, dispatch]);
 
   const handleSearch = async (event: React.FormEvent) => {
@@ -183,15 +183,15 @@ const ListFlights: React.FC = () => {
 
     if (selectedFrom && selectedTo && startDate) {
       try {
-        console.log(selectedFrom.label.split(' ')[0].toLowerCase(), selectedTo.label.split(' ')[0].toLowerCase(), 'ok ')
+        console.log(selectedFrom.label.split(' ')[0].toLowerCase(), selectedTo.label.split(' ')[0].toLowerCase(), 'ok ');
         const response = await axios.post('/api/searchFlights', {
           from: selectedFrom.label.split(' ')[0].toLowerCase(),
           to: selectedTo.label.split(' ')[0].toLowerCase(),
           date: startDate,
         });
-        dispatch(setFlights(response.data as Flight[]))
-        dispatch(setDate(startDate.toDateString()))
-        dispatch(setReturnDate(returnDate?.toDateString()))
+        dispatch(setFlights(response.data as Flight[]));
+        dispatch(setDate(startDate.toDateString()));
+        dispatch(setReturnDate(returnDate?.toDateString()));
         console.log(response.data, bookDate, 'got data flights from gql server');
       } catch (error: any) {
         console.error('Error searching flights:', error.message);
@@ -230,7 +230,7 @@ const ListFlights: React.FC = () => {
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div
           style={{
-            backgroundImage: "url('/pexels-yurix-sardinelly-504228832-16141006.jpg')",
+            backgroundImage: 'url(\'/pexels-yurix-sardinelly-504228832-16141006.jpg\')',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             height: '80vh',
@@ -314,10 +314,10 @@ const ListFlights: React.FC = () => {
                     <div className="absolute w-full mt-1 bg-white shadow-lg rounded-lg border border-gray-200 z-10">
                       <div className="p-4 space-y-4 ">
                         {[
-                          { label: "Adults", type: "adults" },
-                          { label: "Senior Citizens", type: "seniors" },
-                          { label: "Children", type: "children" },
-                          { label: "Infants", type: "infants" },
+                          { label: 'Adults', type: 'adults' },
+                          { label: 'Senior Citizens', type: 'seniors' },
+                          { label: 'Children', type: 'children' },
+                          { label: 'Infants', type: 'infants' },
                         ].map(({ label, type }) => (
                           <div key={type} className="flex w-full justify-between items-center">
                             <span>{label}:</span>

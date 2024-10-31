@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import Swal from 'sweetalert2';
 
 const backgroundStyle: React.CSSProperties = {
-  backgroundImage: "url('/admin-bg.png')",
+  backgroundImage: 'url(\'/admin-bg.png\')',
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   height: '100vh',
@@ -22,7 +22,7 @@ const formContainerStyle: React.CSSProperties = {
 };
 
 const gridBackgroundStyle = {
-  backgroundImage: "url('/admin-bg.png')",
+  backgroundImage: 'url(\'/admin-bg.png\')',
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   height: '100vh',
@@ -139,7 +139,7 @@ function AddJobs() {
       });
 
       if (response.ok) {
-        Swal.fire("Job Posted Successfully!");
+        Swal.fire('Job Posted Successfully!');
         setDesignation('');
         setDescription('');
         setImage(null);

@@ -44,7 +44,7 @@ export default async function handler(req:NextApiRequest, res:NextApiResponse) {
           },
         },
       });
-      console.log("Mutation variables:", packageName,
+      console.log('Mutation variables:', packageName,
         senderName,
         receiverName,
         descriptionOfGoods,
@@ -58,7 +58,7 @@ export default async function handler(req:NextApiRequest, res:NextApiResponse) {
       // Send the response back with the data
       res.status(200).json(data.requestCargo);
     } catch (error) {
-      console.error("Error in GraphQL mutation", error);
+      console.error('Error in GraphQL mutation', error);
       res.status(500).json({ message: 'Error processing cargo booking request' });
     }
   } else {

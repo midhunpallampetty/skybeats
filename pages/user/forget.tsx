@@ -1,10 +1,11 @@
 // pages/forgot-password.js
+'use client';
 import { useState,useEffect } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { REQUEST_PASSWORD_RESET } from '@/graphql/mutations/forgetPasswordMutation';
 import Navbar from '../components/Navbar';
 import Link from 'next/link';
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
 const formatTimer = (seconds:number) => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
@@ -116,7 +117,7 @@ export default function ForgotPassword() {
                     className="text-white font-extrabold h-[50px] rounded-lg w-[150px] bg-blue-950"
                     disabled={loading || isTimerActive}
                   >
-                    {loading ? "Sending..." : isTimerActive ? `Wait ${formatTimer(timer)}` : "Send Reset Email"}
+                    {loading ? 'Sending...' : isTimerActive ? `Wait ${formatTimer(timer)}` : 'Send Reset Email'}
                   </button>
                 </div>
 
@@ -125,7 +126,7 @@ export default function ForgotPassword() {
                 </div>
 
                 <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
-                  Don't have an account?{" "}
+                  Don't have an account?{' '}
                   <Link
                     href="/user/signup"
                     className="text-blue-700 hover:underline dark:text-blue-500"

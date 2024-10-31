@@ -1,12 +1,13 @@
-import React from 'react'
+'use client';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { useRouter } from 'next/router';
 export default function BookingConfirmation() {
-    const getGuestDetails=useSelector((state:RootState)=>state.hotelGuestData.selectedUser)
+    const getGuestDetails=useSelector((state:RootState)=>state.hotelGuestData.selectedUser);
 
-  const router=useRouter()
-  console.log(getGuestDetails)
+  const router=useRouter();
+  console.log(getGuestDetails);
     return (
       <div className="min-h-screen bg-blue-950 flex items-center justify-center p-4 ">
         <div className="bg-white rounded-lg shadow-md w-full max-w-2xl">
@@ -70,5 +71,5 @@ export default function BookingConfirmation() {
           </div>
         </div>
       </div>
-    )
+    );
   }

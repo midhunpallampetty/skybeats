@@ -1,27 +1,28 @@
+'use client';
 import React, { useState, useEffect ,ChangeEvent} from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image'; // For your logo
 import { Carousel } from 'flowbite-react';
-import Cookies from 'js-cookie'
+import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
 function RequestCargo() {
   const Navbar = dynamic(() => import('../../components/Navbar'));
-  const userId=Cookies.get('userId')
+  const userId=Cookies.get('userId');
   const [formData, setFormData] = useState({
-    packageName: "",
-    senderName: "",
-    receiverName: "",
-    descriptionOfGoods: "",
-    Weight: "",
+    packageName: '',
+    senderName: '',
+    receiverName: '',
+    descriptionOfGoods: '',
+    Weight: '',
     userId:userId,
     height:0,
     width:0,
-    StartLocation:"",
-    Destination:""
+    StartLocation:'',
+    Destination:''
   });
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState({});
-const [url,setUrl]=useState('')
+const [url,setUrl]=useState('');
   const [image, setImage] = useState<File | null>(null);
 
   // Handle change for inputs
@@ -73,22 +74,22 @@ const [url,setUrl]=useState('')
       !Destination
     ) {
       Swal.fire({
-        title: "Validation Error!",
-        text: "All fields are required. Please fill out all fields.",
-        icon: "warning",
-        background: "#0d324e",
-        color: "#fff",
-        confirmButtonColor: "#1e90ff",
+        title: 'Validation Error!',
+        text: 'All fields are required. Please fill out all fields.',
+        icon: 'warning',
+        background: '#0d324e',
+        color: '#fff',
+        confirmButtonColor: '#1e90ff',
       });
       return; // Stop the function if validation fails
     }
   
     try {
       // Proceed with submitting the form
-      const res = await fetch("/api/requestCargo", {
-        method: "POST",
+      const res = await fetch('/api/requestCargo', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
@@ -96,48 +97,48 @@ const [url,setUrl]=useState('')
       if (res.ok) {
         const data = await res.json();
         Swal.fire({
-          title: "Request Submitted!",
+          title: 'Request Submitted!',
           html: `Your cargo booking request has been submitted successfully. TrackingID: 
                  <b>${data.trackingId}</b>`,
-          icon: "success",
-          background: "#0d324e",
-          color: "#fff",
-          confirmButtonColor: "#1e90ff",
+          icon: 'success',
+          background: '#0d324e',
+          color: '#fff',
+          confirmButtonColor: '#1e90ff',
         });
   
         // Reset form data after successful submission
         setFormData({
-          packageName: "",
-          senderName: "",
-          receiverName: "",
-          descriptionOfGoods: "",
-          Weight: "",
-          userId: Cookies.get('userId') || "",
+          packageName: '',
+          senderName: '',
+          receiverName: '',
+          descriptionOfGoods: '',
+          Weight: '',
+          userId: Cookies.get('userId') || '',
           height: 0,
           width: 0,
-          StartLocation: "",
-          Destination: "",
+          StartLocation: '',
+          Destination: '',
         });
       } else {
         Swal.fire({
-          title: "Error!",
-          text: "Cargo booking failed. Please try again later.",
-          icon: "error",
-          background: "#0d324e",
-          color: "#fff",
-          confirmButtonColor: "#1e90ff",
+          title: 'Error!',
+          text: 'Cargo booking failed. Please try again later.',
+          icon: 'error',
+          background: '#0d324e',
+          color: '#fff',
+          confirmButtonColor: '#1e90ff',
         });
       }
     } catch (error) {
       Swal.fire({
-        title: "Error!",
-        text: "An unexpected error occurred. Please try again later.",
-        icon: "error",
-        background: "#0d324e",
-        color: "#fff",
-        confirmButtonColor: "#1e90ff",
+        title: 'Error!',
+        text: 'An unexpected error occurred. Please try again later.',
+        icon: 'error',
+        background: '#0d324e',
+        color: '#fff',
+        confirmButtonColor: '#1e90ff',
       });
-      console.error("Error in cargo booking:", error);
+      console.error('Error in cargo booking:', error);
     }
   };
   
@@ -194,7 +195,7 @@ const [url,setUrl]=useState('')
         {loadingKeyframes}
       </style>
       {isLoading ? (
-        <div style={{...loadingScreenStyle,flexDirection:"column"}}>
+        <div style={{...loadingScreenStyle,flexDirection:'column'}}>
           <Image
             src="/logo_airline.png" // Replace with your logo path
             alt="Logo"

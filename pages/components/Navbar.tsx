@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import Image from "next/image";
-import Link from "next/link";
-import Cookies from "js-cookie";
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import Image from 'next/image';
+import Link from 'next/link';
+import Cookies from 'js-cookie';
 
 export default function Component() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function Component() {
   const handleLogout = () => {
     Cookies.remove('jwtToken');
     Cookies.remove('userId');
-    router.push("/");
+    router.push('/');
   };
 
   const handleMouseEnter = (menu: string) => {
@@ -90,22 +90,22 @@ export default function Component() {
         >
           <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-blue-700 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-transparent">
             {[
-              { name: "Flights", href: "/user/flight/listflights"},
-              { name: "Cargo", href: "/", submenu: [
-                { name: "Request Cargo", href: "/user/cargo/RequestCargo" },
-                { name: "Track Cargo", href: "/user/cargo/TrackCargo" },
-                { name: "All Cargos", href: "/user/cargo/allCargoRequests" },
+              { name: 'Flights', href: '/user/flight/listflights'},
+              { name: 'Cargo', href: '/', submenu: [
+                { name: 'Request Cargo', href: '/user/cargo/RequestCargo' },
+                { name: 'Track Cargo', href: '/user/cargo/TrackCargo' },
+                { name: 'All Cargos', href: '/user/cargo/allCargoRequests' },
               ]},
-              { name: "Hotels", href: "/hotel", submenu: [
-                { name: "Book Hotels", href: "/hotel" },
-                { name: "Booking History", href: "/hotel/hotelHistory" },
+              { name: 'Hotels', href: '/hotel', submenu: [
+                { name: 'Book Hotels', href: '/hotel' },
+                { name: 'Booking History', href: '/hotel/hotelHistory' },
               ]},
-              { name: "Careers", href: "/user/careers", submenu: [
-                { name: "Job Openings", href: "/user/careers" },
+              { name: 'Careers', href: '/user/careers', submenu: [
+                { name: 'Job Openings', href: '/user/careers' },
                 
               ]},
-              { name: "Contact Us", href: "/contact"},
-              { name: "Chat Support", href: "/user/clientChat" },
+              { name: 'Contact Us', href: '/contact'},
+              { name: 'Chat Support', href: '/user/clientChat' },
             ].map((item) => (
               <li key={item.name} className="relative group">
                 <Link

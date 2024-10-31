@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -20,7 +21,7 @@ const SelectHotel = () => {
   const [bedType, setBedType] = useState('Single'); // Default bed type
   const [amount, setAmount] = useState(0);
   const [minCheckoutDate, setMinCheckoutDate] = useState('');
-  const getGuestDetails=useSelector((state:RootState)=>state.hotelGuestData.selectedUser)
+  const getGuestDetails=useSelector((state:RootState)=>state.hotelGuestData.selectedUser);
 
   console.log(data, 'vdvdsvData');
 

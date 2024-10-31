@@ -1,8 +1,9 @@
+'use client';
 import { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { useRouter } from 'next/router';
 import Navbar from '../components/Navbar';
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
 
 import Link from 'next/link';
 const RESET_PASSWORD = gql`
@@ -29,7 +30,7 @@ export default function ResetPassword() {
         text: 'Password successfully Updated',
         icon: 'success',
         
-      })
+      });
       router.push('/user/signin');
     } catch (err) {
       console.error(err);
@@ -38,7 +39,7 @@ export default function ResetPassword() {
         text: 'Password Reset Failed',
         
         
-      })
+      });
     }
   };
 
@@ -77,7 +78,7 @@ New Password
               className="text-white font-extrabold h-[50px] rounded-lg w-[150px] bg-blue-950"
               disabled={loading}
             >
-              {loading ? "Updating..." : "Update"}
+              {loading ? 'Updating...' : 'Update'}
             </button>
           </div>
 
@@ -86,7 +87,7 @@ New Password
           </div>
 
           <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
-            Don't have an account?{" "}
+            Don't have an account?{' '}
             <Link
               href="/user/signup"
               className="text-blue-700 hover:underline dark:text-blue-500"

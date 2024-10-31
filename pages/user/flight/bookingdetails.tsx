@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useSelector, useDispatch } from 'react-redux';
@@ -32,28 +33,28 @@ const BookingDetailsPage: React.FC = () => {
   const [commonDetails, setCommonDetails] = useState<CommonDetails>({ email: '', phoneNumber: '' });
   const [errors, setErrors] = useState<Record<number, Record<string, boolean>>>({});
   const [commonErrors, setCommonErrors] = useState<Record<string, boolean>>({ email: false, phoneNumber: false });
-  const passengers = useSelector((state: RootState) => state.bookdetail.passengerDetails)
-  const returnFlight = useSelector((state: RootState) => state.returnFlights.selectedReturnFlight)
+  const passengers = useSelector((state: RootState) => state.bookdetail.passengerDetails);
+  const returnFlight = useSelector((state: RootState) => state.returnFlights.selectedReturnFlight);
 
   const token = Cookies.get('jwtToken');
   const userId = Cookies.get('userId');
   useEffect(() => {
     if (returnFlight) {
       Swal.fire({
-        title: "Do you want to Continue With Return Flights?",
+        title: 'Do you want to Continue With Return Flights?',
         showDenyButton: true,
         showCancelButton: true,
-        confirmButtonText: "Save",
-        denyButtonText: `Don't save`
+        confirmButtonText: 'Save',
+        denyButtonText: 'Don\'t save'
       }).then((result) => {
         /* Read more about isConfirmed, isDenied below */
         if (result.isConfirmed) {
-          Swal.fire("Continue With Return Flights!", "", "success");
+          Swal.fire('Continue With Return Flights!', '', 'success');
 
         } else if (result.isDenied) {
           dispatch(clearSelectedReturnFlight());
 
-          Swal.fire("Return Flights are Removed", "", "info");
+          Swal.fire('Return Flights are Removed', '', 'info');
         }
       });
 
@@ -217,9 +218,9 @@ const BookingDetailsPage: React.FC = () => {
                 <h1 className="text-lg font-semibold">Additional Fares</h1>
                 {selectedSeat.map((seat, index) => (
                     <p key={index}>
-                        {seat.price === 499 && "Economy"}
-                        {seat.price === 899 && "First Class"}
-                        {seat.price === 1099 && "Business Class"}
+                        {seat.price === 499 && 'Economy'}
+                        {seat.price === 899 && 'First Class'}
+                        {seat.price === 1099 && 'Business Class'}
                         : ₹{seat.price}
                     </p>
 
@@ -346,7 +347,7 @@ const BookingDetailsPage: React.FC = () => {
                     type="text"
                     value={passengerDetails[index]?.disability}
                     onChange={(e) => handleInputChange(index, 'disability', e.target.value)}
-                    className={`mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    className={'mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500'}
                     placeholder="Enter disability (optional)"
                   />
                 </div>

@@ -37,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
-console.log(req.body,'haifwff')
+console.log(req.body,'haifwff');
   try {
     const input: ProfileDTO = req.body; // Get input from request body
     const { data } = await client.mutate({

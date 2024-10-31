@@ -3,7 +3,7 @@ import { Socket } from 'socket.io-client';
 import io from 'socket.io-client';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
-import EmojiPicker from "emoji-picker-react";
+import EmojiPicker from 'emoji-picker-react';
 
 interface Message {
   id: number;

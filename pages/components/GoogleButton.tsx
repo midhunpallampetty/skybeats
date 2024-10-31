@@ -1,5 +1,6 @@
+'use client';
 import Head from 'next/head';
-import { signIn } from "next-auth/react";
+import { signIn } from 'next-auth/react';
 const GoogleButton: React.FC = () => {
   return (
     <>
@@ -9,7 +10,7 @@ const GoogleButton: React.FC = () => {
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
         />
       </Head>
-      <button onClick={() => signIn("google")} style={buttonStyle}>
+      <button onClick={() => signIn('google')} style={buttonStyle}>
         <i className="fab fa-google" style={iconStyle}></i> Sign in with Google
       </button>
     </>

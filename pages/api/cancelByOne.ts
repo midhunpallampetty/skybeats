@@ -18,14 +18,14 @@ const CANCEL_TICKET_BY_ONE = gql`
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const { bookingId, seatNumber } = req.body;
-  console.log(bookingId,seatNumber,' dscfsdc')
+  console.log(bookingId,seatNumber,' dscfsdc');
     try {
       const variables = { bookingId, seatNumber };
       const data:any = await client.request(CANCEL_TICKET_BY_ONE, variables);
 
       res.status(200).json(data.CancelTicketByOne);
     } catch (error: any) {
-      console.error("Error in CancelTicketByOne mutation:", error);
+      console.error('Error in CancelTicketByOne mutation:', error);
       res.status(500).json({ message: 'Error canceling the ticket', error: error.message });
     }
   } else {

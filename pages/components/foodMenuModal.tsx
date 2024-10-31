@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { useDispatch } from 'react-redux';
@@ -30,7 +31,7 @@ function FoodMenuModal() {
     setSelectedItems([...selectedItems, item]);
     dispatch(addItem(item));
   };
-console.log(selectedItem,'cdfvdfv')
+console.log(selectedItem,'cdfvdfv');
   const handleCloseModal = () => setIsModalOpen(false);
 
   useEffect(() => {

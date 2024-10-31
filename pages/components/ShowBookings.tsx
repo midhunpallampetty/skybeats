@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { Plane, Clock, Calendar, CreditCard } from 'lucide-react'
+import { useState, useEffect } from 'react';
+import { Plane, Clock, Calendar, CreditCard } from 'lucide-react';
 import axios from 'axios';
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
 
 interface Passenger {
   age: string
@@ -40,8 +40,8 @@ interface BookingDetailsModalProps {
 }
 
 export default function BookingDetailsModal({ isOpen, onClose, booking }: BookingDetailsModalProps) {
-  const [activeTab, setActiveTab] = useState('details')
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState('details');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [bookingState, setBookingState] = useState<BookingDetails | null>(booking); // Local state for booking
   
   // If the booking prop changes (i.e., when the modal opens), update the booking state
@@ -57,7 +57,7 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }: Bookin
     try {
       const result = await Swal.fire({
         title: 'Are you sure?',
-        text: "Do you want to cancel this flight? This action cannot be undone.",
+        text: 'Do you want to cancel this flight? This action cannot be undone.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -72,18 +72,18 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }: Bookin
           { bookingId },
           {
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
           }
         );
   
         await Swal.fire({
-          title: "Canceled!",
-          text: "Your ticket is canceled. Refund has been initiated to your wallet.",
-          imageUrl: "https://data2.nssmag.com/images/galleries/39862/New-Project-57.jpg",
+          title: 'Canceled!',
+          text: 'Your ticket is canceled. Refund has been initiated to your wallet.',
+          imageUrl: 'https://data2.nssmag.com/images/galleries/39862/New-Project-57.jpg',
           imageWidth: 400,
           imageHeight: 200,
-          imageAlt: "Custom image"
+          imageAlt: 'Custom image'
         });
   
         console.log('Cancellation successful:', response.data);
@@ -109,23 +109,23 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }: Bookin
   
     // Show Swal confirmation dialog
     Swal.fire({
-      title: "Do you want to cancel this seat?",
+      title: 'Do you want to cancel this seat?',
       showDenyButton: true,
       showCancelButton: true,
-      confirmButtonText: "Cancel Seat",
-      denyButtonText: `Don't cancel`
+      confirmButtonText: 'Cancel Seat',
+      denyButtonText: 'Don\'t cancel'
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           const requestCancellation = await axios.post('/api/cancelByOne', data, {
             headers: {
-              "Content-Type": "application/json"
+              'Content-Type': 'application/json'
             }
           });
   
           // Show success message if cancellation succeeds
           if (requestCancellation.status === 200) {
-            Swal.fire("Cancelled!", "The seat has been cancelled successfully.", "success");
+            Swal.fire('Cancelled!', 'The seat has been cancelled successfully.', 'success');
   
             // Update the booking state to disable the cancelled seat in UI
             setBookingState(prevBooking => {
@@ -138,14 +138,14 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }: Bookin
               return prevBooking;
             });
           } else {
-            Swal.fire("Error", "Failed to cancel the seat", "error");
+            Swal.fire('Error', 'Failed to cancel the seat', 'error');
           }
         } catch (error) {
-          console.error("Error during seat cancellation:", error);
-          Swal.fire("Error", "An error occurred", "error");
+          console.error('Error during seat cancellation:', error);
+          Swal.fire('Error', 'An error occurred', 'error');
         }
       } else if (result.isDenied) {
-        Swal.fire("Changes are not saved", "", "info");
+        Swal.fire('Changes are not saved', '', 'info');
       }
     });
   }
@@ -321,5 +321,5 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }: Bookin
 
       </div>
     </div>
-  )
+  );
 }

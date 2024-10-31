@@ -1,18 +1,18 @@
-      'use client'
+      'use client';
 
-      import React, { useState } from 'react'
-      import dynamic from 'next/dynamic'
-      import { useEffect } from 'react'
+      import React, { useState } from 'react';
+      import dynamic from 'next/dynamic';
+      import { useEffect } from 'react';
       import { Carousel } from 'flowbite-react';
       import ShowBookings from '../components/ShowBookings';
 
-      import { gql, useQuery } from '@apollo/client'
-      import Cookies from 'js-cookie'
+      import { gql, useQuery } from '@apollo/client';
+      import Cookies from 'js-cookie';
       import Swal from 'sweetalert2';
-      import axios from 'axios'
+      import axios from 'axios';
       import WalletModal from '../components/Wallet';
-      import { useRouter } from 'next/router'
-      import { Edit, Mail, Phone, MapPin, Cake, User, Briefcase, Calendar, Key } from 'lucide-react'
+      import { useRouter } from 'next/router';
+      import { Edit, Mail, Phone, MapPin, Cake, User, Briefcase, Calendar, Key } from 'lucide-react';
       import { contextType } from 'react-modal';
 
       const GET_USER_BY_ID = gql`
@@ -23,31 +23,31 @@
             username
           }
         }
-      `
-      const ITEMS_PER_PAGE = 5
+      `;
+      const ITEMS_PER_PAGE = 5;
       export default function ProfileComponent() {
-        const Navbar=dynamic(()=>import('../components/Navbar'),{ssr:false})
-        const [isModalOpen, setIsModalOpen] = useState(false)  
+        const Navbar=dynamic(()=>import('../components/Navbar'),{ssr:false});
+        const [isModalOpen, setIsModalOpen] = useState(false);  
         const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
-        const [bookings, setBookings] = useState<any[]>([])
+        const [bookings, setBookings] = useState<any[]>([]);
 
-        const router=useRouter()
-        const [editMode, setEditMode] = useState(false)
-        const [activeTab, setActiveTab] = useState('profile')
-        const userId = Cookies.get('userId')
-        const [currentPage, setCurrentPage] = useState(1) // Pagination state
-        const [walletBalance,setWalletBalance]=useState('')
-  const [sortOrder, setSortOrder] = useState('asc') 
+        const router=useRouter();
+        const [editMode, setEditMode] = useState(false);
+        const [activeTab, setActiveTab] = useState('profile');
+        const userId = Cookies.get('userId');
+        const [currentPage, setCurrentPage] = useState(1); // Pagination state
+        const [walletBalance,setWalletBalance]=useState('');
+  const [sortOrder, setSortOrder] = useState('asc'); 
         const sortedBookings = bookings.sort((a, b) => {
-          const dateA = new Date(a.DateofJourney)
-          const dateB = new Date(b.DateofJourney)
-          return sortOrder === 'asc' ? dateA - dateB : dateB - dateA
-        })
+          const dateA = new Date(a.DateofJourney);
+          const dateB = new Date(b.DateofJourney);
+          return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        });
       
         // Pagination logic: slice the bookings array based on the current page
-        const indexOfLastBooking = currentPage * ITEMS_PER_PAGE
-        const indexOfFirstBooking = indexOfLastBooking - ITEMS_PER_PAGE
-        const currentBookings = sortedBookings.slice(indexOfFirstBooking, indexOfLastBooking)
+        const indexOfLastBooking = currentPage * ITEMS_PER_PAGE;
+        const indexOfFirstBooking = indexOfLastBooking - ITEMS_PER_PAGE;
+        const currentBookings = sortedBookings.slice(indexOfFirstBooking, indexOfLastBooking);
         const [user, setUser] = useState({
           firstName: 'Jane',
           lastName: 'Doe',
@@ -61,18 +61,18 @@
           coverImage: '/placeholder.svg?height=400&width=1200',
           occupation: 'Software Engineer',
           company: 'Tech Innovations Inc.',
-        })
-        const [birthday,setBirthDay]=useState('')
+        });
+        const [birthday,setBirthDay]=useState('');
         const [selectedBooking, setSelectedBooking] = useState(null); 
-        const [contactNo,setContactNo]=useState('')
-        const [currentAddress,setCurrentAddress]=useState('')
-        const [email,setEmail]=useState('')
+        const [contactNo,setContactNo]=useState('');
+        const [currentAddress,setCurrentAddress]=useState('');
+        const [email,setEmail]=useState('');
         const [dateSortDirection, setDateSortDirection] = useState('asc'); // State to track sorting order (asc/desc)
         const [errors, setErrors] = useState<any>({});
         const [showCanceled, setShowCanceled] = useState(false); 
-        const [gender,setGender]=useState('')
+        const [gender,setGender]=useState('');
         const [permananentAddress,setPermananentAddress]=useState('');
-        const [userData,setuserData]=useState<any[]>([])
+        const [userData,setuserData]=useState<any[]>([]);
         const [profile, setProfile] = useState({                                                                                         
           email: '',
           contactNo: '',
@@ -84,8 +84,8 @@
       const toggleShowCanceled = () => {
         setShowCanceled((prev) => !prev); 
       };
-        const [newPassword, setNewPassword] = useState('')
-        const [oldPassword, setOldPassword] = useState('')
+        const [newPassword, setNewPassword] = useState('');
+        const [oldPassword, setOldPassword] = useState('');
         useEffect(() => {
           const userId = Cookies.get('userId');
 
@@ -108,11 +108,11 @@
   };
         async function handleSubmit() {
           if (!validateForm()) {
-              console.log("Form validation failed");
+              console.log('Form validation failed');
               return; // Stop submission if form is invalid 
           }
       
-          Swal.fire("Updated Profile");
+          Swal.fire('Updated Profile');
           setEditMode(false);
           console.log({
               gender: profile.gender,
@@ -134,7 +134,7 @@
                   birthday: profile.birthday
               }, {
                   headers: {
-                      "Content-Type": "application/json",
+                      'Content-Type': 'application/json',
                   },
               });
       
@@ -205,7 +205,7 @@ const validateForm = () => {
               },
               {
                 headers: {
-                  "Content-Type": "application/json", // Correct the Content-Type header
+                  'Content-Type': 'application/json', // Correct the Content-Type header
                 },
               }
             );
@@ -231,44 +231,44 @@ const validateForm = () => {
       // Empty dependency array to run this once when the component mounts
         
       const handleSortToggle = () => {
-        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-      }
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      };
     
       // Handle page changes
-      const totalPages = Math.ceil(bookings.length / ITEMS_PER_PAGE)
+      const totalPages = Math.ceil(bookings.length / ITEMS_PER_PAGE);
       const handlePreviousPage = () => {
-        if (currentPage > 1) setCurrentPage(currentPage - 1)
-      }
+        if (currentPage > 1) setCurrentPage(currentPage - 1);
+      };
       const handleNextPage = () => {
-        if (currentPage < totalPages) setCurrentPage(currentPage + 1)
-      }
+        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+      };
 
         
         const handleEditClick = () => {
-          setEditMode(!editMode)
-        }
+          setEditMode(!editMode);
+        };
 
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-          const { name, value } = e.target
-          setUser({ ...user, [name]: value })
-        }
+          const { name, value } = e.target;
+          setUser({ ...user, [name]: value });
+        };
       function handleMore(){
-        router.push('/user/flight/bookingHistory')
+        router.push('/user/flight/bookingHistory');
       }
         const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, imageType: 'profileImage' | 'coverImage') => {
           if (e.target.files && e.target.files[0]) {
-            const fileReader = new FileReader()
+            const fileReader = new FileReader();
             fileReader.onload = () => {
-              setUser({ ...user, [imageType]: fileReader.result as string })
-            }
-            fileReader.readAsDataURL(e.target.files[0])
+              setUser({ ...user, [imageType]: fileReader.result as string });
+            };
+            fileReader.readAsDataURL(e.target.files[0]);
           }
-        }
+        };
 
 
 
         async function changePassword() {
-          console.log(userId,oldPassword,newPassword)
+          console.log(userId,oldPassword,newPassword);
           
           try {
             const response = await axios.post(
@@ -284,20 +284,20 @@ const validateForm = () => {
                 },
               }
             );
-            console.log(response,'status')
+            console.log(response,'status');
         if(response.status===200){
-          Swal.fire("Password Request Success");
+          Swal.fire('Password Request Success');
 
         }else{
-          Swal.fire("An error occurred while changing the password.");
+          Swal.fire('An error occurred while changing the password.');
 
         }
           } catch (error: any) {
             if (error.response) {
-              Swal.fire("An error occurred while changing the password.");
+              Swal.fire('An error occurred while changing the password.');
             } else {
               console.error('Error:', error);
-              Swal.fire("Something Went Wrong While Resetting Password.");
+              Swal.fire('Something Went Wrong While Resetting Password.');
 
               console.log('An error occurred while changing the password.');
             }
@@ -309,12 +309,12 @@ const validateForm = () => {
       
         const { loading, error, data } = useQuery(GET_USER_BY_ID, {
           variables: { userId },
-        })
+        });
 
-        if (loading) return <p>Loading...</p>
-        if (error) return <p>Error: {error.message}</p>
+        if (loading) return <p>Loading...</p>;
+        if (error) return <p>Error: {error.message}</p>;
 
-        const queriedUser = data?.getUserById
+        const queriedUser = data?.getUserById;
 
         return (
         <>
@@ -519,7 +519,7 @@ const validateForm = () => {
       onClick={toggleShowCanceled}
       className="bg-blue-600 text-white p-2 rounded-lg mb-4"
     >
-      {showCanceled ? "Hide Canceled Orders" : "Show Canceled Orders"}
+      {showCanceled ? 'Hide Canceled Orders' : 'Show Canceled Orders'}
     </button>
 
     <div className="overflow-x-auto">
@@ -700,5 +700,5 @@ const validateForm = () => {
           </div>
         </footer>
         </>
-        )
+        );
       }

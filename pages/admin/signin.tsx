@@ -1,19 +1,19 @@
-'use client'
+'use client';
 import React, { useState } from 'react';
 import Cookies from 'js-cookie';
 import { ADMIN_LOGIN_MUTATION } from '@/graphql/mutations/adminLoginMutation';
 import { useMutation } from '@apollo/client';
 import { useRouter } from 'next/router';
 const Signin: React.FC = () => {
-  const router=useRouter()
+  const router=useRouter();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [adminType, setadminType] = useState('superadmin');
-  const [adminLogin, { loading, error, data }] = useMutation(ADMIN_LOGIN_MUTATION)
+  const [adminLogin, { loading, error, data }] = useMutation(ADMIN_LOGIN_MUTATION);
   const handleDropdown = (e: any) => {
-    setadminType(e.target.value)
-  }
+    setadminType(e.target.value);
+  };
   const handleSignin = async (event: React.MouseEvent<HTMLButtonElement>) => {
     try {
       if (!email || !password || !adminType) {
@@ -38,7 +38,7 @@ const Signin: React.FC = () => {
         }
         console.log('Login success', data.adminLogin);
         if(adminType!=''){
-          router.push('/admin/dashboard')
+          router.push('/admin/dashboard');
 
         }
 
@@ -47,7 +47,7 @@ const Signin: React.FC = () => {
       }
     } catch (error) {
       console.error('Operation of admin login not successful', error);
-      alert("Can't perform admin login operation. Please try again.");
+      alert('Can\'t perform admin login operation. Please try again.');
     }
   };
  
@@ -146,6 +146,6 @@ const Signin: React.FC = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Signin;

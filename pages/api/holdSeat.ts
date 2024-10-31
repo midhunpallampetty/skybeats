@@ -1,5 +1,5 @@
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextApiRequest, NextApiResponse } from 'next';
 
 const client = new ApolloClient({
   uri: 'http://localhost:3300/graphql',
@@ -8,9 +8,9 @@ const client = new ApolloClient({
 
 export default async function handler(req:NextApiRequest, res:NextApiResponse) {
   if (req.method === 'POST') {
-    console.log('coach is here',req.body)
+    console.log('coach is here',req.body);
     const { input } = req.body;
-   console.log(input,'freffsef')
+   console.log(input,'freffsef');
     const HOLD_SEAT_MUTATION = gql`
       mutation($input: CheckSeatInput!) {
         holdSeat(input: $input) {

@@ -14,7 +14,7 @@ interface Flight {
 
 const Test: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const flights = useSelector((state: RootState) => state.flights.flights)
+  const flights = useSelector((state: RootState) => state.flights.flights);
 
 
   const openModal = () => {

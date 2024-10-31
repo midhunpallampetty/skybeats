@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -15,7 +16,7 @@ const BookingSummaryModal: React.FC<ModalProps> = ({
   
 }) => {
   if (!isOpen) return null;
-  const bookdata=useSelector((state:RootState)=>state.hotelGuestData.selectedUser)
+  const bookdata=useSelector((state:RootState)=>state.hotelGuestData.selectedUser);
 
 
   return (

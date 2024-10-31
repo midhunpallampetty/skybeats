@@ -1,5 +1,5 @@
-'use client'
-import React, { useEffect, useState } from "react";
+'use client';
+import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -16,7 +16,7 @@ const allCargoRequests = () => {
         const response = await axios.post('/api/getCargoBookings', {
           userId,
           header: {
-            "Content-Type": "application/json"
+            'Content-Type': 'application/json'
           }
         });
 
@@ -109,7 +109,7 @@ const allCargoRequests = () => {
                             <p>Description: {request.descriptionOfGoods}</p>
                             <p>Tracking ID: {request.trackingId}</p>
                             <p>Date Received: {new Date(request.Date_Received).toLocaleDateString()}</p>
-                            <p>Status: {request.approved ? "Approved" : request.rejected ? "Rejected" : "Pending"}</p>
+                            <p>Status: {request.approved ? 'Approved' : request.rejected ? 'Rejected' : 'Pending'}</p>
                           </div>
                         </div>
                       </div>

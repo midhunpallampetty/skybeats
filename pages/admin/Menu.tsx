@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import dynamic from 'next/dynamic';

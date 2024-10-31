@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react'
+'use client';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useState } from 'react';
 const Adminaside: React.FC = () => {
@@ -11,10 +12,10 @@ const Adminaside: React.FC = () => {
       let timer;
       if (isSubmenuOpen) {
          timer = setTimeout(() => {
-            setIsSubmenuOpen(false)
+            setIsSubmenuOpen(false);
          }, 15000);
       }
-   })
+   });
    return (
       <>
          <aside
@@ -173,7 +174,7 @@ const Adminaside: React.FC = () => {
          </aside>
 
       </>
-   )
-}
+   );
+};
 
-export default Adminaside
+export default Adminaside;

@@ -20,7 +20,7 @@ export default function WalletModal({ isOpen, onClose }) {
       try {
         const response = await axios.post('/api/transactionHistory', { userId }, {
           headers: {
-            "Content-Type": "application/json"
+            'Content-Type': 'application/json'
           }
         });
         setTransactions(response.data.ListTransactions); // Access ListTransactions array
@@ -39,11 +39,11 @@ export default function WalletModal({ isOpen, onClose }) {
       try {
         const response = await axios.post('/api/getWallet', { userId }, {
           headers: {
-            "Content-Type": "application/json"
+            'Content-Type': 'application/json'
           }
         });
         setBalance(response.data.walletBalance); // Access ListTransactions array
-        console.log(response.data.walletBalance)
+        console.log(response.data.walletBalance);
       } catch (error) {
         console.error('Error fetching transaction history:', error);
       }

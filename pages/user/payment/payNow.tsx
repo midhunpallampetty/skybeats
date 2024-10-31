@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
@@ -16,25 +17,25 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 
 const PaymentForm: React.FC = () => {
   const selectedSeat = useSelector((state: RootState) => state.selectedSeats.selectedSeats);
-  const bookDate=useSelector((state:RootState)=>state.bookDate.date)
+  const bookDate=useSelector((state:RootState)=>state.bookDate.date);
   const aircraftModel = useSelector((state: RootState) => state.aircraftModel.aircraftModel);
   const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
   const passengerDetails = useSelector((state: RootState) => state.bookdetail.passengerDetails);
-  const returnFlight=useSelector((state:RootState)=>state.returnFlights.selectedReturnFlight)
-  const passengers=useSelector((state:RootState)=>state.bookdetail.passengerDetails)
+  const returnFlight=useSelector((state:RootState)=>state.returnFlights.selectedReturnFlight);
+  const passengers=useSelector((state:RootState)=>state.bookdetail.passengerDetails);
   
-  const returnDate=useSelector((state:RootState)=>state.returnDate.returndate)
+  const returnDate=useSelector((state:RootState)=>state.returnDate.returndate);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const stripe = useStripe();
 
-  const router=useRouter()
+  const router=useRouter();
   const elements = useElements();
   const token=Cookies.get('jwtToken');
 useEffect(()=>{
 if(!token){
   router.push('/');
 }
-},[])
+},[]);
 
 
   useEffect(() => {
@@ -49,9 +50,9 @@ if(!token){
     }
   }, [selectedFlight]);
 useEffect(()=>{
-  console.log(returnFlight,'test fine')
+  console.log(returnFlight,'test fine');
 
-},[])
+},[]);
 const handleSubmit = async (event: React.FormEvent) => {
   event.preventDefault();
 
@@ -215,7 +216,7 @@ const PaymentPage: React.FC = () => {
   const passengerDetails = useSelector((state: RootState) => state.bookdetail.passengerDetails);
   const selectedItem= useSelector((state: RootState) => state.food.selectedItems);
   const [addOnRate, setAddOnRate] = useState(0);
-  const passengers=useSelector((state:RootState)=>state.bookdetail.passengerDetails)
+  const passengers=useSelector((state:RootState)=>state.bookdetail.passengerDetails);
   const totalFare = (selectedFlight.price * passengers.passengers.length)+addOnRate;
   const [isBreakdownVisible, setBreakdownVisible] = useState(false);
   useEffect(() => {

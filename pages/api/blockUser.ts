@@ -16,7 +16,7 @@ const BLOCK_USER_MUTATION = gql`
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const { blockUserId } = req.body;  // Extracting the id directly from the request body
-    console.log(req.body,'bhdcbhdcbdhc')
+    console.log(req.body,'bhdcbhdcbdhc');
     try {
       const variables = { blockUserId };  // Passing the id directly in the variables
       const data = await client.request(BLOCK_USER_MUTATION, variables);

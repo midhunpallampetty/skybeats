@@ -1,7 +1,7 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import { gql } from "graphql-request";
-import Cookies from 'js-cookie'
+import NextAuth, { NextAuthOptions } from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
+import { gql } from 'graphql-request';
+import Cookies from 'js-cookie';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -27,9 +27,9 @@ export const authOptions: NextAuthOptions = {
 
         try {
           const response = await fetch('http://localhost:3300/graphql', {
-            method: "POST",
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify({
               query: mutation,
@@ -45,7 +45,7 @@ export const authOptions: NextAuthOptions = {
 
           const result = await response.json();
           if (result.errors) {
-            console.error("GraphQL Errors:", result.errors);
+            console.error('GraphQL Errors:', result.errors);
             return token;  // Return token as it is if there's an error
           }
           if (!response.ok) {
@@ -57,10 +57,10 @@ export const authOptions: NextAuthOptions = {
           token.accessToken = result.data.handleGoogleLogin.token;
           token.email = result.data.handleGoogleLogin.email;
           token.usersId=result.data.handleGoogleLogin.id;
-          console.log("Mutation Result:", result.data);
+          console.log('Mutation Result:', result.data);
 
         } catch (error) {
-          console.error("Error during Google login mutation:", error);
+          console.error('Error during Google login mutation:', error);
           return token;
         }
       }
@@ -82,7 +82,7 @@ export const authOptions: NextAuthOptions = {
 
     // Redirect callback to handle where users are redirected after login
     async redirect({ url, baseUrl }) {
-      if (url === "/api/auth/callback/google") {
+      if (url === '/api/auth/callback/google') {
         return `${baseUrl}/?googleauth=true/`; // Redirect after successful Google login
       }
       return `${baseUrl}/?googleauth=true`;

@@ -1,35 +1,36 @@
-import React, { useEffect, useState } from 'react'
-import dynamic from 'next/dynamic'
-import axios from 'axios'
+'use client';
+import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import axios from 'axios';
 
 interface Cloud {
   imageUrl: string
 }
 
 function Index() {
-  const Navbar = dynamic(() => import('../../components/Navbar'), { ssr: false })
-  const [images, setImages] = useState<Cloud[]>([])
-  const [imageUrl, setImageUrl] = useState<string[]>([])
+  const Navbar = dynamic(() => import('../../components/Navbar'), { ssr: false });
+  const [images, setImages] = useState<Cloud[]>([]);
+  const [imageUrl, setImageUrl] = useState<string[]>([]);
 
   useEffect(() => {
     axios.get<Cloud[]>('http://localhost:3000/api/getClouds')
       .then((response) => {
-        setImages(response.data)
+        setImages(response.data);
       })
       .catch((error) => {
-        console.error('Error fetching data:', error)
-      })
-  }, [])
+        console.error('Error fetching data:', error);
+      });
+  }, []);
 
   useEffect(() => {
     if (images.length > 0) {
-      const urls = images.map((image) => image.imageUrl)
-      setImageUrl(urls)
-      console.log('Images loaded:', urls)
+      const urls = images.map((image) => image.imageUrl);
+      setImageUrl(urls);
+      console.log('Images loaded:', urls);
     } else {
-      console.log('No images found')
+      console.log('No images found');
     }
-  }, [images])
+  }, [images]);
 
   return (
     <>
@@ -66,7 +67,7 @@ function Index() {
         </button>
       </div>
     </>
-  )
+  );
 }
 
-export default Index
+export default Index;

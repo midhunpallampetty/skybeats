@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 
 const Skeleton: React.FC<{ width?: string; height?: string }> = ({
