@@ -8,7 +8,7 @@ import { setPassengerDetails } from '@/redux/slices/bookdetailSlice';
 import Swal from 'sweetalert2';
 import FoodMenuModal from '@/pages/components/foodMenuModal';
 import Cookies from 'js-cookie';
-
+import axios from 'axios'
 import { clearSelectedReturnFlight } from '@/redux/slices/returnFlightSlice';
 interface PassengerDetails {
   firstName: string;
@@ -35,9 +35,54 @@ const BookingDetailsPage: React.FC = () => {
   const [commonErrors, setCommonErrors] = useState<Record<string, boolean>>({ email: false, phoneNumber: false });
   const passengers = useSelector((state: RootState) => state.bookdetail.passengerDetails);
   const returnFlight = useSelector((state: RootState) => state.returnFlights.selectedReturnFlight);
-
+  const [isChecked, setIsChecked] = useState(false);
   const token = Cookies.get('jwtToken');
   const userId = Cookies.get('userId');
+  async function savePassengerInfo() {
+    console.log(passengerDetails, 'user');
+  
+    for (let i = 0; i < passengerDetails.length; i++) {
+      const firstName = passengerDetails[i].firstName;
+      const lastName = passengerDetails[i].lastName;
+      const middleName = passengerDetails[i].middleName || ''; // Handle optional middleName
+      const passportNumber = passengerDetails[i].passportNumber;
+  
+      const data = {
+        input: {
+          email: commonDetails.email,
+          firstName,
+          lastName,
+          middleName,
+          passportNumber,
+          phone: commonDetails.phoneNumber,
+          userId: userId,
+        }
+      };
+      
+      try {
+        const response = await axios.post('/api/savePassengerInfo', data, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        console.log(`Passenger info for ${firstName} ${lastName} saved successfully:`, response.data);
+      } catch (error: any) {
+        if (error.response) {
+          console.log(`Error response for ${firstName} ${lastName}:`, error.response.data); 
+        } else if (error.request) {
+          console.log(`Error request for ${firstName} ${lastName}:`, error.request); 
+        } else {
+          console.log(`Unexpected error for ${firstName} ${lastName}:`, error.message); 
+        }
+      }
+    }
+  }
+  
+  
+  const handleCheckboxChange = async() => {
+    setIsChecked((prev) => !prev);    
+  };
+
   useEffect(() => {
     if (returnFlight) {
       Swal.fire({
@@ -60,6 +105,66 @@ const BookingDetailsPage: React.FC = () => {
 
     }
   }, [returnFlight, dispatch]);
+
+  useEffect(() => {
+    const fetchPassengerInfo = async () => {
+      try {
+        const response = await axios.post('/api/getPassengerInfo', { userId }, {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+        
+        const passengerInfo = response.data.getPassengerInfo[0];
+        console.log(response.data.getPassengerInfo[0],'csdcdc')
+        if (passengerInfo) {
+          const { firstName, middleName, lastName, passportNumber, phone, email } = passengerInfo;
+          
+          // Populate passenger details
+          setPassengerDetailsState([{
+            firstName: firstName || '',
+            middleName: middleName || '',
+            lastName: lastName || '',
+            passportNumber: passportNumber || '',
+            disability: '', // Add if this info is available
+            age:"20",
+          }]);
+          
+          // Populate common details
+          setCommonDetails({
+            email: email || '',
+            phoneNumber: phone || '',
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching passenger info:', error);
+      }
+    };
+  
+    fetchPassengerInfo();
+  }, [userId]);
+  
+  useEffect(() => {
+    if (!token) {
+      router.push('/');
+    }
+  
+    if (passengerDetails.length === 0) {  // Check if passenger details are empty
+      const initialPassengers = selectedSeat.map(() => ({
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        age: '',
+        passportNumber: '',
+        disability: '',
+      }));
+      setPassengerDetailsState(initialPassengers);
+    }
+  
+    validateCommonField('email', commonDetails.email);
+    validateCommonField('phoneNumber', commonDetails.phoneNumber);
+  }, [selectedSeat, token]);
+  
   useEffect(() => {
     if (!token) {
       router.push('/');
@@ -146,8 +251,18 @@ const BookingDetailsPage: React.FC = () => {
 
     setCommonErrors((prev) => ({ ...prev, [field]: isError }));
   };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(()=>{
+if(isChecked){
+  savePassengerInfo()
+}
+  },[isChecked])
+  const handleSubmit = async(e: React.FormEvent) => {
+    // if(isChecked){
+    //   await savePassengerInfo()
+    //   alert('save successfully ')
+    // }else{
+    //   alert('need to tick box to save')
+    // }
     e.preventDefault();
 
     // Validate all passenger fields
@@ -156,7 +271,7 @@ const BookingDetailsPage: React.FC = () => {
         validateField(index, field, (passenger as any)[field]);
       });
     });
-                                                                                                      
+
     // Validate common fields (email, phoneNumber)
     validateCommonField('email', commonDetails.email);
     validateCommonField('phoneNumber', commonDetails.phoneNumber);
@@ -198,42 +313,42 @@ const BookingDetailsPage: React.FC = () => {
       </div>
 
       <div className="container  shadow-inner border border-white/20 mx-auto p-6 mt-6 bg-black/45 rounded-lg">
-    {selectedFlight ? (
-        <>
+        {selectedFlight ? (
+          <>
             <div className="flex justify-between mb-4">
-                <div className="flex-1">
-                    <h2 className="text-2xl font-semibold">{selectedFlight.departureAirport} → {selectedFlight.arrivalAirport}</h2>
-                    <p>{selectedFlight.departureTime} - {selectedFlight.arrivalTime}</p>
-                    <p>{selectedFlight.duration}</p>
-                </div>
-                <div className="flex-1 text-right">
-                    <p>Fare Type: Regular</p>
-                    <p>Total Passengers: {selectedSeat.length}</p>
-                    <p>Total Fare: ₹{selectedFlight.price * selectedSeat.length}</p>
-                </div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-semibold">{selectedFlight.departureAirport} → {selectedFlight.arrivalAirport}</h2>
+                <p>{selectedFlight.departureTime} - {selectedFlight.arrivalTime}</p>
+                <p>{selectedFlight.duration}</p>
+              </div>
+              <div className="flex-1 text-right">
+                <p>Fare Type: Regular</p>
+                <p>Total Passengers: {selectedSeat.length}</p>
+                <p>Total Fare: ₹{selectedFlight.price * selectedSeat.length}</p>
+              </div>
             </div>
 
             {/* Additional Fares section */}
             <div className="text-center mb-6">
-                <h1 className="text-lg font-semibold">Additional Fares</h1>
-                {selectedSeat.map((seat, index) => (
-                    <p key={index}>
-                        {seat.price === 499 && 'Economy'}
-                        {seat.price === 899 && 'First Class'}
-                        {seat.price === 1099 && 'Business Class'}
-                        : ₹{seat.price}
-                    </p>
+              <h1 className="text-lg font-semibold">Additional Fares</h1>
+              {selectedSeat.map((seat, index) => (
+                <p key={index}>
+                  {seat.price === 499 && 'Economy'}
+                  {seat.price === 899 && 'First Class'}
+                  {seat.price === 1099 && 'Business Class'}
+                  : ₹{seat.price}
+                </p>
 
-                ))}
-                <button className='bg-blue-700/35 rounded-sm font-extrabold p-1'>Add Aditional </button>
-                <FoodMenuModal/>
+              ))}
+              <button className='bg-blue-700/35 rounded-sm font-extrabold p-1'>Add Aditional </button>
+              <FoodMenuModal />
             </div>
 
-        </>
-    ) : (
-        <p>No flight selected</p>
-    )}
-</div>
+          </>
+        ) : (
+          <p>No flight selected</p>
+        )}
+      </div>
 
       {/* Common details (Email, Phone Number) */}
       <div className="container mx-auto p-6 mt-6 border border-white/20 bg-[#07152C] rounded-lg shadow-lg">
@@ -351,10 +466,19 @@ const BookingDetailsPage: React.FC = () => {
                     placeholder="Enter disability (optional)"
                   />
                 </div>
+               
               </div>
             </div>
           ))}
-
+ <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={handleCheckboxChange}
+                    className="w-6 h-6 mr-2 accent-red-700"
+                  />
+                  <label className="text-white font-extrabold">Save Detail</label>
+                </div>
           <button
             type="submit"
             className="w-full mt-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md"

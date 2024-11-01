@@ -38,7 +38,6 @@ const SelectSeats: React.FC = () => {
 
     useEffect(() => {
         const fetchAircraftModel = async () => {
-            if (!selectedFlight?.airline) return;
             try {
                 const response: any = await axios.post('/api/airRadar', {
                     flightNumber: selectedFlight?.flightNumber,
