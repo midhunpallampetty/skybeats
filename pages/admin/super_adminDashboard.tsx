@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { DotLoader } from 'react-spinners';
 import { Users } from '@/interfaces/Users';
-const super_adminDashboard: React.FC = () => {
+const Super_adminDashboard: React.FC = () => {
    const [authorized, setAuthorized] = useState(false);
    const AdminNavbar=dynamic(()=>import('../components/AdminNavbar'));
    const Adminaside=dynamic(()=>import('../components/Adminaside'));
@@ -289,4 +289,4 @@ const super_adminDashboard: React.FC = () => {
    );
 };
 
-export default super_adminDashboard;
+export default Super_adminDashboard;

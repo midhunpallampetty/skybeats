@@ -4,8 +4,11 @@ import AWS from 'aws-sdk';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import S3 from 'aws-sdk/clients/s3';
-
-function addMeal() {
+interface S3UploadResponse {
+  uploadUrl: string;
+  key: string;
+}
+function AddMeal() {
   const AdminNavbar = dynamic(() => import('../components/AdminNavbar'));
   const AdminAside = dynamic(() => import('../components/Adminaside'));
   const Modal = dynamic(() => import('react-modal'));
@@ -266,4 +269,4 @@ console.log(mealData,'cdcsd');
   );
 }
 
-export default addMeal;
+export default AddMeal;

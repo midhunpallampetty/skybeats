@@ -23,7 +23,7 @@ const SAVE_PASSENGER_INFO_MUTATION = gql`
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const passengerInput = req.body.input;
-console.log(req.body.input)
+console.log(req.body.input);
     try {
       const variables = { input: passengerInput };
       const data = await client.request(SAVE_PASSENGER_INFO_MUTATION, variables);

@@ -8,7 +8,7 @@ import { setPassengerDetails } from '@/redux/slices/bookdetailSlice';
 import Swal from 'sweetalert2';
 import FoodMenuModal from '@/pages/components/foodMenuModal';
 import Cookies from 'js-cookie';
-import axios from 'axios'
+import axios from 'axios';
 import { clearSelectedReturnFlight } from '@/redux/slices/returnFlightSlice';
 interface PassengerDetails {
   firstName: string;
@@ -62,7 +62,7 @@ const BookingDetailsPage: React.FC = () => {
       try {
         const response = await axios.post('/api/savePassengerInfo', data, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         });
         console.log(`Passenger info for ${firstName} ${lastName} saved successfully:`, response.data);
@@ -111,29 +111,32 @@ const BookingDetailsPage: React.FC = () => {
       try {
         const response = await axios.post('/api/getPassengerInfo', { userId }, {
           headers: {
-            "Content-Type": "application/json"
+            'Content-Type': 'application/json'
           }
         });
         
-        const passengerInfo = response.data.getPassengerInfo[0];
-        console.log(response.data.getPassengerInfo[0],'csdcdc')
-        if (passengerInfo) {
-          const { firstName, middleName, lastName, passportNumber, phone, email } = passengerInfo;
-          
-          // Populate passenger details
-          setPassengerDetailsState([{
-            firstName: firstName || '',
-            middleName: middleName || '',
-            lastName: lastName || '',
-            passportNumber: passportNumber || '',
-            disability: '', // Add if this info is available
-            age:"20",
-          }]);
-          
-          // Populate common details
+        const passengerInfoArray = response.data.getPassengerInfo;
+        console.log(passengerInfoArray, 'Fetched passenger info');
+        
+        if (passengerInfoArray && passengerInfoArray.length > 0) {
+          // Map API response to passenger details structure
+          const mappedPassengerDetails = passengerInfoArray.map((passengerInfo: any) => ({
+            firstName: passengerInfo.firstName || '',
+            middleName: passengerInfo.middleName || '',
+            lastName: passengerInfo.lastName || '',
+            passportNumber: passengerInfo.passportNumber || '',
+            disability: '', // Populate if available
+            age: '20', // Static age or populate if available
+          }));
+  
+          // Set passenger details state with mapped data
+          setPassengerDetailsState(mappedPassengerDetails);
+  
+          // Set common details based on the first entry (if they should be same across all passengers)
+          const primaryPassenger = passengerInfoArray[0];
           setCommonDetails({
-            email: email || '',
-            phoneNumber: phone || '',
+            email: primaryPassenger.email || '',
+            phoneNumber: primaryPassenger.phone || '',
           });
         }
       } catch (error) {
@@ -144,12 +147,14 @@ const BookingDetailsPage: React.FC = () => {
     fetchPassengerInfo();
   }, [userId]);
   
+  
   useEffect(() => {
     if (!token) {
       router.push('/');
     }
   
-    if (passengerDetails.length === 0) {  // Check if passenger details are empty
+    // Initialize passenger details based on selected seats only if not already set
+    if (passengerDetails.length === 0 && selectedSeat.length > 0) {
       const initialPassengers = selectedSeat.map(() => ({
         firstName: '',
         middleName: '',
@@ -161,9 +166,26 @@ const BookingDetailsPage: React.FC = () => {
       setPassengerDetailsState(initialPassengers);
     }
   
+    // Initial validation of common fields
     validateCommonField('email', commonDetails.email);
     validateCommonField('phoneNumber', commonDetails.phoneNumber);
   }, [selectedSeat, token]);
+  
+  const handleInputChange = (index: number, field: string, value: string) => {
+    // Check if index is within bounds
+    if (index >= 0 && index < passengerDetails.length) {
+      const updatedPassengers = [...passengerDetails];
+      updatedPassengers[index] = {
+        ...updatedPassengers[index],
+        [field]: value,
+      };
+      setPassengerDetailsState(updatedPassengers);
+  
+      // Perform validation based on field
+      validateField(index, field, value);
+    }
+  };
+  
   
   useEffect(() => {
     if (!token) {
@@ -196,14 +218,14 @@ const BookingDetailsPage: React.FC = () => {
 
 
 
-  const handleInputChange = (index: number, field: string, value: string) => {
-    const updatedPassengers = [...passengerDetails];
-    updatedPassengers[index][field as keyof PassengerDetails] = value;
-    setPassengerDetailsState(updatedPassengers);
+  // const handleInputChange = (index: number, field: string, value: string) => {
+  //   const updatedPassengers = [...passengerDetails];
+  //   // updatedPassengers[index][field as keyof PassengerDetails] = value;
+  //   setPassengerDetailsState(updatedPassengers);
 
-    // Perform validation based on field
-    validateField(index, field, value);
-  };
+  //   // Perform validation based on field
+  //   validateField(index, field, value);
+  // };
 
   const handleCommonInputChange = (field: string, value: string) => {
     const updatedCommonDetails = { ...commonDetails, [field]: value };
@@ -227,7 +249,7 @@ const BookingDetailsPage: React.FC = () => {
         isError = value.length < 6;
         break;
       case 'age':
-        isError = isNaN(Number(value)) || Number(value) <= 0;
+        isError = isNaN(Number(value)) ||Number(value) <= 0;
         break;
       default:
         break;
@@ -253,7 +275,7 @@ const BookingDetailsPage: React.FC = () => {
   };
   useEffect(()=>{
 if(isChecked){
-  savePassengerInfo()
+  savePassengerInfo();
 }
   },[isChecked])
   const handleSubmit = async(e: React.FormEvent) => {

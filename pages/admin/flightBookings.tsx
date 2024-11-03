@@ -10,7 +10,7 @@ import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import { DotLoader } from 'react-spinners';
 import { bookData } from '@/interfaces/bookData';
-const super_adminDashboard: React.FC = () => {
+const SuperadminDashboard: React.FC = () => {
    const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
    const [authorized, setAuthorized] = useState(false);
    const [email, setEmail] = useState('');
@@ -199,7 +199,7 @@ const super_adminDashboard: React.FC = () => {
                   currentUsers.map((bookings, index) => (
 
 
-                     <div  className="bg-blue-900/50 p-6 rounded-lg shadow-lg w-full mb-10  mx-auto">
+                     <div key={index} className="bg-blue-900/50 p-6 rounded-lg shadow-lg w-full mb-10  mx-auto">
                         <div className="relative rounded-t-lg overflow-hidden">
                            <span className="absolute top-2 left-2 bg-green-400 text-black text-xs px-3 py-1 rounded-full">
                               International
@@ -280,4 +280,4 @@ const super_adminDashboard: React.FC = () => {
    );
 };
 
-export default super_adminDashboard;
+export default SuperadminDashboard;

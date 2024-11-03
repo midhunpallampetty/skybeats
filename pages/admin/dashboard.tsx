@@ -150,7 +150,7 @@ const SuperAdminDashboard: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3  gap-6">
                         {authorized ? (
                             cardsData.map((user, index) => (
-                                <button
+                                <button key={index}
                                     className={`max-w-sm bg-transparent border-4 ${(role !== 'hoteladmin' && user.name === 'Hotel Management') ||
                                             (role !== 'hradmin' && user.name === 'Career Management') || (role !== 'flightoperator' && user.name === 'Flight Management') ||( role !=='cargomanager' && user.name === 'Cargo Management') 
                                             ? 'border-gray-400 cursor-not-allowed opacity-50'

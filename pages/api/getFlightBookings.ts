@@ -1,29 +1,48 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { GraphQLClient, gql } from 'graphql-request';
 
-const getUsers = async (req: NextApiRequest, res: NextApiResponse) => {
+const getBookings = async (req: NextApiRequest, res: NextApiResponse) => {
     const graphQLClient = new GraphQLClient('http://localhost:3300/graphql');
 
+    // Define the GraphQL query with the required fields
     const query = gql`
-        query getAllHotelBooking {
-            getAllHotelBooking {
+        query GetAllBookings {
+            getAllBooking {
+                arrivalAirport
+                arrivalTime
+                DateofJourney
                 email
-                guestName
-                phoneNumber
-                
+                FarePaid
+                flightDuration
+                flightModel
+                flightNumber
             }
         }
     `;
 
     try {
-        const data: any = await graphQLClient.request(query);
+        // Define the expected structure of the response data
+        const data = await graphQLClient.request<{ 
+            getAllBooking: { 
+                arrivalAirport: string;
+                arrivalTime: string;
+                DateofJourney: string;
+                email: string;
+                FarePaid: number;
+                flightDuration: string;
+                flightModel: string;
+                flightNumber: string;
+            }[] 
+        }>(query);
 
-        const bookings: String[] = data.getAllHotelBooking;
-        res.status(200).json(bookings);
-    } catch (error: any) {
-        console.error('Error fetching users:', error.message);
-        res.status(500).json({ message: 'Error fetching users' });
+        // Send the bookings data as a JSON response
+        res.status(200).json(data.getAllBooking);
+    } catch (error) {
+        console.error('Error fetching bookings:', error);
+        
+        // Handle errors gracefully by returning a 500 status code
+        res.status(500).json({ message: 'Error fetching bookings', error: error instanceof Error ? error.message : 'Unknown error' });
     }
 };
 
-export default getUsers;
+export default getBookings;

@@ -1,23 +1,21 @@
 'use client';
 import React from 'react';
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  
 }
 
 const BookingSummaryModal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
-  
 }) => {
-  if (!isOpen) return null;
-  const bookdata=useSelector((state:RootState)=>state.hotelGuestData.selectedUser);
+  // Move useSelector outside of conditional rendering
+  const bookdata = useSelector((state: RootState) => state.hotelGuestData.selectedUser);
 
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
