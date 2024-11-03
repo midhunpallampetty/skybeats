@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { gql } from 'graphql-request';
 import { JWT } from 'next-auth/jwt';
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next';
 const authOptions = {
   providers: [
     GoogleProvider({
