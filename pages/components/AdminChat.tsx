@@ -1,33 +1,36 @@
 'use client';
 import { useEffect, useState } from 'react';
-import io, { Socket } from 'socket.io-client';
-
-let socket: Socket;
+import io from 'socket.io-client';
 
 const AdminChat = () => {
   const [message, setMessage] = useState<string>('');
   const [messages, setMessages] = useState<{ userId: string; text: string }[]>([]);
+  const [socket, setSocket] = useState<any>(null); // Use 'any' type here
 
   useEffect(() => {
     socketInitializer();
+    return () => {
+      socket?.disconnect(); // Cleanup socket connection on unmount
+    };
   }, []);
 
   const socketInitializer = async () => {
-    await fetch('/api/socket');
-    socket = io();
+    await fetch('/api/socket'); // Ensure the server-side socket setup if needed
+    const newSocket = io(); // Initialize new socket connection
+    setSocket(newSocket);
 
-    socket.on('connect', () => {
+    newSocket.on('connect', () => {
       console.log('Admin connected');
     });
 
     // Listen to messages from the clients
-    socket.on('client_message', (msg: { userId: string; text: string }) => {
+    newSocket.on('client_message', (msg: { userId: string; text: string }) => {
       setMessages((prev) => [...prev, { userId: msg.userId, text: msg.text }]);
     });
   };
 
   const sendMessage = () => {
-    if (message) {
+    if (message && socket) {
       socket.emit('admin_message', { adminId: 'Admin', text: message });
       setMessages((prev) => [...prev, { userId: 'Admin', text: message }]);
       setMessage('');
@@ -47,7 +50,8 @@ const AdminChat = () => {
           ))}
         </div>
       </div>
-      <input className="text-black"
+      <input
+        className="text-black"
         type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}

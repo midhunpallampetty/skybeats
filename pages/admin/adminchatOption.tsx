@@ -10,7 +10,7 @@ interface MessageData {
 }
 
 // Define the socket URL
-const socket: Socket = socketIOClient('http://localhost:3300'); // Ensure this matches your server URL
+const socket: any = socketIOClient('http://localhost:3300'); // Ensure this matches your server URL
 
 const AdminChat: React.FC = () => {
     const [message, setMessage] = useState<string>('');  // State to hold the message

@@ -73,7 +73,7 @@ console.log(mealData,'cdcsd');
       setUploading(true);
       setIsModalOpen(true);
 
-      const { data } = await axios.get(`/api/media?fileType=${fileType}`);
+      const { data } = await axios.get<S3UploadResponse>(`/api/media?fileType=${fileType}`);
       const { uploadUrl, key } = data;
 
       console.log('Uploading...');
