@@ -277,7 +277,7 @@ const BookingDetailsPage: React.FC = () => {
 if(isChecked){
   savePassengerInfo();
 }
-  },[isChecked])
+  },[isChecked]);
   const handleSubmit = async(e: React.FormEvent) => {
     // if(isChecked){
     //   await savePassengerInfo()

@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const allCargoRequests = () => {
+const AllCargoRequests = () => {
   const Navbar = dynamic(() => import('../../components/Navbar'), { ssr: false });
   const [cargoRequests, setCargoRequests] = useState([]); // Initialize as an empty array
   const [loading, setLoading] = useState(true); // Add loading state
@@ -127,4 +127,4 @@ const allCargoRequests = () => {
   );
 };
 
-export default allCargoRequests;
+export default AllCargoRequests;
