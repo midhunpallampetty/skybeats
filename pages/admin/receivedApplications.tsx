@@ -6,6 +6,7 @@ import { usePDF } from 'react-to-pdf';
 import { useMutation } from '@apollo/client';
 import { DotLoader } from 'react-spinners';
 import axios from 'axios';
+
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import { cargoData } from '@/interfaces/cargoData';
@@ -17,6 +18,9 @@ export interface applyJob {
    coverLetter: string
    cv: string
    Date: string
+}
+interface JobApplicationsResponse {
+   applications: applyJob[];
 }
 const ReceivedCargo: React.FC = ({ bookingData }: any) => {
    const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
@@ -76,7 +80,7 @@ const ReceivedCargo: React.FC = ({ bookingData }: any) => {
    useEffect(() => {
       const fetchData = async () => {
          try {
-            const response = await axios.get('/api/getJobApplications');
+            const response = await axios.get<JobApplicationsResponse>('/api/getJobApplications');
             console.log(response.data); // Check the structure here
 
             // If response.data contains an array inside, like response.data.applications

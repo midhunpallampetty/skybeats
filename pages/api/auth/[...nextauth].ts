@@ -1,19 +1,18 @@
-import NextAuth, { NextAuthOptions } from 'next-auth';
+import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { gql } from 'graphql-request';
-import Cookies from 'js-cookie';
-
-export const authOptions: NextAuthOptions = {
+import { JWT } from 'next-auth/jwt';
+import type { NextApiRequest, NextApiResponse } from "next"
+const authOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      clientId: process.env.GOOGLE_CLIENT_ID ?? '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
     }),
   ],
   session: { strategy: 'jwt' },
   callbacks: {
-    // JWT callback with mutation handling
-    async jwt({ token, account, user }) {
+    async jwt({ token, account, user }: { token: JWT; account?: any; user?: any }) {
       if (account && user) {
         const mutation = gql`
           mutation($input: GoogleLoginInput!) {
@@ -37,57 +36,58 @@ export const authOptions: NextAuthOptions = {
                 input: {
                   email: user.email,
                   password: account.access_token,
-                  username: user.name
-                }
-              }
+                  username: user.name,
+                },
+              },
             }),
           });
 
-          const result = await response.json();
-          if (result.errors) {
-            console.error('GraphQL Errors:', result.errors);
-            return token;  // Return token as it is if there's an error
-          }
           if (!response.ok) {
-            console.error(`Failed to send mutation, status: ${response.status}`);
+            console.error(`GraphQL request failed, status: ${response.status}`);
             return token;
           }
 
-          // Store the result token and email into the token object
-          token.accessToken = result.data.handleGoogleLogin.token;
-          token.email = result.data.handleGoogleLogin.email;
-          token.usersId=result.data.handleGoogleLogin.id;
-          console.log('Mutation Result:', result.data);
+          const result = await response.json();
+
+          if (result.errors) {
+            console.error('GraphQL Errors:', result.errors);
+            return token;
+          }
+
+          const { email, token: accessToken, id: usersId } = result.data?.handleGoogleLogin || {};
+
+          if (accessToken && email && usersId) {
+            token.accessToken = accessToken;
+            token.email = email;
+            token.usersId = usersId;
+          }
 
         } catch (error) {
           console.error('Error during Google login mutation:', error);
           return token;
         }
       }
-
       return token;
     },
 
-    // Session callback to return mutation result
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: JWT }) {
       if (token) {
         session.user = {
           email: token.email,
           token: token.accessToken,
-          usersId:token.usersId,
+          usersId: token.usersId,
         };
       }
       return session;
     },
 
-    // Redirect callback to handle where users are redirected after login
-    async redirect({ url, baseUrl }) {
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       if (url === '/api/auth/callback/google') {
-        return `${baseUrl}/?googleauth=true/`; // Redirect after successful Google login
+        return `${baseUrl}/?googleauth=true`;
       }
       return `${baseUrl}/?googleauth=true`;
     },
   },
 };
 
-export default NextAuth(authOptions);
+export default (req:NextApiRequest, res:NextApiResponse) => NextAuth(req, res, authOptions);

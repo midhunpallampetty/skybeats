@@ -69,7 +69,7 @@ const ReceivedCargo: React.FC = ({ bookingData }: any) => {
    useEffect(() => {
       const fetchData = async () => {
          try {
-            const response = await axios.get('/api/getCargoRequests');
+            const response = await axios.get<cargoData[]>('/api/getCargoRequests');
             setBookings(response.data);
          } catch (error) {
             console.error('Error fetching cargo requests:', error);

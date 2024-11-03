@@ -12,11 +12,21 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "baseUrl": ".",
     "paths": {
+      "*": ["./types/*"],
       "@/*": ["./*"]
-    }
+    },
+    "types": ["tailwindcss/tailwind-config"]
   },
   
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "../../../../Project folder/frontend/redux/slices/passengerCountSlice.ts", "../../../../Project folder/frontend/redux/slices/passengerCountSlice.ts"],
+  "include": [
+    "./types",
+    "./config/tailwind.config.ts",
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "../../../../Project folder/frontend/redux/slices/passengerCountSlice.ts"
+  ],
   "exclude": ["node_modules"]
 }
