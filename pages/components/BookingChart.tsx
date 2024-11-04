@@ -5,17 +5,29 @@ import { Chart as ChartJS, BarElement, CategoryScale, LinearScale } from 'chart.
 
 ChartJS.register(BarElement, CategoryScale, LinearScale);
 
-interface BookingChartProps {
-   data: any; // Replace with your proper data type
+// Define a type for the booking data
+interface Booking {
+   passengerName: string;
+   FarePaid: number;
 }
 
-const BookingChart: React.FC<BookingChartProps> = ({ data }) => {
+interface BookingChartProps {
+   data?: Booking[]; // Make data optional
+}
+
+const BookingChart: React.FC<BookingChartProps> = ({ data = [] }) => {
+   // Check if data is empty
+   if (data.length === 0) {
+      return <p>No bookings available to display.</p>;
+   }
+
+   // Prepare the chart data
    const chartData = {
-      labels: data.map((booking: any) => booking.passengerName),
+      labels: data.map((booking) => booking.passengerName),
       datasets: [
          {
             label: 'Fare Paid',
-            data: data.map((booking: any) => booking.FarePaid),
+            data: data.map((booking) => booking.FarePaid),
             backgroundColor: 'rgba(54, 162, 235, 0.6)',
             borderColor: 'rgba(54, 162, 235, 1)',
             borderWidth: 1,
@@ -23,7 +35,21 @@ const BookingChart: React.FC<BookingChartProps> = ({ data }) => {
       ],
    };
 
-   return <Bar data={chartData} />;
+   // Optional: Define chart options
+   const options = {
+      responsive: true,
+      scales: {
+         y: {
+            beginAtZero: true,
+            title: {
+               display: true,
+               text: 'Fare Paid ($)',
+            },
+         },
+      },
+   };
+
+   return <Bar data={chartData} options={options} />;
 };
 
 export default BookingChart;

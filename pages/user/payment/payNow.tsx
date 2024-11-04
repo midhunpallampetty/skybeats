@@ -217,7 +217,7 @@ const PaymentPage: React.FC = () => {
   const selectedItem= useSelector((state: RootState) => state.food.selectedItems);
   const [addOnRate, setAddOnRate] = useState(0);
   const passengers=useSelector((state:RootState)=>state.bookdetail.passengerDetails);
-  const totalFare = (selectedFlight.price * passengers.passengers.length)+addOnRate;
+  const totalFare = (selectedFlight?.price * passengers.passengers?.length)+addOnRate;
   const [isBreakdownVisible, setBreakdownVisible] = useState(false);
   useEffect(() => {
     let total = 0;

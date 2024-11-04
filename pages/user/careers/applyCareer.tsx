@@ -125,10 +125,10 @@ const JobApplicationForm = () => {
                 <div className="bg-white shadow-md rounded-md p-4">
                     <h2 className="text-2xl font-semibold mb-4">Job Details</h2>
                     <div className="space-y-3">
-                        <p><strong>Job Title:</strong> {selectedJob.designation}</p>
+                        <p><strong>Job Title:</strong> {selectedJob?.designation}</p>
                         <p><strong>Location:</strong> FullTime</p>
                         <p><strong>Employment Type:</strong> In Flight</p>
-                        <p><strong>Job Description:</strong> {truncateDescription(selectedJob.description, 100)}</p>
+                        <p><strong>Job Description:</strong> {selectedJob?.description ? truncateDescription(selectedJob.description, 100) : 'Description not available'}</p>
                     </div>
                 </div>
 

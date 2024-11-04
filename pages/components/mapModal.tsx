@@ -7,16 +7,6 @@ import dynamic from 'next/dynamic';
 const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then((mod) => mod.TileLayer), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then((mod) => mod.Marker), { ssr: false });
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-
-// Custom icon for the marker
-const customIcon = L.icon({
-  iconUrl: 'https://airline-datacenter.s3.ap-south-1.amazonaws.com/9b4fa661-ee97-4f62-b3ac-c605eec1d678.png',
-  iconSize: [38, 38],
-  iconAnchor: [19, 38],
-  popupAnchor: [0, -30],
-});
 
 interface MapModalProps {
   open: boolean;
@@ -27,6 +17,27 @@ interface MapModalProps {
 
 const MapModal: React.FC<MapModalProps> = ({ open, onClose, latitude, longitude }) => {
   const [viewMode, setViewMode] = useState<'satellite' | 'map'>('map');
+  const [customIcon, setCustomIcon] = useState<any>(null);
+
+  // Import Leaflet and its CSS only in the client
+  useEffect(() => {
+    const L = require('leaflet');
+    require('leaflet/dist/leaflet.css');
+
+    // Custom icon for the marker
+    const icon = L.icon({
+      iconUrl: 'https://airline-datacenter.s3.ap-south-1.amazonaws.com/9b4fa661-ee97-4f62-b3ac-c605eec1d678.png',
+      iconSize: [38, 38],
+      iconAnchor: [19, 38],
+      popupAnchor: [0, -30],
+    });
+
+    setCustomIcon(icon);
+
+    return () => {
+      // Cleanup: Any necessary cleanup can be done here
+    };
+  }, []);
 
   const handleToggleView = () => {
     setViewMode((prevMode) => (prevMode === 'map' ? 'satellite' : 'map'));
@@ -48,7 +59,7 @@ const MapModal: React.FC<MapModalProps> = ({ open, onClose, latitude, longitude 
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
           )}
-          <Marker position={[latitude, longitude]} icon={customIcon} />
+          {customIcon && <Marker position={[latitude, longitude]} icon={customIcon} />}
         </MapContainer>
       </DialogContent>
       <DialogActions>

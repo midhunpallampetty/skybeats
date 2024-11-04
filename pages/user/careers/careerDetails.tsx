@@ -1,18 +1,23 @@
-'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { RootState } from '@/redux/store'; 
+
 const Navbar = dynamic(() => import('../../components/Navbar'));
 
 const CareerDetails = () => {
   const router = useRouter();
   const selectedJob = useSelector((state: RootState) => state.job.selectedJob);
 
+  useEffect(() => {
+    if (!selectedJob) {
+      router.push('/user/careers/jobBoard');
+    }
+  }, [selectedJob, router]);
+
   if (!selectedJob) {
-    router.push('/user/careers/jobBoard');
-    return null; 
+    return null; // You can also return a loading spinner or placeholder here
   }
 
   return (
@@ -37,7 +42,7 @@ const CareerDetails = () => {
 
               <div className="mt-4">
                 <h3 className="text-lg font-semibold text-gray-800">Job Information</h3>
-                
+                {/* Add more job information here if needed */}
               </div>
 
               <div className="mt-6">
@@ -47,7 +52,9 @@ const CareerDetails = () => {
                 >
                   Back to Job Board
                 </button>
-                <button className='ml-5 bg-green-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg' onClick={(()=>router.push('/user/careers/applyCareer'))}>Apply</button>
+                <button className='ml-5 bg-green-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg' onClick={() => router.push('/user/careers/applyCareer')}>
+                  Apply
+                </button>
               </div>
             </div>
           </div>
