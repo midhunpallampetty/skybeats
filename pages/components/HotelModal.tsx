@@ -12,10 +12,28 @@ const BookingSummaryModal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  // Move useSelector outside of conditional rendering
   const bookdata = useSelector((state: RootState) => state.hotelGuestData.selectedUser);
 
   if (!isOpen) return null;
+  
+  if (!bookdata) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="bg-white w-full max-w-lg rounded-lg p-8">
+          <h2 className="text-2xl font-bold mb-4">Booking Summary</h2>
+          <p>No booking data available.</p>
+          <div className="flex justify-end">
+            <button
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              onClick={onClose}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">

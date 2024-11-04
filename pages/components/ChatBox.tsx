@@ -26,12 +26,13 @@
           audioRef.current.play();
         }
       };
-      const containerRef = useRef(null);
+      const containerRef = useRef<HTMLDivElement | null>(null);
       useEffect(() => {
         if (containerRef.current) {
           containerRef.current.scrollTop = containerRef.current.scrollHeight;
         }
-      }, []);
+      }, [messages]);
+      
       function removeSymbols(text: string) {
         return text.replace(/[#*]/g, '');
       }
@@ -100,13 +101,13 @@
       };
       
       // Function to filter airline-related content
-      const isAirlineRelated = (text) => {
+      const isAirlineRelated = (text:string):boolean => {
         const airlineKeywords = ['flight', 'airline', 'ticket', 'boarding', 'PNR', 'check-in', 'baggage', 'departure', 'arrival', 'airport', 'seat', 'pilot', 'crew', 'cabin', 'airfare', 'booking', 'destination'];
         return airlineKeywords.some((keyword) => text.toLowerCase().includes(keyword));
       };
       
       // Function to check if the response contains code snippets
-      const containsCode = (text) => {
+      const containsCode = (text:string):boolean => {
         const codePattern = /<code>|<\/code>|```|;|{|}/g;
         return codePattern.test(text);
       };

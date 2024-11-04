@@ -1,5 +1,6 @@
 export interface Guests{
-    email:string
-    phoneNumber:string
+    firstName:string;
+    email:string;
+    phoneNumber:string;
     guestName:string
 }

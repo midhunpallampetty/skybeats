@@ -1,5 +1,17 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { gql, GraphQLClient } from 'graphql-request';
+interface Application {
+  coverLetter: string;
+  cv: string;
+  email: string;
+  name: string;
+  phone: string;
+  Date: string;
+}
+
+interface GetAllApplicationsResponse {
+  getAllApplication: Application[];
+}
 
 // Define the GraphQL query
 const GET_ALL_APPLICATIONS = gql`
@@ -22,7 +34,7 @@ const getAllApplications = async (req: NextApiRequest, res: NextApiResponse) => 
 
   try {
     // Make the request to the GraphQL API
-    const data = await graphQLClient.request(GET_ALL_APPLICATIONS);
+    const data = await graphQLClient.request<GetAllApplicationsResponse>(GET_ALL_APPLICATIONS);
 
     // Ensure the data contains the applications
     const applications = data?.getAllApplication || [];

@@ -1,8 +1,9 @@
-import NextAuth from 'next-auth';
+import NextAuth from 'next-auth/next';
 import GoogleProvider from 'next-auth/providers/google';
 import { gql } from 'graphql-request';
 import { JWT } from 'next-auth/jwt';
 import type { NextApiRequest, NextApiResponse } from 'next';
+
 const authOptions = {
   providers: [
     GoogleProvider({
@@ -10,7 +11,7 @@ const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
     }),
   ],
-  session: { strategy: 'jwt' },
+  session: { strategy: 'jwt' as const }, // Directly specify 'jwt' as a literal type
   callbacks: {
     async jwt({ token, account, user }: { token: JWT; account?: any; user?: any }) {
       if (account && user) {
@@ -90,4 +91,6 @@ const authOptions = {
   },
 };
 
-export default (req:NextApiRequest, res:NextApiResponse) => NextAuth(req, res, authOptions);
+export default function authHandler(req: NextApiRequest, res: NextApiResponse) {
+  return NextAuth(req, res, authOptions);
+}

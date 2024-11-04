@@ -4,5 +4,6 @@ export interface User{
     guests:string,
     amount:number,
     bedType:string,
-    rooms:number
+    rooms:number,
+    firstName:string
 }

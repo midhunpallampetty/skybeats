@@ -5,25 +5,27 @@ import { Wallet, ArrowUpRight, Plus, X, ChevronUp, ChevronDown } from 'lucide-re
 import Cookies from 'js-cookie';
 import axios from 'axios';
 
-export default function WalletModal({ isOpen, onClose }) {
+interface WalletModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState('');
   const [showTransactions, setShowTransactions] = useState(false);
-  const [transactions, setTransactions] = useState(null);
-  const [currentPage, setCurrentPage] = useState(0); // New state for pagination
-  const transactionsPerPage = 3; // Number of transactions to display per page
+  const [transactions, setTransactions] = useState<any[]>([]); // Adjust type based on transaction structure
+  const [currentPage, setCurrentPage] = useState(0);
+  const transactionsPerPage = 3;
   const userId = Cookies.get('userId');
 
-  // Fetch wallet balance and transactions
   useEffect(() => {
     const fetchTransactions = async () => {     
       try {
         const response = await axios.post('/api/transactionHistory', { userId }, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
+          headers: { 'Content-Type': 'application/json' }
         });
-        setTransactions(response.data.ListTransactions); // Access ListTransactions array
+        setTransactions(response.data.ListTransactions);
       } catch (error) {
         console.error('Error fetching transaction history:', error);
       }
@@ -38,14 +40,11 @@ export default function WalletModal({ isOpen, onClose }) {
     const fetchBalance = async () => {     
       try {
         const response = await axios.post('/api/getWallet', { userId }, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
+          headers: { 'Content-Type': 'application/json' }
         });
-        setBalance(response.data.walletBalance); // Access ListTransactions array
-        console.log(response.data.walletBalance);
+        setBalance(response.data.walletBalance);
       } catch (error) {
-        console.error('Error fetching transaction history:', error);
+        console.error('Error fetching wallet balance:', error);
       }
     };
 
@@ -54,22 +53,13 @@ export default function WalletModal({ isOpen, onClose }) {
     }
   }, [userId]);
 
+  const toggleTransactions = () => setShowTransactions(!showTransactions);
 
-  // Handle withdraw
-
-
-  // Toggle showing transactions
-  const toggleTransactions = () => {
-    setShowTransactions(!showTransactions);
-  };
-
-  // Pagination: Calculate start and end index for the current page
   const startIndex = currentPage * transactionsPerPage;
   const endIndex = startIndex + transactionsPerPage;
-  const paginatedTransactions = transactions ? transactions.slice(startIndex, endIndex) : [];
+  const paginatedTransactions = transactions.slice(startIndex, endIndex);
 
-  // Handle pagination
-  const handleNextPage = () => {                  
+  const handleNextPage = () => {
     if (endIndex < transactions.length) {
       setCurrentPage((prevPage) => prevPage + 1);
     }
@@ -81,7 +71,7 @@ export default function WalletModal({ isOpen, onClose }) {
     }
   };
 
-  if (!isOpen) return null; // Don't render modal if it's not open
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -102,12 +92,8 @@ export default function WalletModal({ isOpen, onClose }) {
             <p className="text-4xl font-bold">₹{balance.toFixed(2)}</p>
           </div>
 
-          <div className="space-y-4">
-            
-                                                                          
-          </div>
+          <div className="space-y-4"></div>
 
-          {/* Toggle button for transactions */}
           <div className="mt-6">
             <button
               onClick={toggleTransactions}
@@ -125,7 +111,6 @@ export default function WalletModal({ isOpen, onClose }) {
             </button>
           </div>
 
-          {/* Conditionally render paginated transactions */}
           {showTransactions && paginatedTransactions.length > 0 ? (
             <div className="mt-4 space-y-4">
               <h3 className="text-lg font-bold text-gray-700">Transaction History</h3>
@@ -141,7 +126,6 @@ export default function WalletModal({ isOpen, onClose }) {
                 ))}
               </ul>
 
-              {/* Pagination controls */}
               <div className="flex justify-between mt-4">
                 <button
                   onClick={handlePreviousPage}

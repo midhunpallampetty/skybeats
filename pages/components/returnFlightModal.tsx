@@ -18,7 +18,11 @@ interface Flight {
   price: number;
   date: string;
   rewards: number;
+  value: string; // Add this based on your Redux slice expectations
+  stops: number; // Add this based on your Redux slice expectations
+  Date: string;  // Add this based on your Redux slice expectations (if required)
 }
+
 
 interface FlightModalProps {
   isVisible: boolean;
