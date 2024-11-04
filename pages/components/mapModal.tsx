@@ -1,7 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import dynamic from 'next/dynamic';
+
+// Dynamically import MapContainer, TileLayer, and Marker to avoid SSR issues
+const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import('react-leaflet').then((mod) => mod.TileLayer), { ssr: false });
+const Marker = dynamic(() => import('react-leaflet').then((mod) => mod.Marker), { ssr: false });
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -28,9 +33,9 @@ const MapModal: React.FC<MapModalProps> = ({ open, onClose, latitude, longitude 
   };
 
   return (
-    <Dialog  open={open} onClose={onClose} maxWidth="lg" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle>Map View</DialogTitle>
-      <DialogContent >
+      <DialogContent>
         <MapContainer center={[latitude, longitude]} zoom={13} style={{ height: '400px', width: '100%' }}>
           {viewMode === 'satellite' ? (
             <TileLayer
@@ -43,12 +48,10 @@ const MapModal: React.FC<MapModalProps> = ({ open, onClose, latitude, longitude 
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
           )}
-
           <Marker position={[latitude, longitude]} icon={customIcon} />
         </MapContainer>
       </DialogContent>
       <DialogActions>
-        {/* Button to toggle between map and satellite views */}
         <Button onClick={handleToggleView} color="primary">
           Switch to {viewMode === 'map' ? 'Satellite' : 'Map'} View
         </Button>

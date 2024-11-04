@@ -19,7 +19,6 @@
     },
     "types": ["tailwindcss/tailwind-config"]
   },
-  
   "include": [
     "./types",
     "./config/tailwind.config.ts",
