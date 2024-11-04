@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       // Make a request to your existing backend GraphQL API
-      const response = await fetch('http://localhost:3300/graphql', {
+      const response = await fetch('https://skybeats.neptunemusics.shop/graphql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

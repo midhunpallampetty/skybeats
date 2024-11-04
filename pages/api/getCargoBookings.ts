@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 // Initialize Apollo Client
 const client = new ApolloClient({
-  uri: 'http://localhost:3300/graphql',
+  uri: 'https://skybeats.neptunemusics.shop/graphql',
   cache: new InMemoryCache(),
 });
 

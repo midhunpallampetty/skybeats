@@ -25,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // Send request to your backend GraphQL endpoint (adjust URL as needed)
-    const response = await fetch('http://localhost:3300/graphql', {
+    const response = await fetch('https://skybeats.neptunemusics.shop/graphql', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

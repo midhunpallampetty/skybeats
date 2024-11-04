@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { gql, GraphQLClient } from 'graphql-request';
 
-const endpoint = 'http://localhost:3300/graphql';
+const endpoint = 'https://skybeats.neptunemusics.shop/graphql';
 const client = new GraphQLClient(endpoint);
 
 const SAVE_PASSENGER_INFO_MUTATION = gql`

@@ -5,7 +5,7 @@ import { Flight } from '../../interfaces/flight';
 const searchFlights = async (req: NextApiRequest, res: NextApiResponse) => {
   const { from, to } = req.body;
 
-  const graphQLClient = new GraphQLClient('http://localhost:3300/graphql');
+  const graphQLClient = new GraphQLClient('https://skybeats.neptunemusics.shop/graphql');
 
   const query = gql`
     query searchFlights($fromAirport: String!, $toAirport: String!) {

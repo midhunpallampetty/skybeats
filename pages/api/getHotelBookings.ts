@@ -25,7 +25,7 @@ const getHotelBookings = async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(400).json({ msg: 'userId is required' });
     }
 
-    const graphQLClient = new GraphQLClient('http://localhost:3300/graphql');
+    const graphQLClient = new GraphQLClient('https://skybeats.neptunemusics.shop/graphql');
     
     // Updated query to accept userId as a parameter
     const query = gql`
