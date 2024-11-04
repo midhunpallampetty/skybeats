@@ -6,7 +6,7 @@ const searchFlights = async (req: NextApiRequest, res: NextApiResponse) => {
   const { from, to } = req.body;
   console.log('Received request body:', req.body);
 
-  const graphQLClient = new GraphQLClient('http://localhost:3300/graphql');
+  const graphQLClient = new GraphQLClient('https://skybeats.neptunemusics.shop/graphql');
 
   const query = gql`
     query SearchFlights($from: String!, $to: String!) {
