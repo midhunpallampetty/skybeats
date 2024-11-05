@@ -14,8 +14,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const airports = await AirPort.getAllAirports();
     res.status(200).json(airports);
-  } catch (error) {
-    console.error('Error fetchingddwdwdwd bustop:', error);
+  } catch (error:any) {
+    console.error('Error fetching airports:', error.message, error.stack);
     res.status(500).json({ message: 'Error fetching airports' });
   }
+  
 };
