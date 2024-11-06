@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { AirPort } from 'airport-nodejs';
+
+const AIRPORT_DATA_URL = 'https://airline-datacenter.s3.ap-south-1.amazonaws.com/airport-city.txt'; // Replace with actual CDN URL
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins
@@ -12,11 +13,14 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   try {
-    const airports = await AirPort.getAllAirports();
+    const response = await fetch(AIRPORT_DATA_URL);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch airport data. Status: ${response.status}`);
+    }
+    const airports = await response.json();
     res.status(200).json(airports);
-  } catch (error:any) {
+  } catch (error: any) {
     console.error('Error fetching airports:', error.message, error.stack);
     res.status(500).json({ message: 'Error fetching airports' });
   }
-  
 };
