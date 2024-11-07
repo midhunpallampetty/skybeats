@@ -88,7 +88,7 @@ console.log(guestDetails);
       console.error('Payment error:', result.error.message);
     } else if (result.paymentIntent?.status === 'succeeded') {
       console.log('Payment successful!');
-      axios.post('/api/saveHotelBooking', data, {
+      axios.post('https://www.skybeats.site/api/saveHotelBooking', data, {
         headers: {
           'Content-Type': 'application/json',
         },
