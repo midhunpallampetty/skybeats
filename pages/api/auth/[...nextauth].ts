@@ -84,9 +84,9 @@ const authOptions = {
 
     async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       if (url === '/api/auth/callback/google') {
-        return `https://www.skybeats.site/?googleauth=true`;
+        return `${baseUrl}/?googleauth=true`;
       }
-      return `https://www.skybeats.site/?googleauth=true`;
+      return `${baseUrl}/?googleauth=true`;
     },
   },
 };
