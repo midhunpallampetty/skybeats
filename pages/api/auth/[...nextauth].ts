@@ -26,7 +26,7 @@ const authOptions = {
         `;
 
         try {
-          const response = await fetch('http://localhost:3300/graphql', {
+          const response = await fetch('https://skybeats.neptunemusics.shop/graphql', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
