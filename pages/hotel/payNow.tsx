@@ -88,7 +88,7 @@ console.log(guestDetails);
       console.error('Payment error:', result.error.message);
     } else if (result.paymentIntent?.status === 'succeeded') {
       console.log('Payment successful!');
-      axios.post('http://localhost:3000/api/saveHotelBooking', data, {
+      axios.post('/api/saveHotelBooking', data, {
         headers: {
           'Content-Type': 'application/json',
         },
