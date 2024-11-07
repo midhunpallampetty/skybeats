@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { GraphQLClient, gql } from 'graphql-request';
 
 const getBookings = async (req: NextApiRequest, res: NextApiResponse) => {
-    const graphQLClient = new GraphQLClient('http://localhost:3300/graphql');
+    const graphQLClient = new GraphQLClient('https://skybeats.neptunemusics.shop/graphql');
 
     // Define the GraphQL query with the required fields
     const query = gql`

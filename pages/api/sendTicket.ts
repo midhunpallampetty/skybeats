@@ -45,6 +45,9 @@ const CREATE_BOOKING_MUTATION = gql`
 `;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  res.setHeader('Access-Control-Allow-Origin', '*'); 
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   const ticketImagePath = path.join(process.cwd(), 'public', 'ticket-Photoroom.png');
   const logoImagePath = path.join(process.cwd(), 'public', 'logo-Photoroom-light.png');
 
