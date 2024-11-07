@@ -84,7 +84,7 @@ const authOptions = {
 
     async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       if (url === '/api/auth/callback/google') {
-        return `${baseUrl}/?googleauth=true`;
+        return `${baseUrl}/api/auth/callback/google?googleauth=true`;
       }
       return `${baseUrl}/?googleauth=true`;
     },
