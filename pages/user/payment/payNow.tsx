@@ -133,14 +133,14 @@ const handleSubmit = async (event: React.FormEvent) => {
 
     const handleRequests = async (data: {}, data2?: {}) => {
       try {
-        const sendTicketAndBookingRequest = await axios.post('http://localhost:3000/api/sendTicket', data, {
+        const sendTicketAndBookingRequest = await axios.post('/api/sendTicket', data, {
           headers: {
             'Content-Type': 'application/json',
           },
         });
 
         if (returnFlight && data2) {
-          const sendReturnTicketAndBookingRequest = await axios.post('http://localhost:3000/api/bookReturn', data2, {
+          const sendReturnTicketAndBookingRequest = await axios.post('/api/bookReturn', data2, {
             headers: {
               'Content-Type': 'application/json',
             },
