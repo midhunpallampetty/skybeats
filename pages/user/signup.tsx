@@ -280,7 +280,7 @@ const Signup: React.FC = () => {
                 Register
               </button>
               {error && (
-                <p className="text-red-500 mb-4">Error: {error.message}</p>
+                <p className="text-red-500 mb-4">User Already Exists</p>
               )}
               <div className="text-sm font-medium text-white dark:white-black">
                 Already Registered?{' '}
