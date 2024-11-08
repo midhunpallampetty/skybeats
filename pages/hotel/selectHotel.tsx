@@ -33,7 +33,7 @@ const SelectHotel = () => {
 
   const handleBookHotel = () => {
     dispatch(setSelectedUser({ checkin, checkout, guests, rooms, bedType, amount }));
-    alert(JSON.stringify(details));
+    
     router.push('/hotel/hotelBookDetail');
   };
 

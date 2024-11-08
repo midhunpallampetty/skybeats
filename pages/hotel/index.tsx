@@ -22,6 +22,7 @@ import { AnyNaptrRecord } from 'dns';
 import { OptionType } from '@/interfaces/OptionType';
 import { CityOption } from '@/interfaces/cityOption';
 import { IMycity } from '@/interfaces/IMyCity';
+import Swal from 'sweetalert2';
 import { RootState } from '@/redux/store';
 
 const Hotels: React.FC = () => {
@@ -183,12 +184,12 @@ const router=useRouter();
   const handleSearchHotels = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!selectedCity) {
-      alert('Please select a city.');
+      Swal.fire('Please select a city.');
       return;
     }
     
     if (!startDate || !endDate) {
-      alert('Please select both start and end dates.');
+      Swal.fire('Please select both start and end dates.');
       return;
     }
     if (selectedCity && startDate && endDate) {

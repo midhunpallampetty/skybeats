@@ -44,7 +44,7 @@ console.log(guestDetails);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    alert(getGuestDetails?.amount);
+   
 
     if (!stripe || !elements || !clientSecret) {
       return;
