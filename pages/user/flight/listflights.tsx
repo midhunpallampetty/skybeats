@@ -240,7 +240,7 @@ const ListFlights: React.FC = () => {
 
           }}
         >
-          <div className="container mx-auto p-8 bg-blue-950 text-black   rounded-xl flex w-[850px] flex-col justify-center space-y-6">
+          <div className="container mx-auto p-4 sm:p-8 bg-blue-950 text-black rounded-xl flex flex-col w-full max-w-lg sm:max-w-xl lg:w-[850px] justify-center space-y-6">
             <form onSubmit={handleSearch}>
               <div className="flex flex-col items-center space-y-4">
                 <div className="flex space-x-4">
