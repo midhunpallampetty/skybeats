@@ -30,7 +30,7 @@ const UserChat: React.FC = () => {
   }, []);
   // Initialize Socket.io connection
   useEffect(() => {
-    const socketConnection: Socket = io('http://localhost:3300'); // Replace with your backend Socket.io URL
+    const socketConnection: Socket = io('https://skybeats.neptunemusics.shop'); // Replace with your backend Socket.io URL
     setSocket(socketConnection);
 
     // Identify as user
