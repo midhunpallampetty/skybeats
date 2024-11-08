@@ -24,7 +24,7 @@ const AdminChat: React.FC = () => {
   const [socket, setSocket] = useState<any | null>(null);
 
   useEffect(() => {
-    const socketConnection: any = io('https://skybeats.neptunemusics.shop');
+    const socketConnection: any = io('http://localhost:3300');
     setSocket(socketConnection);
 
     socketConnection.emit('identify', 'admin');
@@ -135,8 +135,9 @@ const AdminChat: React.FC = () => {
                     <div key={msg.id} className={`flex items-end ${msg.from === 'admin' ? 'justify-end' : 'justify-start'}`}>
                       <div className={`relative rounded-lg p-3 ${msg.from === 'admin' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
                         <p className="font-semibold">
-                          {typeof msg.message === 'string' ? msg.message : JSON.stringify(msg.message)}
+                          {typeof msg.message === 'string' ? msg.message : msg.message?.message}
                         </p>
+
                       </div>
                       <span className="ml-2 text-[10px] text-white/60 font-thin font-sans">{msg.time}</span>
                     </div>
