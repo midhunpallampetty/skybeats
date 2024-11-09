@@ -228,20 +228,20 @@ const BookingDetailsPage: React.FC = () => {
             <div>
               <label className="block text-sm font-medium">Email</label>
               <input
-                type="text"
-                value={commonDetails.email}
-                disabled
-                className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+    type="text"
+    value={commonDetails.email}
+    onChange={(e) => handleCommonInputChange('email', e.target.value)}
+    className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
             </div>
             <div>
               <label className="block text-sm font-medium">Phone Number</label>
               <input
-                type="text"
-                value={commonDetails.phoneNumber}
-                disabled
-                className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+    type="text"
+    value={commonDetails.phoneNumber}
+    onChange={(e) => handleCommonInputChange('phoneNumber', e.target.value)}
+    className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
             </div>
           </div>
 
