@@ -57,8 +57,11 @@ const handleSubmit = async (event: React.FormEvent) => {
   event.preventDefault();
 
   const seatArray: string[] = selectedSeat.map((seat: any) => seat._id);
-  const passengerArray = passengers.passengers.map((passenger: any) => passenger);
-
+  const passengerArray = passengers.passengers.map((passenger: any) => ({
+    ...passenger,
+    age: String(passenger.age), // Convert age to a string
+  }));
+  
   if (!stripe || !elements || !clientSecret) {
     return;
   }

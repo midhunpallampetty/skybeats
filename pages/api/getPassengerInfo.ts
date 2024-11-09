@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { gql, GraphQLClient } from 'graphql-request';
 
-const endpoint = 'https://skybeats.neptunemusics.shop/graphql';
+const endpoint = 'http://localhost:3300/graphql';
 const client = new GraphQLClient(endpoint);
 
 const GET_PASSENGER_INFO_QUERY = gql`
@@ -15,6 +15,7 @@ const GET_PASSENGER_INFO_QUERY = gql`
       passportNumber
       phone
       userId
+      age
     }
   }
 `;
