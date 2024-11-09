@@ -9,6 +9,8 @@ import { useRouter } from 'next/router';
 import { setAircraftModel } from '@/redux/slices/aircraftModelSlice';
 import { setSelectedSeat, clearSelectedSeat, clearSpecificSeat } from '@/redux/slices/selectedSeat';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SelectSeats: React.FC = () => {
     const userId = Cookies.get('userId');
@@ -22,20 +24,18 @@ const SelectSeats: React.FC = () => {
     const selectedSeats = useSelector((state: RootState) => state.selectedSeats.selectedSeats);
     const [localSelectedSeats, setLocalSelectedSeats] = useState<any[]>([]);
 
+    const totalPassengers = passengerCount?.adults + passengerCount?.seniors + passengerCount?.children + passengerCount?.infants;
+
     useEffect(() => {
         setTimeout(() => setIsLoading(false), 5000);
     }, []);
 
-    // Redirect if any critical data is missing
     useEffect(() => {
         if (!selectedFlight || !selectedSeats || !seats) {
             router.push('/user/flight/listflights');
         }
     }, [selectedFlight, selectedSeats, seats, router]);
 
-    const totalPassengers = passengerCount?.adults + passengerCount?.seniors + passengerCount?.children + passengerCount?.infants;
-
-    // Fetch aircraft model
     useEffect(() => {
         const fetchAircraftModel = async () => {
             try {
@@ -56,13 +56,11 @@ const SelectSeats: React.FC = () => {
         }
     }, [selectedFlight?.flightNumber, selectedFlight?.airline, dispatch]);
 
-    // Clear selected seats on component mount
     useEffect(() => {
         dispatch(clearSelectedSeat());
         setLocalSelectedSeats([]);
     }, [dispatch]);
 
-    // Fetch seats based on aircraft model
     useEffect(() => {
         const fetchSeats = async () => {
             if (!aircraftModel) return;
@@ -99,39 +97,41 @@ const SelectSeats: React.FC = () => {
         const alreadySelected = localSelectedSeats.find(s => s._id === seat._id);
         const seatPrice = getPriceByClass(seat.class);
 
+        if (localSelectedSeats.length >= totalPassengers && !alreadySelected) {
+            toast.error(`You can select exactly ${totalPassengers} seats.`, {
+                position: "top-center",
+                autoClose: 3000,
+                hideProgressBar: true,
+            });
+            return;
+        }
+
         if (alreadySelected) {
             const updatedSeats = localSelectedSeats.filter(s => s._id !== seat._id);
             setLocalSelectedSeats(updatedSeats);
             dispatch(clearSpecificSeat(seat._id));
-        } else if (localSelectedSeats.length < totalPassengers) {
+        } else {
             const seatWithPrice = { ...seat, price: seatPrice };
             setLocalSelectedSeats([...localSelectedSeats, seatWithPrice]);
             dispatch(setSelectedSeat(seatWithPrice));
-        } else {
-            console.log('Cannot select more than the allowed number of seats.');
         }
     };
 
     const handleContinueWithSelectedSeat = () => {
-        if (localSelectedSeats.length > 0) {
+        if (localSelectedSeats.length === totalPassengers) {
             router.push('/user/flight/bookingdetails');
         } else {
-            console.log('No seats selected.');
+            toast.error(`Please select exactly ${totalPassengers} seats.`, {
+                position: "top-center",
+                autoClose: 3000,
+                hideProgressBar: true,
+            });
         }
     };
 
-    const handleSkipSelection = () => {
-        setLocalSelectedSeats([]);
-        dispatch(clearSelectedSeat());
-        router.push('/user/flight/bookingdetails');
-    };
-
-    if (!selectedFlight || !selectedSeats || !seats) {
-        return null;
-    }
-
     return (
         <>
+            <ToastContainer />
             {isLoading ? (
                 <div className="flex justify-center items-center h-screen bg-gray-900 text-white">
                     <div className="text-center">
@@ -168,19 +168,6 @@ const SelectSeats: React.FC = () => {
                                         >
                                             <div className="w-8 h-12 text-white font-extrabold">
                                                 {seat.row}{seat.col}
-                                            </div>
-                                            <div className="absolute top-[-10px] p-4 bg-transparent text-white text-sm rounded shadow-lg opacity-0 hover:opacity-100 transition-opacity duration-300 z-10">
-                                                <div className="relative flex min-w-32 items-center gap-2">
-                                                    <div className="relative w-60 h-12 rounded overflow-hidden">
-                                                        <img src="https://airline-datacenter.s3.ap-south-1.amazonaws.com/al-soot-q9-rkEJfIG4-unsplash-scaled.jpg" alt={`Seat ${seat.row}${seat.col}`} className="w-40 h-full object-cover" />
-                                                        <span className="absolute top-0 left-0 bg-black bg-opacity-50 text-white text-sm font-extrabold p-1">
-                                                            Seat: {seat.row}{seat.col}
-                                                        </span>
-                                                        <span className="absolute bottom-0 left-0 bg-black bg-opacity-50 text-white text-[8px] font-semibold p-1">
-                                                            Price: ₹{getPriceByClass(seat.class)}
-                                                        </span>
-                                                    </div>
-                                                </div>
                                             </div>
                                         </div>
                                     ))

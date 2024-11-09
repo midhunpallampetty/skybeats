@@ -36,37 +36,64 @@ const BookingDetailsPage: React.FC = () => {
   const [commonDetails, setCommonDetails] = useState<CommonDetails>({ email: '', phoneNumber: '' });
   const [errors, setErrors] = useState<Record<number, Record<string, boolean>>>({});
   const [isChecked, setIsChecked] = useState(false);
-
+  const passengerTotal=selectedSeat.length;
+  console.log(passengerTotal)
   const token = Cookies.get('jwtToken');
   const userId = Cookies.get('userId');
+console.log(passengerDetails,'zzzzzzzzzzzz')
+const fetchPassengerInfo = async () => {
+  try {
+    const response = await axios.post('/api/getPassengerInfo', { userId }, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const passengerInfoArray = response.data.getPassengerInfo;
 
-  const fetchPassengerInfo = async () => {
-    try {
-      const response = await axios.post('/api/getPassengerInfo', { userId }, {
-        headers: { 'Content-Type': 'application/json' }
+    // Limit passenger data to the number of seats selected
+    const availablePassengerInfo = passengerInfoArray.slice(0, selectedSeat.length);
+
+    // Populate the passenger details fields based on available fetched data
+    const populatedPassengerDetails = selectedSeat.map((_, index) => {
+      const passengerInfo = availablePassengerInfo[index] || {};
+      return {
+        firstName: passengerInfo.firstName || '',
+        middleName: passengerInfo.middleName || '',
+        lastName: passengerInfo.lastName || '',
+        age: passengerInfo.age || '',
+        passportNumber: passengerInfo.passportNumber || '',
+        disability: '', // or passengerInfo.disability if available
+      };
+    });
+
+    setPassengerDetailsState(populatedPassengerDetails);
+
+    // Set common details for email and phone number
+    if (availablePassengerInfo.length > 0) {
+      setCommonDetails({
+        email: availablePassengerInfo[0].email || '',
+        phoneNumber: availablePassengerInfo[0].phone || '',
       });
-      const passengerInfoArray = response.data.getPassengerInfo;
-
-      if (passengerInfoArray?.length > 0) {
-        const mappedPassengerDetails = passengerInfoArray.map((passengerInfo: any) => ({
-          firstName: passengerInfo.firstName || '',
-          middleName: passengerInfo.middleName || '',
-          lastName: passengerInfo.lastName || '',
-          age: passengerInfo.age,
-          passportNumber: passengerInfo.passportNumber || '',
-          disability: '',
-        }));
-        setPassengerDetailsState(mappedPassengerDetails);
-        setCommonDetails({
-          email: passengerInfoArray[0].email || '',
-          phoneNumber: passengerInfoArray[0].phone || '',
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching passenger info:', error);
     }
-  };
+  } catch (error) {
+    console.error('Error fetching passenger info:', error);
+  }
+};
 
+useEffect(() => {
+  if (selectedSeat.length > 0 && passengerDetails.length === 0) {
+    const mappedPassengers = selectedSeat.map((_, index) => {
+      const passengerInfo = passengerDetails?.[index] || {};
+      return {
+        firstName: passengerInfo.firstName || '',
+        middleName: passengerInfo.middleName || '',
+        lastName: passengerInfo.lastName || '',
+        age: passengerInfo.age || '',
+        passportNumber: passengerInfo.passportNumber || '',
+        disability: passengerInfo.disability || '',
+      };
+    });
+    setPassengerDetailsState(mappedPassengers);
+  }
+}, [selectedSeat, passengerDetails]);
   const savePassengerInfo = async () => {
     for (let passenger of passengerDetails) {
       const data = {
@@ -246,71 +273,71 @@ const BookingDetailsPage: React.FC = () => {
           </div>
 
           <h2 className="text-2xl font-semibold mb-4 mt-8">Passenger Details</h2>
-          {passengerDetails.map((passenger, index) => (
-            <div key={index} className="border p-4 mb-4 rounded-md shadow-sm">
-              <h3 className="text-lg font-semibold mb-2">Passenger {index + 1}</h3>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium">First Name</label>
-                  <input
-                    type="text"
-                    value={passenger.firstName}
-                    onChange={(e) => handleInputChange(index, 'firstName', e.target.value)}
-                    className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  {errors[index]?.firstName && <p className="text-red-500 text-sm mt-1">First Name is required</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium">Middle Name</label>
-                  <input
-                    type="text"
-                    value={passenger.middleName}
-                    onChange={(e) => handleInputChange(index, 'middleName', e.target.value)}
-                    className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium">Last Name</label>
-                  <input
-                    type="text"
-                    value={passenger.lastName}
-                    onChange={(e) => handleInputChange(index, 'lastName', e.target.value)}
-                    className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  {errors[index]?.lastName && <p className="text-red-500 text-sm mt-1">Last Name is required</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium">Age</label>
-                  <input
-                    type="text"
-                    value={passenger.age}
-                    onChange={(e) => handleInputChange(index, 'age', e.target.value)}
-                    className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  {errors[index]?.age && <p className="text-red-500 text-sm mt-1">Age is required and must be a valid number</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium">Passport Number</label>
-                  <input
-                    type="text"
-                    value={passenger.passportNumber}
-                    onChange={(e) => handleInputChange(index, 'passportNumber', e.target.value)}
-                    className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  {errors[index]?.passportNumber && <p className="text-red-500 text-sm mt-1">Passport number must be at least 6 characters</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium">Disability (if any)</label>
-                  <input
-                    type="text"
-                    value={passenger.disability}
-                    onChange={(e) => handleInputChange(index, 'disability', e.target.value)}
-                    className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
+          {selectedSeat.map((_, index) => (
+  <div key={index} className="border p-4 mb-4 rounded-md shadow-sm">
+    <h3 className="text-lg font-semibold mb-2">Passenger {index + 1}</h3>
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div>
+        <label className="block text-sm font-medium">First Name</label>
+        <input
+          type="text"
+          value={passengerDetails[index]?.firstName || ''}
+          onChange={(e) => handleInputChange(index, 'firstName', e.target.value)}
+          className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {errors[index]?.firstName && <p className="text-red-500 text-sm mt-1">First Name is required</p>}
+      </div>
+      <div>
+        <label className="block text-sm font-medium">Middle Name</label>
+        <input
+          type="text"
+          value={passengerDetails[index]?.middleName || ''}
+          onChange={(e) => handleInputChange(index, 'middleName', e.target.value)}
+          className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium">Last Name</label>
+        <input
+          type="text"
+          value={passengerDetails[index]?.lastName || ''}
+          onChange={(e) => handleInputChange(index, 'lastName', e.target.value)}
+          className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {errors[index]?.lastName && <p className="text-red-500 text-sm mt-1">Last Name is required</p>}
+      </div>
+      <div>
+        <label className="block text-sm font-medium">Age</label>
+        <input
+          type="text"
+          value={passengerDetails[index]?.age || ''}
+          onChange={(e) => handleInputChange(index, 'age', e.target.value)}
+          className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {errors[index]?.age && <p className="text-red-500 text-sm mt-1">Age is required and must be a valid number</p>}
+      </div>
+      <div>
+        <label className="block text-sm font-medium">Passport Number</label>
+        <input
+          type="text"
+          value={passengerDetails[index]?.passportNumber || ''}
+          onChange={(e) => handleInputChange(index, 'passportNumber', e.target.value)}
+          className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {errors[index]?.passportNumber && <p className="text-red-500 text-sm mt-1">Passport number must be at least 6 characters</p>}
+      </div>
+      <div>
+        <label className="block text-sm font-medium">Disability (if any)</label>
+        <input
+          type="text"
+          value={passengerDetails[index]?.disability || ''}
+          onChange={(e) => handleInputChange(index, 'disability', e.target.value)}
+          className="mt-1 block w-full bg-gray-800 border rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+    </div>
+  </div>
+))}
           <div className="flex items-center my-4">
             <input type="checkbox" checked={isChecked} onChange={handleCheckboxChange} className="mr-2" />
             <label>Save information for future bookings</label>
