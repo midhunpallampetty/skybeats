@@ -147,23 +147,36 @@ useEffect(() => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
+    // Check if all passenger details are filled
     const hasPassengerErrors = Object.values(errors).some((errorSet) =>
       Object.values(errorSet).some((error) => error)
     );
-
-    if (!hasPassengerErrors) {
-      dispatch(setPassengerDetails({ ...commonDetails, passengers: passengerDetails }));
-      if (isChecked) await savePassengerInfo();
-      router.push('/user/payment/payNow');
-    } else {
+  
+    // Check if any passenger details are empty
+    const hasEmptyFields = passengerDetails.some((passenger) => 
+      !passenger.firstName || 
+      !passenger.lastName || 
+      !passenger.age || 
+      !passenger.passportNumber
+    );
+  
+    // If there are empty fields or validation errors, show an alert
+    if (hasEmptyFields || hasPassengerErrors) {
       Swal.fire({
-        text: 'Please correct the errors in the form',
+        text: 'Please fill all the required fields and correct any errors.',
         icon: 'error',
         background: '#05043d',
       });
+      return;
     }
+  
+    // If no errors, save the passenger details and proceed to payment
+    dispatch(setPassengerDetails({ ...commonDetails, passengers: passengerDetails }));
+    if (isChecked) await savePassengerInfo();
+    router.push('/user/payment/payNow');
   };
+  
 
   useEffect(() => {
     if (!token) router.push('/');
