@@ -56,10 +56,11 @@ const SuperAdminDashboard: React.FC = () => {
         },
         {
             id: 6,
-            name: 'More',
+            name: 'Menu',
             email: 'offers@example.com',
             isBlocked: false,
-            imageUrl: 'https://img.freepik.com/free-vector/red-grunge-style-coming-soon-design_1017-26691.jpg'
+            imageUrl: 'https://img.freepik.com/premium-photo/flight-attendant-serving-foods-plane_946209-4125.jpg',
+            Redirect:'/admin/Menu'
         },
     ];
 
@@ -115,7 +116,7 @@ const SuperAdminDashboard: React.FC = () => {
                                         (role !== 'hoteladmin' && user.name === 'Hotel Management') ||
                                         (role !== 'hradmin' && user.name === 'Career Management') ||
                                         (role !== 'flightoperator' && user.name === 'Flight Management') ||
-                                        (role !== 'cargomanager' && user.name === 'Cargo Management')
+                                        (role !== 'cargomanager' && user.name === 'Cargo Management')||(role !== 'hoteladmin' && user.name === 'Menu')
                                     ) ? 'border-gray-400 cursor-not-allowed opacity-50' : 'border-gray-600/60 cursor-pointer'} rounded-lg shadow-lg relative focus:outline-none`}
                                     onClick={() => {
                                         if (user.Redirect && !(

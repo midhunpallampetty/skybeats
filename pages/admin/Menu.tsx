@@ -41,8 +41,57 @@ const Menu: React.FC = () => {
       router.push('/admin/signin');
     }
   }, [token]);
+  useEffect(() => {
+    (async () => {
+       try {
+          console.log('Sending token to API:', token);
+          const response = await fetch('/api/tokenVerify', {
+             method: 'POST',
+             headers: {
+                'Content-Type': 'application/json',
+             },
+             body: JSON.stringify({ token }),
+          });
+          console.log('Response status:', response.status);
+          console.log('Response headers:', response.headers);
+          const data = await response.json();
+          console.log('Received data:', data);
 
+          setRole(data);
+
+
+
+          console.log(role, 'datahvbfdhvb');
+          if (!response.ok) {
+             console.error('Error from API:', data.message);
+          }
+       } catch (error) {
+          console.log('External api error');
+
+       }
+    })();
+ }, [token]);
   // Verify token and set role
+  useEffect(() => {
+    if (role !== null) {
+       console.log('Role has been updated:', role);
+       if (role === 'hoteladmin') {
+          console.log('Setting authorised to true');
+          setAuthorized(true);
+          console.log('role is fine', role);
+       }
+       console.log('test', authorized);
+
+    }
+ }, [role]);
+ useEffect(() => {
+  console.log('Authorised state updated:', authorized);
+}, [authorized]);
+useEffect(() => {
+  if (!token) {
+     router.push('/admin/signin');
+  }
+}, [token]);
   useEffect(() => {
     (async () => {
       try {
@@ -79,6 +128,7 @@ const Menu: React.FC = () => {
   if (error) return <p>Error: {error.message}</p>;
 
   return (
+    <>
     <div className="relative w-full h-full flex justify-center items-center text-white">
       <AdminNavbar />
 
@@ -130,11 +180,7 @@ const Menu: React.FC = () => {
 
                 {/* Centered Button */}
                 <div className="flex justify-center items-center mt-2">
-                  <button
-                    className="w-28 mx-auto flex items-center rounded-lg font-extrabold justify-center bg-blue-500/50 hover:bg-blue-600 text-white py-2 rounded-b-lg mb-2"
-                  >
-                    Remove
-                  </button>
+                 
                 </div>
               </div>
 
@@ -142,7 +188,10 @@ const Menu: React.FC = () => {
           </div>
         </div>
       </div>
+      <button onClick={()=>router.push('/admin/addMeal')} className='p-4 bg-blue-900 text-white font-extrabold rounded-lg'>Add Menu</button>
+
     </div>
+</>
   );
 };
 
