@@ -5,7 +5,7 @@ import { createCanvas, loadImage } from 'canvas';
 import path from 'path';
 import QRCode from 'qrcode';
 
-const endpoint = 'http://localhost:3300/graphql';
+const endpoint = 'https://skybeats.neptunemusics.shop/graphql';
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,

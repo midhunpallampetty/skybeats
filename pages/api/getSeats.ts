@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { GraphQLClient, gql } from 'graphql-request';
 
 // Initialize the GraphQL Client pointing to your server
-const graphQLClient = new GraphQLClient('http://localhost:3300/graphql');
+const graphQLClient = new GraphQLClient('https://skybeats.neptunemusics.shop/graphql');
 
 // GraphQL Query for fetching seats
 const GET_SEATS_QUERY = gql`
