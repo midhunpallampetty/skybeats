@@ -71,6 +71,7 @@ const SelectSeats: React.FC = () => {
                     body: JSON.stringify({ flightNumber: selectedFlight?.flightNumber, flightModel: aircraftModel }),
                 });
                 const data = await response.json();
+                console.log(data,'seats')
                 dispatch(setSeats(data || []));
             } catch (error: any) {
                 console.error('Error fetching seats:', error.message);
