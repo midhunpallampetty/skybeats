@@ -160,22 +160,45 @@ const SelectSeats: React.FC = () => {
                             <button onClick={handleContinueWithSelectedSeat} className="mb-4 px-4 py-2 bg-blue-500 text-white font-extrabold rounded mt-4">Continue</button>
                             <h2 className="text-2xl font-bold mb-4 text-white">Flight Seat Selection <span>{aircraftModel}</span></h2>
                             <div className="grid grid-cols-6 gap-4">
-                                {seats.length > 0 ? (
-                                    seats.map((seat, index) => (
-                                        <div
-                                            key={index}
-                                            className={`relative p-2 rounded ${seat.isBooked ? 'bg-gray-400 cursor-not-allowed' : localSelectedSeats.some(s => s._id === seat._id) ? 'bg-blue-500 cursor-pointer' : 'bg-gray-800 cursor-pointer'}`}
-                                            onClick={() => handleSeatClick(seat)}
-                                        >
-                                            <div className="w-8 h-12 text-white font-extrabold">
-                                                {seat.row}{seat.col}
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p>No seats available</p>
-                                )}
-                            </div>
+    {seats.length > 0 ? (
+        seats.map((seat, index) => (
+            <div
+                key={index}
+                className={`relative p-2 rounded ${
+                    seat.isBooked
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : localSelectedSeats.some(s => s._id === seat._id)
+                        ? 'bg-blue-500 cursor-pointer'
+                        : 'bg-gray-800 cursor-pointer'
+                }`}
+                onClick={() => handleSeatClick(seat)}
+            >
+                <div className="w-8 h-12 text-white font-extrabold">
+                    {seat.row}{seat.col}
+                </div>
+                
+                {/* Hover overlay */}
+                <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-75 rounded-md flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                    <img src="https://planelyalex.com/wp-content/uploads/2023/03/al-soot-q9-rkEJfIG4-unsplash-scaled.jpg" alt="Seat Image" className="w-8 h-8 mb-2" />
+                    <p className="text-white text-[10px] font-semibold">
+                        {seat.class}
+                    </p>
+                    <p className="text-white text-[10px]">
+                        Price: ₹
+                        {seat.class === 'First Class'
+                            ? '899'
+                            : seat.class === 'Business Class'
+                            ? '1099'
+                            : '499'}
+                    </p>
+                </div>
+            </div>
+        ))
+    ) : (
+        <p>No seats available</p>
+    )}
+</div>
+
                         </div>
                     </div>
                 </>
