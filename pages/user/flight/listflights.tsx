@@ -34,7 +34,7 @@ const ListFlights: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [returnDate, setreturnDate] = useState<Date | null>(null);
-
+  const [error, setError] = useState('');
   const [passengers, setPassengers] = useState({
     adults: 0,
     seniors: 0,
@@ -171,16 +171,48 @@ const ListFlights: React.FC = () => {
     fetchAirports();
   }, [dispatch]);
 
-  const handleSelectChange = (selectedOption: SingleValue<OptionType>, actionMeta: ActionMeta<OptionType>) => {
+  const handleSelectChange = (
+    selectedOption: SingleValue<OptionType>,
+    actionMeta: ActionMeta<OptionType>
+  ) => {
     if (actionMeta.name === 'from') {
       setSelectedFrom(selectedOption);
+  
+      // Check if "From" and "To" are the same
+      if (selectedTo && selectedOption?.value === selectedTo?.value) {
+        setError("Departure and Destination cannot be the same.");
+      } else {
+        setError('');
+      }
     } else if (actionMeta.name === 'to') {
       setSelectedTo(selectedOption);
+  
+      // Check if "From" and "To" are the same
+      if (selectedFrom && selectedOption?.value === selectedFrom?.value) {
+        setError("Departure and Destination cannot be the same.");
+      } else {
+        setError('');
+      }
     }
   };
+useEffect(()=>{
+if(error!=''){
+  Swal.fire({
+    icon: 'info',           
+    title: 'Info',
+    text: 'Departure&Arrival Should Not Be Same!',
+    background: '#06093b',    
+    confirmButtonColor: '#3085d6',  
+    color: '#ffffff',        
+});
 
+  setSelectedTo(null)
+
+}
+},[error])
   const handleInputChange = useCallback(
     debounce((inputValue: string, actionMeta: InputActionMeta) => {
+      setError('');
       const filteredOptions = airports.filter(
         (airport) =>
           airport.label.toLowerCase().includes(inputValue.toLowerCase())
@@ -277,27 +309,26 @@ const ListFlights: React.FC = () => {
     // Form View
     <form onSubmit={handleSearch}>
       <div className="flex flex-col items-center space-y-4">
-        <div className="flex space-x-4">
-          <Select
-            name="from"
-            options={filteredAirports}
-            value={selectedFrom}
-            onChange={handleSelectChange}
-            onInputChange={handleInputChange}
-            placeholder="From"
-            className="p-2 rounded-lg text-black w-48"
-          />
-          <Select
-            name="to"
-            options={filteredAirports}
-            value={selectedTo}
-            onChange={handleSelectChange}
-            onInputChange={handleInputChange}
-            placeholder="To"
-            className="p-2 rounded-lg w-48"
-          />
-        </div>
-
+      <div className="flex space-x-4">
+                <Select
+                    name="from"
+                    options={filteredAirports}
+                    value={selectedFrom}
+                    onChange={handleSelectChange}
+                    onInputChange={handleInputChange}
+                    placeholder="From"
+                    className="p-2 rounded-lg text-black w-48"
+                />
+                <Select
+                    name="to"
+                    options={filteredAirports}
+                    value={selectedTo}
+                    onChange={handleSelectChange}
+                    onInputChange={handleInputChange}
+                    placeholder="To"
+                    className="p-2 rounded-lg w-48"
+                />
+            </div>
         <div className="flex space-x-4 w-full justify-between">
           <div className="w-full">
             <DatePicker
@@ -384,6 +415,7 @@ const ListFlights: React.FC = () => {
             Search
           </button>
         </div>
+        
       </div>
     </form>
   )}

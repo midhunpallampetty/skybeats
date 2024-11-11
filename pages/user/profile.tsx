@@ -69,6 +69,7 @@ export default function ProfileComponent() {
   const [email, setEmail] = useState('');
   const [dateSortDirection, setDateSortDirection] = useState('asc'); // State to track sorting order (asc/desc)
   const [errors, setErrors] = useState<any>({});
+  const [skelton, setSkelton] = useState(true);
   const [showCanceled, setShowCanceled] = useState(false);
   const [gender, setGender] = useState('');
   const [permananentAddress, setPermananentAddress] = useState('');
@@ -104,6 +105,12 @@ export default function ProfileComponent() {
     };
     fetchData();
   }, []);
+  useEffect(() => {
+    // Simulate a data fetch delay
+    setTimeout(() => {
+      setSkelton(false);
+    }, 2000); // Adjust delay as needed or load when data is ready
+}, []);
   const toggleModal = () => {
     setIsWalletModalOpen(prev => !prev);
   };
@@ -325,22 +332,45 @@ export default function ProfileComponent() {
       <Navbar />
 
       <div className="w-full p-6 flex flex-col items-center overflow-y-scroll m-16">
-        <section className="mb-8  w-4/5">
-          <div className="relative w-full h-44 bg-blue-800 rounded-lg overflow-hidden">
-            <img
-              src="https://images3.alphacoders.com/135/1350069.jpeg"
-              alt="Event Banner"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute bottom-4 left-4 bg-purple-600 px-4 py-2 rounded-full text-white">
-              My Profile
-            </div>
-          </div>
-        </section>
-        <ShowBookings isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} booking={selectedBooking} />
-        <WalletModal isOpen={isWalletModalOpen} onClose={toggleModal} />
-      </div>
+            <section className="mb-8 w-4/5">
+                {skelton ? (
+                    // Skeleton for banner
+                    <div className="relative w-full h-44 bg-gray-300 rounded-lg animate-pulse">
+                        <div className="absolute bottom-4 left-4 bg-gray-400 px-4 py-2 rounded-full text-gray-300 w-24 h-6 animate-pulse"></div>
+                    </div>
+                ) : (
+                    // Actual banner content when loaded
+                    <div className="relative w-full h-44 bg-blue-800 rounded-lg overflow-hidden">
+                        <img
+                            src="https://images3.alphacoders.com/135/1350069.jpeg"
+                            alt="Event Banner"
+                            className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-4 left-4 bg-purple-600 px-4 py-2 rounded-full text-white">
+                            My Profile
+                        </div>
+                    </div>
+                )}
+            </section>
+            
+            {skelton ? (
+                // Skeleton for modals
+                <div className="w-4/5  bg-gray-300 rounded-lg animate-pulse"></div>
+            ) : (
+                <>
+                    <ShowBookings isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} booking={selectedBooking} />
+                    <WalletModal isOpen={isWalletModalOpen} onClose={toggleModal} />
+                </>
+            )}
+        </div>
+       
       <div className="min-h-screen  mt-2 ">
+      {skelton ? (
+                // Skeleton for modals
+<div className="flex  justify-center h-screen">
+    <div className="w-[800px] h-64 bg-blue-800/45 rounded-lg animate-pulse transition-all duration-700 ease-in-out"></div>
+</div>
+            ) : (
         <div className="container mx-auto py-8 px-4">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden max-w-4xl mx-auto">
 
@@ -667,7 +697,7 @@ export default function ProfileComponent() {
 
           </div>
         </div>
-
+)}
       </div>
       <footer
         className="bg-blue-800/20 text-center mt-20 rounded-md text-white/10 shadow-white/15 shadow-inner ">
