@@ -8,7 +8,7 @@ export default function ThanksPayment() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 60000); // 1 minute in milliseconds
+    }, 30000); // 1 minute in milliseconds
 
     return () => clearTimeout(timer); // Cleanup the timer on component unmount
   }, []);
