@@ -95,7 +95,7 @@ console.log(session,'dscd');
     layout="fill"
     alt="Loading Error"
     loading="lazy"
-    className="opacity-100"
+    className="opacity-80"
     objectFit="cover"
   />
   <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-10">

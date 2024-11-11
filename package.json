@@ -41,6 +41,7 @@
     "@types/react-bootstrap": "^0.32.37",
     "@types/react-modal": "^3.16.3",
     "@types/react-router-dom": "^5.3.3",
+    "@vercel/speed-insights": "^1.1.0",
     "airport-nodejs": "^1.0.2",
     "all-the-cities": "^3.1.0",
     "aws-sdk": "^2.1687.0",
