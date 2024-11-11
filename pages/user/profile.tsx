@@ -81,6 +81,7 @@ export default function ProfileComponent() {
     currentAddress: '',
     permananentAddress: ''
   });
+  console.log(profile,'profile')
   const toggleShowCanceled = () => {
     setShowCanceled((prev) => !prev);
   };
@@ -118,7 +119,7 @@ export default function ProfileComponent() {
       gender: profile.gender,
       contactNo: profile.contactNo,
       currentAddress: profile.currentAddress,
-      permananentAddress: profile.permanentAddress,
+      permananentAddress: profile.permananentAddress,
       email: profile.email,
       birthday: profile.birthday
     }); // Log variable values
@@ -129,7 +130,7 @@ export default function ProfileComponent() {
         gender: profile.gender,
         contactNo: profile.contactNo,
         currentAddress: profile.currentAddress,
-        permananentAddress: profile.permanentAddress,
+        permananentAddress: profile.permananentAddress,
         email: profile.email,
         birthday: profile.birthday
       }, {
