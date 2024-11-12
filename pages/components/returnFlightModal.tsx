@@ -175,16 +175,16 @@ const FlightCard: React.FC<{ flight: Flight; fetchAircraftModel: (airline: strin
       </div>
       <div className="flex justify-between items-center mb-2">
         <div className="text-left">
-          <p className="text-2xl font-semibold">{flight.departureTime}</p>
-          <p className="text-gray-500">{flight.departureAirport}</p>
+          <p className="text-2xl text-black font-semibold">{flight.departureTime}</p>
+          <p className="text-black">{flight.departureAirport}</p>
         </div>
-        <div className="text-center">
-          <p className="text-sm text-gray-400">{flight.duration}</p>
+        <div className="text-center text-black">
+          <p className="text-sm text-black">{flight.duration}</p>
           <p>Non-stop</p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-semibold">{flight.arrivalTime}</p>
-          <p className="text-gray-500">{flight.arrivalAirport}</p>
+          <p className="text-2xl font-semibold text-black">{flight.arrivalTime}</p>
+          <p className=" text-black">{flight.arrivalAirport}</p>
         </div>
       </div>
       <div className="flex justify-between items-center">

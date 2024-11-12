@@ -170,12 +170,7 @@ const JobBoard = () => {
                         <h2 className="font-bold text-xl">
                           {expandedJobIndex === index ? job.description : `${job.description.slice(0, 50)}...`}
                         </h2>
-                        <button
-                          onClick={() => toggleShowMore(index)}
-                          className="text-blue-300 hover:text-blue-500 text-sm underline mt-1"
-                        >
-                          {expandedJobIndex === index ? 'Show Less' : 'Show More'}
-                        </button>
+                       
                         <p className="text-gray-200">{job.designation}</p>
 
                         <div className="flex mt-3 space-x-2">

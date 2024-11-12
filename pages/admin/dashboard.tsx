@@ -9,7 +9,7 @@ const SuperAdminDashboard: React.FC = () => {
     const Adminaside = dynamic(() => import('../components/Adminaside'));
     const [role, setRole] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const usersPerPage = 6;
+    const usersPerPage = 12;
     const router = useRouter();
     const token = Cookies.get('jwtToken');
     
@@ -62,6 +62,29 @@ const SuperAdminDashboard: React.FC = () => {
             imageUrl: 'https://img.freepik.com/premium-photo/flight-attendant-serving-foods-plane_946209-4125.jpg',
             Redirect:'/admin/Menu'
         },
+        {
+            id: 7,
+            name: 'Booking-Report',
+            email: 'offers@example.com',
+            isBlocked: false,
+            imageUrl: 'https://www.finereport.com/en/wp-content/uploads/2021/02/Investment-Dashboard-20210225160932-1024x576.png',
+            Redirect:'/admin/bookingChart'
+        },
+        {
+            id: 8,
+            name: 'Menu',
+            email: 'offers@example.com',
+            isBlocked: false,
+            imageUrl: 'https://img.freepik.com/premium-photo/flight-attendant-serving-foods-plane_946209-4125.jpg',
+            Redirect:'/admin/Menu'
+        },   {
+            id: 9,
+            name: 'Menu',
+            email: 'offers@example.com',
+            isBlocked: false,
+            imageUrl: 'https://img.freepik.com/premium-photo/flight-attendant-serving-foods-plane_946209-4125.jpg',
+            Redirect:'/admin/Menu'
+        },
     ];
 
     useEffect(() => {
@@ -105,9 +128,9 @@ const SuperAdminDashboard: React.FC = () => {
             <AdminNavbar />
             <div className="absolute top-0 left-0 w-full h-full mb-64 opacity-8 pointer-events-none bg-cover bg-no-repeat bg-center" style={{ backgroundImage: 'url(/admin_bg.png)', opacity: 0.1 }} />
             <div className="relative z-10 xl:ml-[250px] xl:w-[1200px] md:w-[800px] sm:w-full">
-                <Adminaside />
+
                 <div className="p-4 mt-[200px]">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-10 mb-28">
                         {authorized ? (
                             currentUsers.map((user, index) => (
                                 <button
