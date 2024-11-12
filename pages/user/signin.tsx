@@ -118,7 +118,18 @@ const handleSignin = async (event: React.FormEvent<HTMLFormElement>) => {
       document.body.style.overflow = 'auto';
     };
   }, []);
+  useEffect(() => {
+    const handlePopState = () => {
+      // Redirect user back to the locked page
+      router.replace('/user/signin'); // Use your page's route
+    };
 
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [router]);
   return (
     <div className={`h-screen overflow-hidden flex flex-col ${isDarkMode ? 'bg-[#0E1139] text-white' : 'bg-white text-black'}`}>
       <div className="absolute top-0 bottom-0 right-0 mt-4 ml-4 hidden sm:block">

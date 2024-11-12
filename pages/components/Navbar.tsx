@@ -24,7 +24,7 @@ export default function Component() {
   const handleLogout = () => {
     Cookies.remove('jwtToken');
     Cookies.remove('userId');
-    router.push('/');
+    router.push('/user/signin');
   };
 
   const handleMouseEnter = (menu: string) => {

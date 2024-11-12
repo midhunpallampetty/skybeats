@@ -5,7 +5,6 @@ import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
 import { Carousel } from 'flowbite-react';
 import ShowBookings from '../components/ShowBookings';
-
 import { gql, useQuery } from '@apollo/client';
 import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
@@ -111,6 +110,7 @@ export default function ProfileComponent() {
       setSkelton(false);
     }, 2000); // Adjust delay as needed or load when data is ready
 }, []);
+
   const toggleModal = () => {
     setIsWalletModalOpen(prev => !prev);
   };
@@ -322,15 +322,19 @@ export default function ProfileComponent() {
     variables: { userId },
   });
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+ 
 
   const queriedUser = data?.getUserById;
 
   return (
     <>
+     {skelton ? (
+      <div className="relative w-full h-16 bg-gray-300 rounded-lg animate-pulse">
+      <div className="absolute bottom-4 left-4 bg-gray-400 px-4 py-2 rounded-full text-gray-300 w-24 h-6 animate-pulse"></div>
+  </div>
+) : (
       <Navbar />
-
+    )}
       <div className="w-full p-6 flex flex-col items-center overflow-y-scroll m-16">
             <section className="mb-8 w-4/5">
                 {skelton ? (

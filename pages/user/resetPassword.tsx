@@ -42,7 +42,18 @@ export default function ResetPassword() {
       });
     }
   };
+  useEffect(() => {
+    const handlePopState = () => {
+      // Redirect user back to the locked page
+      router.replace('/locked-page'); // Use your page's route
+    };
 
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [router]);
   return (
     <>
     <Navbar/>
