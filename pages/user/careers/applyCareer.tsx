@@ -1,13 +1,15 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
+import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
-
+import Cookies from 'js-cookie';
 const JobApplicationForm = () => {
     const Navbar = dynamic(() => import('../../components/Navbar'), { ssr: false });
     const selectedJob = useSelector((state: RootState) => state.job.selectedJob);
+    const router=useRouter()
     const [image, setImage] = useState<File | null>(null);
     const [imageUrl, setImageUrl] = useState<string>('');
     const [formData, setFormData] = useState({
@@ -29,10 +31,11 @@ const JobApplicationForm = () => {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setFormData({ ...formData, cv: file }); // Store CV file directly in formData
+            setFormData({ ...formData, cv: file }); 
         }
     };
 
+    const userId=Cookies.get('userId');
     const getPresignedUrl = async (filename: string, filetype: string) => {
         const response = await fetch('/api/awss3', {
             method: 'POST',
@@ -69,7 +72,11 @@ const JobApplicationForm = () => {
             throw error; // Rethrow the error to be handled in handleSubmit
         }
     };
-
+useEffect(()=>{
+if(!selectedJob){
+    router.push('/')
+}
+},[selectedJob])
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -87,7 +94,9 @@ const JobApplicationForm = () => {
                 email,
                 phone,
                 coverLetter,
-                cv: cvUrl, // Include the uploaded CV URL
+                cv: cvUrl, 
+                userId,
+                jobPost:selectedJob?.designation,
             };
 
             const response = await fetch('/api/applyJob', {
@@ -102,9 +111,10 @@ const JobApplicationForm = () => {
                 const data = await response.json();
                 Swal.fire('Application Submitted!', `Your application for ${data.name} has been submitted successfully.`);
                 console.log('Application submitted:', data);
+                router.push('/')
             } else {
-                console.error('Failed to submit application');
-                Swal.fire('Error!', 'Failed to submit your application. Please try again later.', 'error');
+                console.error('Failed to submit application,User Alreadty Applied');
+                Swal.fire('Error!', 'Failed to submit your application. Please try again later.User Alreadty Applied', 'error');
             }
         } catch (error) {
             console.error('Error:', error);
@@ -225,7 +235,7 @@ const JobApplicationForm = () => {
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold mb-2">Services</h3>
-                        <ul className="text-sm text-gray-400 space-y-2">
+                        <ul className="text-sm text-black space-y-2">
                             <li><a href="#" className="hover:underline">Consulting</a></li>
                             <li><a href="#" className="hover:underline">Development</a></li>
                             <li><a href="#" className="hover:underline">Support</a></li>

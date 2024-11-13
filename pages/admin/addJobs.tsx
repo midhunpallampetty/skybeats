@@ -11,14 +11,15 @@ const backgroundStyle: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  flexDirection: 'column',
 };
 
 const formContainerStyle: React.CSSProperties = {
   width: '80%',
-  marginTop: '250px',
-  maxWidth: '600px',
+  marginTop: '150px',
+  maxWidth: '800px',
   padding: '20px',
+  display: 'flex',
+  gap: '20px',
 };
 
 const gridBackgroundStyle = {
@@ -34,11 +35,14 @@ const gridBackgroundStyle = {
 function AddJobs() {
   const [designation, setDesignation] = useState('');
   const [description, setDescription] = useState('');
+  const [salary, setSalary] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string>('');
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState({
     designation: '',
     description: '',
+    salary: '',
     image: '',
   });
 
@@ -47,7 +51,7 @@ function AddJobs() {
 
   const validateForm = () => {
     let valid = true;
-    let newErrors = { designation: '', description: '', image: '' };
+    let newErrors = { designation: '', description: '', salary: '', image: '' };
 
     if (!designation) {
       newErrors.designation = 'Please select a job designation.';
@@ -56,6 +60,14 @@ function AddJobs() {
 
     if (!description) {
       newErrors.description = 'Description is required.';
+      valid = false;
+    }
+
+    if (!salary) {
+      newErrors.salary = 'Salary is required.';
+      valid = false;
+    } else if (isNaN(Number(salary))) {
+      newErrors.salary = 'Please enter a valid number for salary.';
       valid = false;
     }
 
@@ -72,7 +84,8 @@ function AddJobs() {
     const file = e.target.files?.[0];
     if (file) {
       setImage(file);
-      setErrors((prev) => ({ ...prev, image: '' })); // Clear image error on file selection
+      setImagePreview(URL.createObjectURL(file));
+      setErrors((prev) => ({ ...prev, image: '' }));
     }
   };
 
@@ -125,8 +138,9 @@ function AddJobs() {
       }
 
       const jobData = {
-        designation: designation,
-        description: description,
+        designation,
+        description,
+        salary:parseInt(salary),
         Image: imageUrl,
       };
 
@@ -142,7 +156,9 @@ function AddJobs() {
         Swal.fire('Job Posted Successfully!');
         setDesignation('');
         setDescription('');
+        setSalary('');
         setImage(null);
+        setImagePreview(null);
         setImageUrl('');
       } else {
         console.error('Failed to add job');
@@ -156,9 +172,10 @@ function AddJobs() {
     <>
       <AdminNavbar />
       <AdminAside />
-      <div className="flex justify-center h-screen " style={gridBackgroundStyle}>
+      <div className="flex justify-center h-screen" style={gridBackgroundStyle}>
         <div style={formContainerStyle}>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="flex-1">
+            {/* Job Designation Field */}
             <div className="mb-6">
               <label className="block mb-2 text-white font-extrabold text-xl">
                 Select Job Designation
@@ -177,6 +194,7 @@ function AddJobs() {
               {errors.designation && <p className="text-red-500 text-sm mt-1">{errors.designation}</p>}
             </div>
 
+            {/* Description Field */}
             <div className="mb-6">
               <label className="block mb-2 text-xl font-extrabold text-white">Description</label>
               <input
@@ -189,6 +207,20 @@ function AddJobs() {
               {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
             </div>
 
+            {/* Salary Field */}
+            <div className="mb-6">
+              <label className="block mb-2 text-xl font-extrabold text-white">Salary</label>
+              <input
+                type="text"
+                className="block w-full p-4 border border-white/10 rounded-lg bg-blue-900/30 text-base text-white"
+                value={salary}
+                onChange={(e) => setSalary(e.target.value)}
+                placeholder="Enter Salary"
+              />
+              {errors.salary && <p className="text-red-500 text-sm mt-1">{errors.salary}</p>}
+            </div>
+
+            {/* Image Upload Field */}
             <label className="text-xl font-extrabold text-white">Add An Image</label>
             <div className="flex items-center justify-center w-full">
               <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-blue-950/30 hover:bg-blue-800/35">
@@ -210,6 +242,7 @@ function AddJobs() {
               {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               className="bg-blue-950 mt-10 w-28 h-12 hover:bg-blue-700/30 rounded-lg border border-blue-900 text-white font-extrabold"
@@ -217,6 +250,14 @@ function AddJobs() {
               Add
             </button>
           </form>
+
+          {/* Image Preview Section */}
+          {imagePreview && (
+            <div className="flex-1 ml-4">
+              <p className="text-white font-extrabold mb-2">Image Preview:</p>
+              <img src={imagePreview} alt="Image preview" className="w-full h-auto rounded-lg" />
+            </div>
+          )}
         </div>
       </div>
     </>

@@ -7,11 +7,14 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
 import { setSelectedJob } from '@/redux/slices/jobSlice';
+import Link from 'next/link';
 
 interface Job {
   description: string;
   designation: string;
   Image?: string;
+  salary: number;
+  createdAt: string;
 }
 
 const JobBoard = () => {
@@ -21,11 +24,13 @@ const JobBoard = () => {
   const router = useRouter();
 
   const [career, setCareer] = useState<Job[]>([]);
+  const [filteredCareer, setFilteredCareer] = useState<Job[]>([]);
   const token = Cookies.get('jwtToken');
   const [expandedJobIndex, setExpandedJobIndex] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [jobsPerPage] = useState(2); // Set jobs per page to 2
+  const [jobsPerPage] = useState(4);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortBy, setSortBy] = useState<'designation' | 'salary'>('designation');
   const [selectedDesignation, setSelectedDesignation] = useState<string>('');
 
   // Fetch career data
@@ -33,9 +38,9 @@ const JobBoard = () => {
     const fetchCareerData = async () => {
       try {
         const response = await axios.get('/api/getCareer');
-
         if (response.data && response.data.getJobs) {
           setCareer(response.data.getJobs);
+          setFilteredCareer(response.data.getJobs);
         } else {
           console.error('getJobs array not found in the response data');
         }
@@ -43,7 +48,6 @@ const JobBoard = () => {
         console.error('Error fetching career data:', error);
       }
     };
-
     fetchCareerData();
   }, []);
 
@@ -63,34 +67,37 @@ const JobBoard = () => {
   };
 
   // Sorting logic
-  const handleSort = (order: 'asc' | 'desc') => {
-    const sortedJobs = [...career].sort((a, b) => {
-      const designationA = a.designation.toUpperCase();
-      const designationB = b.designation.toUpperCase();
+  const handleSort = (sortOrder: 'asc' | 'desc', sortBy: 'designation' | 'salary') => {
+    setSortOrder(sortOrder);
+    setSortBy(sortBy);
 
-      if (designationA < designationB) return order === 'asc' ? -1 : 1;
-      if (designationA > designationB) return order === 'asc' ? 1 : -1;
-      return 0;
+    const sortedJobs = [...filteredCareer].sort((a, b) => {
+      if (sortBy === 'designation') {
+        return sortOrder === 'asc'
+          ? a.designation.localeCompare(b.designation)
+          : b.designation.localeCompare(a.designation);
+      } else {
+        return sortOrder === 'asc' ? a.salary - b.salary : b.salary - a.salary;
+      }
     });
-    setSortOrder(order);
-    setCareer(sortedJobs);
+    setFilteredCareer(sortedJobs);
   };
 
   // Filter by designation
   const handleFilterByDesignation = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const designation = event.target.value;
     setSelectedDesignation(designation);
-
-    if (designation) {
-      const filteredJobs = career.filter((job) => job.designation === designation);
-      setCareer(filteredJobs);
-    }
+    const filteredJobs = designation
+      ? career.filter((job) => job.designation === designation)
+      : career;
+    setFilteredCareer(filteredJobs);
+    setCurrentPage(1);
   };
 
   // Pagination logic
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = career.slice(indexOfFirstJob, indexOfLastJob);
+  const currentJobs = filteredCareer.slice(indexOfFirstJob, indexOfLastJob);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
@@ -108,25 +115,33 @@ const JobBoard = () => {
         </Carousel>
       </div>
 
-      <div className="flex justify-center" style={{ backgroundImage: `
+      <div className="flex justify-center h-[500px]" style={{ backgroundImage: `
         linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
       `, backgroundSize: '40px 40px' }}>
         <div className="flex flex-col md:flex-row mt-20 max-w-[1200px] w-full">
-          <div className="w-full md:w-[350px] p-4 bg-white border border-white/35 rounded-lg ml-4">
+          <div className="w-full md:w-[350px] p-4 bg-blue-950 text-white rounded-lg ml-4">
             {/* Filters */}
             <h3 className="font-bold mb-4">Filters</h3>
             <div className="space-y-4">
-              {/* Sort by Asc/Desc */}
+              {/* Sort by Asc/Desc and Field */}
               <div>
                 <label className="font-bold mb-2 block">Sort by:</label>
                 <select
-                  onChange={(e) => handleSort(e.target.value as 'asc' | 'desc')}
-                  value={sortOrder}
-                  className="w-full py-2 px-4 bg-gray-200 rounded"
+                  onChange={(e) => handleSort(sortOrder, e.target.value as 'designation' | 'salary')}
+                  value={sortBy}
+                  className="w-full py-2 px-4 bg-gray-200 text-black rounded"
                 >
-                  <option value="asc">Ascending</option>
-                  <option value="desc">Descending</option>
+                  <option value="designation">Designation</option>
+                  <option value="salary">Salary</option>
+                </select>
+                <select
+                  onChange={(e) => handleSort(e.target.value as 'asc' | 'desc', sortBy)}
+                  value={sortOrder}
+                  className="w-full py-2 px-4 bg-gray-200 text-black rounded mt-2"
+                >
+                  <option value="asc">Low to High</option>
+                  <option value="desc">High to Low</option>
                 </select>
               </div>
 
@@ -136,12 +151,12 @@ const JobBoard = () => {
                 <select
                   onChange={handleFilterByDesignation}
                   value={selectedDesignation}
-                  className="w-full py-2 px-4 bg-gray-200 rounded"
+                  className="w-full py-2 px-4 bg-gray-200 text-black rounded"
                 >
                   <option value="">All</option>
-                  {career.map((job, index) => (
-                    <option key={index} value={job.designation}>
-                      {job.designation}
+                  {[...new Set(career.map((job) => job.designation))].map((designation, index) => (
+                    <option key={index} value={designation}>
+                      {designation}
                     </option>
                   ))}
                 </select>
@@ -150,15 +165,15 @@ const JobBoard = () => {
           </div>
 
           <div className="w-full md:w-3/4 p-4 ml-11">
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-6">
               {currentJobs.length > 0 ? (
-                currentJobs.map((job: Job, index) => (
+                currentJobs.map((job, index) => (
                   <div
                     key={index}
-                    className="bg-blue-800/50 text-white w-full min-h-[250px] p-4 rounded-lg hover:shadow-lg"
+                    className="bg-blue-950 text-white w-full min-h-[300px] p-6 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200 ease-in-out"
                   >
-                    <div className="flex items-center">
-                      <div className="w-24 h-24 rounded overflow-hidden">
+                    <div className="flex flex-col items-center">
+                      <div className="w-32 h-32 rounded-md overflow-hidden shadow-inner border-2 border-blue-500 mb-4">
                         <img
                           src={job.Image}
                           alt="Job Image"
@@ -166,21 +181,25 @@ const JobBoard = () => {
                         />
                       </div>
 
-                      <div className="ml-4">
-                        <h2 className="font-bold text-xl">
-                          {expandedJobIndex === index ? job.description : `${job.description.slice(0, 50)}...`}
+                      <div className="flex-1 text-center">
+                        <h2 className="font-bold text-lg mb-2">
+                          {expandedJobIndex === index
+                            ? job.description
+                            : `${job.description.slice(0, 50)}...`}
                         </h2>
-                       
-                        <p className="text-gray-200">{job.designation}</p>
+                        <p className="text-gray-300 text-sm mb-4">{job.designation}</p>
+                        <p className="text-white font-semibold text-lg mb-4">
+                          Salary: {job.salary} LPA
+                        </p>
+                      </div>
 
-                        <div className="flex mt-3 space-x-2">
-                          <button
-                            onClick={() => handleDetailsClick(job)}
-                            className="bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                          >
-                            Details
-                          </button>
-                        </div>
+                      <div className="flex mt-auto">
+                        <button
+                          onClick={() => handleDetailsClick(job)}
+                          className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200 ease-in-out shadow-sm"
+                        >
+                          Details
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -201,7 +220,7 @@ const JobBoard = () => {
               </button>
               <button
                 onClick={() => paginate(currentPage + 1)}
-                disabled={indexOfLastJob >= career.length}
+                disabled={indexOfLastJob >= filteredCareer.length}
                 className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700"
               >
                 Next
@@ -210,10 +229,6 @@ const JobBoard = () => {
           </div>
         </div>
       </div>
-
-      <footer className="bg-gray-900 mt-20 text-white py-12">
-        {/* Footer Content */}
-      </footer>
     </>
   );
 };

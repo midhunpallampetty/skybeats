@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { name, email, phone, coverLetter, cv } = req.body;
+    const { name, email, phone, coverLetter, cv,userId ,jobPost} = req.body;
     console.log(req.body);
 
     try {
@@ -23,6 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 phone
                 coverLetter
                 cv
+                
               }
             }
           `,
@@ -33,6 +34,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               phone,
               coverLetter,
               cv,
+              userId,
+              jobPost
             },
           },
         }),

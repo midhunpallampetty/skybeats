@@ -8,6 +8,8 @@ const GetCloudImages = async (req: NextApiRequest, res: NextApiResponse) => {
        description
        designation
        Image
+       salary
+       createdAt
     }
     }
     `;
