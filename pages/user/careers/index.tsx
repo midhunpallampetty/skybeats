@@ -14,7 +14,7 @@ interface Job {
   designation: string;
   Image?: string;
   salary: number;
-  createdAt: string;
+  createdAt: string; // ISO date string
 }
 
 const JobBoard = () => {
@@ -30,10 +30,9 @@ const JobBoard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [jobsPerPage] = useState(4);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [sortBy, setSortBy] = useState<'designation' | 'salary'>('designation');
+  const [sortBy, setSortBy] = useState<'designation' | 'salary' | 'createdAt'>('designation');
   const [selectedDesignation, setSelectedDesignation] = useState<string>('');
 
-  // Fetch career data
   useEffect(() => {
     const fetchCareerData = async () => {
       try {
@@ -66,8 +65,7 @@ const JobBoard = () => {
     setExpandedJobIndex(expandedJobIndex === index ? null : index);
   };
 
-  // Sorting logic
-  const handleSort = (sortOrder: 'asc' | 'desc', sortBy: 'designation' | 'salary') => {
+  const handleSort = (sortOrder: 'asc' | 'desc', sortBy: 'designation' | 'salary' | 'createdAt') => {
     setSortOrder(sortOrder);
     setSortBy(sortBy);
 
@@ -76,14 +74,18 @@ const JobBoard = () => {
         return sortOrder === 'asc'
           ? a.designation.localeCompare(b.designation)
           : b.designation.localeCompare(a.designation);
-      } else {
+      } else if (sortBy === 'salary') {
         return sortOrder === 'asc' ? a.salary - b.salary : b.salary - a.salary;
+      } else if (sortBy === 'createdAt') {
+        const dateA = new Date(a.createdAt).getTime(); // Convert to timestamp
+        const dateB = new Date(b.createdAt).getTime(); // Convert to timestamp
+        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
       }
+      return 0;
     });
     setFilteredCareer(sortedJobs);
   };
 
-  // Filter by designation
   const handleFilterByDesignation = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const designation = event.target.value;
     setSelectedDesignation(designation);
@@ -94,7 +96,6 @@ const JobBoard = () => {
     setCurrentPage(1);
   };
 
-  // Pagination logic
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = filteredCareer.slice(indexOfFirstJob, indexOfLastJob);
@@ -121,19 +122,18 @@ const JobBoard = () => {
       `, backgroundSize: '40px 40px' }}>
         <div className="flex flex-col md:flex-row mt-20 max-w-[1200px] w-full">
           <div className="w-full md:w-[350px] p-4 bg-blue-950 text-white rounded-lg ml-4">
-            {/* Filters */}
             <h3 className="font-bold mb-4">Filters</h3>
             <div className="space-y-4">
-              {/* Sort by Asc/Desc and Field */}
               <div>
                 <label className="font-bold mb-2 block">Sort by:</label>
                 <select
-                  onChange={(e) => handleSort(sortOrder, e.target.value as 'designation' | 'salary')}
+                  onChange={(e) => handleSort(sortOrder, e.target.value as 'designation' | 'salary' | 'createdAt')}
                   value={sortBy}
                   className="w-full py-2 px-4 bg-gray-200 text-black rounded"
                 >
                   <option value="designation">Designation</option>
                   <option value="salary">Salary</option>
+                  <option value="createdAt">Latest</option>
                 </select>
                 <select
                   onChange={(e) => handleSort(e.target.value as 'asc' | 'desc', sortBy)}
@@ -144,8 +144,6 @@ const JobBoard = () => {
                   <option value="desc">High to Low</option>
                 </select>
               </div>
-
-              {/* Filter by Designation */}
               <div>
                 <label className="font-bold mb-2 block">Filter by Designation:</label>
                 <select
@@ -191,25 +189,32 @@ const JobBoard = () => {
                         <p className="text-white font-semibold text-lg mb-4">
                           Salary: {job.salary} LPA
                         </p>
+                        
                       </div>
 
                       <div className="flex mt-auto">
                         <button
                           onClick={() => handleDetailsClick(job)}
-                          className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200 ease-in-out shadow-sm"
+                          className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md mr-4"
                         >
-                          Details
+                          Apply Now
+                        </button>
+
+                        <button
+                          onClick={() => toggleShowMore(index)}
+                          className="text-blue-400 hover:text-blue-500"
+                        >
+                          {expandedJobIndex === index ? 'Show Less' : 'Show More'}
                         </button>
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-center text-gray-500">No jobs available at the moment.</p>
+                <p className="text-center">No jobs available at the moment.</p>
               )}
             </div>
 
-            {/* Pagination Controls */}
             <div className="flex justify-between mt-6">
               <button
                 onClick={() => paginate(currentPage - 1)}
