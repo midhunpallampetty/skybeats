@@ -590,8 +590,8 @@ const togglePasswordVisibility = (setter) => {
 
 
               {activeTab === 'bookings' && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold mb-4">Booking History</h3>
+                <div className="mt-6 text-black">
+                  <h3 className="text-lg text-black font-semibold mb-4">Booking History</h3>
 
                   {/* Toggle Button for Show/Hide Canceled Orders */}
                   <button
