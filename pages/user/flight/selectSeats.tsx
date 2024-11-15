@@ -23,6 +23,8 @@ const SelectSeats: React.FC = () => {
     const selectedFlight = useSelector((state: RootState) => state.bookdetail.selectedFlight);
     const selectedSeats = useSelector((state: RootState) => state.selectedSeats.selectedSeats);
     const [localSelectedSeats, setLocalSelectedSeats] = useState<any[]>([]);
+    const selectedSeat = useSelector((state: RootState) => state.selectedSeats.selectedSeats);
+
     const [loading, setLoading] = useState(true);
     const totalPassengers = passengerCount?.adults + passengerCount?.seniors + passengerCount?.children + passengerCount?.infants;
     useEffect(() => {
@@ -65,7 +67,7 @@ const SelectSeats: React.FC = () => {
         dispatch(clearSelectedSeat());
         setLocalSelectedSeats([]);
     }, [dispatch]);
-
+console.log(selectedSeat,'selectedSeat')
     useEffect(() => {
         const fetchSeats = async () => {
             if (!aircraftModel) return;
@@ -134,7 +136,69 @@ const SelectSeats: React.FC = () => {
             });
         }
     };
-
+    const handleContinueWithSkipSeat = async () => {
+        try {
+            // Clear local and Redux state before beginning
+            setLocalSelectedSeats([]); // Clear local state
+            dispatch(clearSelectedSeat()); // Clear Redux state (you need a Redux action for this)
+    
+            const randomSeats = [];
+    
+            // Fetch random seat for each passenger
+            for (let i = 0; i < totalPassengers; i++) {
+                const response = await axios.post('/api/getRandomSeat', {
+                    flightModel: aircraftModel,
+                });
+    
+                const randomSeat = response.data;
+    
+                console.log(randomSeat, 'Fetched random seat');
+    
+                // Check if the random seat is valid
+                if (!randomSeat || !randomSeat.seatId) {
+                    toast.error(
+                        'No available seats found for some passengers. Please try selecting manually.',
+                        {
+                            position: "top-center",
+                            autoClose: 3000,
+                            hideProgressBar: true,
+                        }
+                    );
+                    return;
+                }
+    
+                // Add price to seat details
+                const seatWithPrice = {
+                    ...randomSeat,
+                    _id: randomSeat.seatId, // Ensure `_id` is included for Redux compatibility
+                    price: getPriceByClass(randomSeat.class),
+                };
+    
+                randomSeats.push(seatWithPrice);
+            }
+    
+            // Update local and Redux state with new seats
+            setLocalSelectedSeats(randomSeats); // Update local state
+            randomSeats.forEach(seat => {
+                dispatch(setSelectedSeat(seat)); // Add to Redux
+            });
+    
+            console.log('Updated Redux state with random seats:', randomSeats);
+    
+            // Navigate to booking details page if all random seats are successfully assigned
+            router.push('/user/flight/bookingdetails');
+        } catch (error) {
+            console.error('Error fetching random seats:', error);
+            toast.error('Error fetching random seats. Please try again.', {
+                position: "top-center",
+                autoClose: 3000,
+                hideProgressBar: true,
+            });
+        }
+    };
+    
+    
+    
     return (
         <>
             <ToastContainer />
@@ -163,6 +227,7 @@ const SelectSeats: React.FC = () => {
                                 )}
                             </div>
                             <button onClick={handleContinueWithSelectedSeat} className="mb-4 px-4 py-2 bg-blue-500 text-white font-extrabold rounded mt-4">Continue</button>
+                            <button onClick={handleContinueWithSkipSeat} className="mb-4 px-4 py-2 bg-gray-700 text-white font-extrabold rounded mt-4">Skip Seat Selection</button>
                             <h2 className="text-2xl font-bold mb-4 text-white">Flight Seat Selection <span>{aircraftModel}</span></h2>
                             <div className="grid grid-cols-6 gap-4">
             {loading ? (

@@ -16,7 +16,7 @@ import FlightModal from '../../components/returnFlightModal';
 import dynamic from 'next/dynamic';
 import { Airport } from '@/interfaces/Airport';
 import { RootState } from '@/redux/store';
-import { setFlights } from '@/redux/slices/flightsSlice';
+import { setFlights,clearFlights } from '@/redux/slices/flightsSlice';
 import { setDate } from '@/redux/slices/bookDate';
 import { setReturnDate } from '@/redux/slices/returnDate';
 import { setSelectedPassengers } from '@/redux/slices/passengerCountSlice';
@@ -56,6 +56,9 @@ const ListFlights: React.FC = () => {
       router.push('/');
     }
   }, []);
+  useEffect(()=>{
+dispatch(clearFlights())
+  },[])
   useEffect(() => {
     const fetchData = async () => {
       // Simulate API call delay
@@ -261,7 +264,7 @@ if(error!=''){
   const indexOfLastFlight = currentPage * flightsPerPage;
   const indexOfFirstFlight = indexOfLastFlight - flightsPerPage;
   const currentFlights = sortedFlights.slice(indexOfFirstFlight, indexOfLastFlight);
-
+   useEffect
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
