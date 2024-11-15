@@ -29,7 +29,10 @@ export default function ProfileComponent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [bookings, setBookings] = useState<any[]>([]);
-
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const router = useRouter();
   const [editMode, setEditMode] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
@@ -277,13 +280,18 @@ export default function ProfileComponent() {
   };
 
 
-
   async function changePassword() {
-    console.log(userId, oldPassword, newPassword);
-
+    if (newPassword !== confirmNewPassword) {
+      Swal.fire("New Password and Confirm New Password must match!");
+      return;
+    }
     try {
+      // Logging the input data for debugging
+      console.log("User ID:", userId, "Old Password:", oldPassword, "New Password:", newPassword);
+  
+      // Sending the request to the server
       const response = await axios.post(
-        '/api/changePassword',
+        "/api/changePassword",
         {
           id: userId,
           oldpassword: oldPassword,
@@ -291,29 +299,50 @@ export default function ProfileComponent() {
         },
         {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
-      console.log(response, 'status');
+  
+      // Checking the response status
       if (response.status === 200) {
-        Swal.fire('Password Request Success');
-
+        Swal.fire({
+          icon: "success",
+          title: "Password Changed",
+          text: "Your password has been changed successfully.",
+        });
       } else {
-        Swal.fire('An error occurred while changing the password.');
-
+        Swal.fire({
+          icon: "error",
+          title: "Password Change Failed",
+          text: response.data.message || "An error occurred while changing the password.",
+        });
       }
     } catch (error: any) {
+      // Handling specific server errors
       if (error.response) {
-        Swal.fire('An error occurred while changing the password.');
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error.response.data.message || "An error occurred while changing the password.",
+        });
+        console.error("Server Error:", error.response.data);
       } else {
-        console.error('Error:', error);
-        Swal.fire('Something Went Wrong While Resetting Password.');
-
-        console.log('An error occurred while changing the password.');
+        // Handling unexpected errors
+        Swal.fire({
+          icon: "error",
+          title: "Something Went Wrong",
+          text: "An unexpected error occurred. Please try again later.",
+        });
+        console.error("Unexpected Error:", error);
       }
     }
   }
+  
+
+const togglePasswordVisibility = (setter) => {
+    setter((prev) => !prev);
+  };
 
 
 
@@ -659,43 +688,102 @@ export default function ProfileComponent() {
 
 
 
-              {activeTab === 'password' && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold mb-4">Forget Password</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label htmlFor="new-password" className="block text-sm font-medium text-gray-700">New Password</label>
-                      <input
-                        type="password"
-                        id="new-password"
-                        value={oldPassword}
-                        onChange={(e) => setOldPassword(e.target.value)}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">Confirm New Password</label>
-                      <input
-                        type="password"
-                        id="confirm-password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <button onClick={changePassword}
-                        type="submit"
-                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        Change Password
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+{activeTab === "password" && (
+        <div className="mt-6 text-black">
+          <h3 className="text-lg font-semibold mb-4 text-black">Forget Password</h3>
+          <div className="space-y-4">
+            <div>
+              <label
+                htmlFor="old-password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Old Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showOldPassword ? "text" : "password"}
+                  id="old-password"
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => togglePasswordVisibility(setShowOldPassword)}
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-600"
+                >
+                  {showOldPassword ? "👁️" : "🙈"}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="new-password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                New Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  id="new-password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => togglePasswordVisibility(setShowNewPassword)}
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-600"
+                >
+                  {showNewPassword ? "👁️" : "🙈"}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="confirm-new-password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Confirm New Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  id="confirm-new-password"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    togglePasswordVisibility(setShowConfirmPassword)
+                  }
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-600"
+                >
+                  {showConfirmPassword ? "👁️" : "🙈"}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <button
+                onClick={changePassword}
+                type="submit"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Change Password
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
             </div>
 

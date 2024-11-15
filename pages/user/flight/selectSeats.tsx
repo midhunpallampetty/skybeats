@@ -152,7 +152,7 @@ console.log(selectedSeat,'selectedSeat')
     
                 const randomSeat = response.data;
     
-                console.log(randomSeat, 'Fetched random seat');
+                console.log(response, 'Fetched random seat');
     
                 // Check if the random seat is valid
                 if (!randomSeat || !randomSeat.seatId) {

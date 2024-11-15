@@ -1,13 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-// Change password mutation handler
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Only POST requests are allowed' });
   }
 
   const { id, oldpassword, newpassword } = req.body;
-
+console.log(req.body)
   const mutation = `
     mutation ChangePassword($id: String!, $oldpassword: String!, $newpassword: String!) {
       changePassword(id: $id, oldpassword: $oldpassword, newpassword: $newpassword) {
@@ -24,7 +23,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   };
 
   try {
-    // Send request to your backend GraphQL endpoint (adjust URL as needed)
     const response = await fetch('https://skybeats.neptunemusics.shop/graphql', {
       method: 'POST',
       headers: {
@@ -38,15 +36,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const json = await response.json();
 
-    // If GraphQL returns an error
     if (json.errors) {
       return res.status(400).json({ message: json.errors[0].message });
     }
 
-    // Retrieve status and message from GraphQL response
     const { status, message } = json.data.changePassword;
 
-    // Send the appropriate status code and message
     return res.status(status).json({ message });
   } catch (error) {
     console.error('Error making GraphQL request:', error);
