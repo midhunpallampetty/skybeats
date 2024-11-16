@@ -46,67 +46,81 @@ const SignIn: React.FC = () => {
 const router=useRouter();
 const handleSignin = async (event: React.FormEvent<HTMLFormElement>) => {
   event.preventDefault();
-  
+
+  // Validate email and password
   const emailError = validateEmail(email);
   const passwordError = validatePassword(password);
-  
+
   setCustomError({
     email: emailError,
-    password: passwordError
+    password: passwordError,
   });
-  
+
   if (emailError || passwordError) {
     return;
   }
-  
+
   try {
-    // Attempt user login
-    const { data } = await userLogin({
-      variables: {
-        email,
-        password
+    // Send login request to the API
+    const response = await fetch('/api/signin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({ email, password }),
     });
 
-    if (data && data.userLogin) {
-      const { token, user } = data.userLogin;
-
-      if (user.isBlocked) {
-        Swal.fire({
-          title: 'User Blocked!',
-          text: 'Operation failed!',
-          icon: 'error'
-        });
-        console.log('User is blocked. Cannot sign in.');
+    if (!response.ok) {
+      if (response.status === 400) {
+        const data = await response.json();
+        console.error(data.error);
         setCustomError((prevState) => ({
           ...prevState,
-          general: 'Your account is blocked. Please contact support.'
+          general: data.error,
         }));
         return;
       }
 
-      Cookies.set('jwtToken', token, { expires: 30 });
-      Cookies.set('userId',user.id,{expires:30});
-
-      if (user) {
-        router.push({
-          pathname: '/',
-          query: { userEmail: user.email }
-        });
-      } else {
-        router.push('/');
-      }
+      throw new Error('Failed to log in.');
     }
-    
-  } catch (error) {
-    console.log('Error during sign in:', error);
+
+    const { token, user } = await response.json();
+
+    // Check if user is blocked
+    if (user.isBlocked) {
+      Swal.fire({
+        title: 'User Blocked!',
+        text: 'Operation failed!',
+        icon: 'error',
+      });
+      setCustomError((prevState) => ({
+        ...prevState,
+        general: 'Your account is blocked. Please contact support.',
+      }));
+      return;
+    }
+
+    // Set cookies for authentication
+    Cookies.set('jwtToken', token, { expires: 30 });
+    Cookies.set('userId', user.id, { expires: 30 });
+
+    // Redirect user
+    if (user) {
+      router.push({
+        pathname: '/',
+        query: { userEmail: user.email },
+      });
+    } else {
+      router.push('/');
+    }
+  } catch (error: any) {
+    console.error('Error during sign in:', error);
     setCustomError((prevState) => ({
       ...prevState,
-      general: 'An error occurred during sign in. Please try again.'
+      general: 'An error occurred during sign in. Please try again.',
     }));
   }
 };
-
   
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);

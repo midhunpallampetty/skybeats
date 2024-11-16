@@ -23,7 +23,10 @@ export default function Component() {
 
   const handleLogout = () => {
     Cookies.remove('jwtToken');
+    Cookies.remove('next-auth.callback-url');
+    Cookies.remove('next-auth.csrf-token');
     Cookies.remove('userId');
+    
     router.push('/user/signin');
   };
 
