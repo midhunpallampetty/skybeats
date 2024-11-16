@@ -1,12 +1,13 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { gql, GraphQLClient } from 'graphql-request';
-import { createCanvas, loadImage } from 'canvas';
+import { createCanvas, loadImage,registerFont } from 'canvas';
+
 
 import path from 'path';
 import QRCode from 'qrcode';
 const endpoint = 'https://skybeats.neptunemusics.shop/graphql';
-
+registerFont(path.join(process.cwd(), 'public', 'fonts', 'Arial.ttf'), { family: 'Arial' });
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
@@ -76,7 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ctx.drawImage(logoImage, logoX, logoY, logoWidth, logoHeight);
         
         // Set text styles and add passenger details
-        ctx.font = 'bold 22px';
+        ctx.font = 'bold 22px Arial, sans-serif';
         ctx.fillStyle = '#000';
         ctx.fillText(`${passenger.firstName} ${passenger.lastName}`, 155, 175);
         ctx.fillText(`${passenger.firstName} ${passenger.lastName}`, 1145, 116);
