@@ -1,13 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { gql, GraphQLClient } from 'graphql-request';
-import { createCanvas, loadImage,registerFont } from 'canvas';
-
+import { createCanvas, loadImage } from 'canvas';
 
 import path from 'path';
 import QRCode from 'qrcode';
 const endpoint = 'https://skybeats.neptunemusics.shop/graphql';
-registerFont(path.join(process.cwd(), 'public', 'fonts', 'Arial.ttf'), { family: 'Arial' });
+
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
