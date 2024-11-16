@@ -78,13 +78,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Set text styles and add passenger details
         ctx.font = 'bold 22px Arial, sans-serif';
         ctx.fillStyle = '#000';
-        ctx.fillText(`${passenger.firstName} ${passenger.lastName}`, 155, 175);
-        ctx.fillText(`${passenger.firstName} ${passenger.lastName}`, 1145, 116);
-        ctx.fillText(`${filteredBookingInput.flightNumber}`, 100, 522);
-        ctx.fillText(`${filteredBookingInput.departureAirport}`, 101, 409);
+        ctx.fillText(`cdcdscdscdsc`, 155, 175);
+        ctx.fillText(`sxsaxasxsax`, 1145, 116);
+        ctx.fillText(`saxasxsaxasxsax`, 100, 522);
+        ctx.fillText(`sxsaxsaxsaxsa`, 101, 409);
         ctx.fillText('→ ', 110, 411);
-        ctx.fillText(`${filteredBookingInput.arrivalAirport}`, 243, 416);
-        ctx.fillText(`${filteredBookingInput.DateofJourney}`, 895, 415);
+        ctx.fillText(`xsaxsaxasxasxsa`, 243, 416);
+        ctx.fillText(`xsaxsaxsaxasx`, 895, 415);
 
         // Generate the QR code with passenger details
         const qrData = JSON.stringify({
