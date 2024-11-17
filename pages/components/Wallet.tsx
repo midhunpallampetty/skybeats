@@ -81,7 +81,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
             <X className="h-6 w-6" />
           </button>
 
-          <div className="flex items-center gap-2 text-xl font-bold mb-1">
+          <div className="flex items-center gap-2 text-xl text-black font-bold mb-1">
             <Wallet className="h-6 w-6" />
             My Wallet
           </div>
@@ -89,7 +89,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
           <div className="text-center mb-6">
             <p className="text-sm text-gray-500">Current Balance</p>
-            <p className="text-4xl font-bold">₹{balance.toFixed(2)}</p>
+            <p className="text-4xl text-black font-bold">₹{balance.toFixed(2)}</p>
           </div>
 
           <div className="space-y-4"></div>
@@ -97,7 +97,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
           <div className="mt-6">
             <button
               onClick={toggleTransactions}
-              className="flex items-center justify-center w-full text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md"
+              className="flex items-center justify-center w-full text-sm font-medium text-black bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md"
             >
               {showTransactions ? (
                 <>
@@ -113,8 +113,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
           {showTransactions && paginatedTransactions.length > 0 ? (
             <div className="mt-4 space-y-4">
-              <h3 className="text-lg font-bold text-gray-700">Transaction History</h3>
-              <ul className="space-y-2">
+              <h3 className="text-lg font-bold text-black">Transaction History</h3>
+              <ul className="space-y-2 text-black">
                 {paginatedTransactions.map((transaction, index) => (
                   <li key={transaction.transactionId} className="flex justify-between items-center">
                     <span className={`text-sm ${transaction.transactionType === 'deposit' ? 'text-green-500' : 'text-red-500'}`}>
