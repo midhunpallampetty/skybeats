@@ -1,7 +1,7 @@
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import { NextApiRequest,NextApiResponse } from 'next';
 const client = new ApolloClient({
-  uri: 'http://localhost:3300/graphql', // Set your GraphQL API endpoint here
+  uri: 'https://skybeats.neptunemusics.shop/graphql', // Set your GraphQL API endpoint here
   cache: new InMemoryCache(),
 });
 
