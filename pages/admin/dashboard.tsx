@@ -139,7 +139,7 @@ const SuperAdminDashboard: React.FC = () => {
                                         (role !== 'hoteladmin' && user.name === 'Hotel Management') ||
                                         (role !== 'hradmin' && user.name === 'Career Management') ||
                                         (role !== 'flightoperator' && user.name === 'Flight Management') ||
-                                        (role !== 'cargomanager' && user.name === 'Cargo Management')||(role !== 'hoteladmin' && user.name === 'Menu')
+                                        (role !== 'cargomanager' && user.name === 'Cargo Management')||(role !== 'hoteladmin' && user.name === 'Menu') || (role !== 'flightoperator' && user.name === 'Booking-Report') 
                                     ) ? 'border-gray-400 cursor-not-allowed opacity-50' : 'border-gray-600/60 cursor-pointer'} rounded-lg shadow-lg relative focus:outline-none`}
                                     onClick={() => {
                                         if (user.Redirect && !(

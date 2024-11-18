@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { Bar, BarChart, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import axios from 'axios';
 import { bookData } from '@/interfaces/bookData';
-
+import { useRouter } from 'next/router';
+import Cookies from 'js-cookie';
 const categoryData = [
   { category: "Alpha", value: 8 },
   { category: "Omega", value: 6 },
@@ -48,9 +49,49 @@ export default function InvestmentDashboard() {
     { day: "Sat", value: 0 },
     { day: "Sun", value: 0 },
   ]);
+  const [role, setRole] = useState('');
+  const token = Cookies.get('jwtToken');
+  const router=useRouter()
+
   const [total, setTotal] = useState(0);
   const [pieData, setPieData] = useState<any[]>([]); // To store the top 4 arrival airports pie data
+  const [authorized, setAuthorized] = useState(false);
+  useEffect(() => {
+    if (!token) {
+       router.push('/admin/signin');
+    }
+ }, [token]);
+ useEffect(() => {
+    if (!token) {
+       router.push('/admin/signin');
+    }
+ }, [token, router]);
+  useEffect(() => {
+    const verifyToken = async () => {
+       try {
+          const response = await fetch('/api/tokenVerify', {
+             method: 'POST',
+             headers: {
+                'Content-Type': 'application/json',
+             },
+             body: JSON.stringify({ token }),
+          });
 
+          const data = await response.json();
+          setRole(data);
+console.log(data,'cdscds')
+          if (data === 'flightoperator') {  
+             setAuthorized(true);
+          }
+       } catch (error) {
+          console.error('Error verifying token:', error);
+       }
+    };
+
+    if (token) {
+       verifyToken();
+    }
+ }, [token]);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -121,7 +162,6 @@ export default function InvestmentDashboard() {
       setWeeklyData(updatedWeeklyData); // Update state with the new weekly data
     }
   }, [bookings]);
-
   useEffect(() => {
     if (bookings) {
       // Count bookings per arrival airport
@@ -165,7 +205,13 @@ export default function InvestmentDashboard() {
     return `rgb(${r}, ${g}, ${b})`; // Return in RGB format
   };
   
-
+  if (!authorized) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-[#050b2c] text-white">
+        <h1 className="text-3xl font-bold">Restricted Access</h1>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-[#050b2c] p-8 text-white">
       {/* Header */}
@@ -173,14 +219,14 @@ export default function InvestmentDashboard() {
         <h1 className="mb-4 text-3xl font-bold text-[#00ffff]">Total Airline Booking Report</h1>
         <div className="text-5xl font-bold">₹{total || 0}</div>
       </header>
-
+<p className='text-white font-extrabold cursor-pointer' onClick={()=>router.push('/admin/dashboard')}>Home</p>
       {/* Stats */}
       <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
         {[
           { label: "500+ Staff" },
-          { label: "30+ Industries" },
-          { label: "Professional" },
-          { label: "Experienced" },
+          { label: "3000+ Airports" },
+          { label: "Well Trained Pilots" },
+          { label: "Ruling Sky" },
         ].map((stat, index) => (
           <div key={index} className="flex items-center gap-2 rounded-lg bg-[#0a1445] p-4">
             <div className="rounded-full bg-[#00ffff] p-2" aria-hidden="true" />
@@ -198,7 +244,10 @@ export default function InvestmentDashboard() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={weeklyData}>
                 <Line type="monotone" dataKey="value" stroke="#ffffff" strokeWidth={3} dot={false} />
-                <Tooltip />
+                <Tooltip 
+  contentStyle={{ backgroundColor: '#333', borderColor: '#00ffff', color: '#fff' }} // Tooltip container
+  itemStyle={{ color: '#ff00ff' }} // Tooltip items
+/>
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -245,7 +294,7 @@ export default function InvestmentDashboard() {
               <tbody>
                 {bookings.map((booking, index) => (
                   <tr key={index} className="border-t border-gray-700">
-                    <td className="py-2">{booking?.FarePaid}</td>
+                    <td className="py-2">₹{booking?.FarePaid}</td>
                     <td className="py-2">{booking?.departureAirport}</td>
                     <td className="py-2">{booking?.arrivalAirport}</td>
                     <td className="py-2">{booking?.phoneNumber}</td>
