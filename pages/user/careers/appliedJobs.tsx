@@ -100,57 +100,65 @@ export default function AppliedJobs() {
                     </select>
                 </div>
 
-                {/* Job Applications List */}
-                <div className="space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto pr-4">
-                    {paginatedApplications.map((job) => (
-                        <div key={job.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-navy-200">
-                            <div className="bg-navy-100 px-6 py-4">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="font-semibold text-navy-900">{job.name}</p>
-                                        <div className="flex items-center gap-2 text-sm text-navy-600">
-                                            <Mail className="h-4 w-4" />
-                                            <span>{job.email}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-sm text-navy-600">
-                                            <Phone className="h-4 w-4" />
-                                            <span>{job.phone}</span>
-                                        </div>
-                                    </div>
-                                    <span className="bg-navy-200 text-navy-800 px-3 py-1 rounded-full text-sm font-medium">
-                                        {formatDate(job.Date)}
-                                    </span>
-                                </div>
+            {/* Job Applications List */}
+<div className="space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto pr-4">
+    {paginatedApplications.length > 0 ? (
+        paginatedApplications.map((job) => (
+            <div key={job.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-navy-200">
+                <div className="bg-navy-100 px-6 py-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="font-semibold text-navy-900">{job.name}</p>
+                            <div className="flex items-center gap-2 text-sm text-navy-600">
+                                <Mail className="h-4 w-4" />
+                                <span>{job.email}</span>
                             </div>
-                            <div className="px-6 py-4">
-                                <div className="grid gap-4">
-                                    <div>
-                                        <h3 className="font-semibold mb-2 text-navy-900">Cover Letter</h3>
-                                        <p className="text-sm text-navy-700">{job.coverLetter}</p>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <FileText className="h-4 w-4 text-navy-600" />
-                                        <a
-                                            href={job.cv}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-sm text-navy-600 hover:text-navy-800 hover:underline"
-                                        >
-                                            View CV
-                                        </a>
-                                    </div>
-                                </div>
+                            <div className="flex items-center gap-2 text-sm text-navy-600">
+                                <Phone className="h-4 w-4" />
+                                <span>{job.phone}</span>
                             </div>
                         </div>
-                    ))}
+                        <span className="bg-navy-200 text-navy-800 px-3 py-1 rounded-full text-sm font-medium">
+                            {formatDate(job.Date)}
+                        </span>
+                    </div>
                 </div>
+                <div className="px-6 py-4">
+                    <div className="grid gap-4">
+                        <div>
+                            <h3 className="font-semibold mb-2 text-navy-900">Cover Letter</h3>
+                            <p className="text-sm text-navy-700">{job.coverLetter}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <FileText className="h-4 w-4 text-navy-600" />
+                            <a
+                                href={job.cv}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-navy-600 hover:text-navy-800 hover:underline"
+                            >
+                                View CV
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        ))
+    ) : (
+        <div className="text-center py-10 text-white font-extrabold">
+            <h2 className="text-lg font-semibold text-navy-900">No Applications Found</h2>
+            <p className="text-sm text-navy-600">It looks like there are no job applications at the moment.</p>
+        </div>
+    )}
+</div>
+
 
                 {/* Pagination Controls */}
                 <div className="flex justify-between items-center mt-6">
                     <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="px-4 py-2 bg-navy-200 text-navy-800 rounded disabled:opacity-50"
+                        className="px-4 py-2 bg-navy-200 text-navy-800 text-white rounded disabled:opacity-50"
                     >
                         Previous
                     </button>

@@ -24,7 +24,7 @@ const AdminChat: React.FC = () => {
   const [socket, setSocket] = useState<any | null>(null);
 
   useEffect(() => {
-    const socketConnection: any = io('http://localhost:3300');
+    const socketConnection: any = io('https://skybeats.neptunemusics.shop/graphql');
     setSocket(socketConnection);
 
     socketConnection.emit('identify', 'admin');
