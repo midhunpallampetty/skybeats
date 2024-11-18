@@ -24,7 +24,7 @@ const SelectHotel = () => {
   const getGuestDetails=useSelector((state:RootState)=>state.hotelGuestData.selectedUser);
 
   console.log(data, 'vdvdsvData');
-
+const userId=Cookies.get('userId');
   useEffect(() => {
     if (!token) {
       router.push('/');
@@ -83,6 +83,12 @@ const SelectHotel = () => {
     const dd = String(formattedDate.getDate() + 1).padStart(2, '0'); // Ensuring checkout is after check-in
     return `${yyyy}-${mm}-${dd}`;
   };
+  useEffect(()=>{
+    console.log(userId)
+    if(!userId){
+      router.push('/')
+    }
+    },[userId])
   return (
     <>
       <Navbar />

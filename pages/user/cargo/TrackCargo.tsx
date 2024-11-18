@@ -2,18 +2,19 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Carousel } from 'flowbite-react';
-
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/router';
 function TrackCargo() {
   const Navbar = dynamic(() => import('../../components/Navbar'), { ssr: false });
   const [tracking, setTracking] = useState('');
   const [trackingData, setTrackingData] = useState<any>(null);  // Ensure trackingData can be null initially
-
+ const userId=Cookies.get('userId');
   const handleTracking = () => {
     if (tracking) {
       fetchTrackingData(tracking);
     }
   };
-
+  const router=useRouter()
   const fetchTrackingData = async (trackingId: string) => {
     try {
       const response = await fetch('/api/trackingConsent', {
@@ -36,7 +37,11 @@ function TrackCargo() {
       console.error('Error fetching tracking data:', error.message);
     }
   };
-
+  useEffect(()=>{
+    if(!userId){
+      router.push('/')
+    }
+    },[])
   return (
     <>
       <Navbar />

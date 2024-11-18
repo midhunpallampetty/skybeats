@@ -51,11 +51,7 @@ const ListFlights: React.FC = () => {
   const [flightsPerPage] = useState<number>(5);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const token = Cookies.get('jwtToken');
-  useEffect(() => {
-    if (!token) {
-      router.push('/');
-    }
-  }, []);
+ 
   useEffect(()=>{
 dispatch(clearFlights())
   },[])

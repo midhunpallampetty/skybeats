@@ -3,13 +3,13 @@ import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import { RootState } from '@/redux/store'; 
-
+import Cookies from 'js-cookie';
 const Navbar = dynamic(() => import('../../components/Navbar'));
 
 const CareerDetails = () => {
   const router = useRouter();
   const selectedJob = useSelector((state: RootState) => state.job.selectedJob);
-
+const userId=Cookies.get('userId');
   useEffect(() => {
     if (!selectedJob) {
       router.push('/user/careers/jobBoard');
@@ -19,7 +19,12 @@ const CareerDetails = () => {
   if (!selectedJob) {
     return null; // You can also return a loading spinner or placeholder here
   }
-
+  useEffect(()=>{
+    console.log(userId)
+    if(!userId){
+      router.push('/')
+    }
+    },[userId])
   return (
     <>
       <Navbar />

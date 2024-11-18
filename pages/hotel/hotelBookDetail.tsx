@@ -21,7 +21,7 @@ const HotelBookDetail: React.FC = () => {
   const updatedGuestDetails = useSelector((state: RootState) => state.bookdetail.guestDetails);
   const hotelBookingDetail = useSelector((state: RootState) => state.hotelBookDetail.selectedHotel);
   const token = Cookies.get('jwtToken');
-
+const userId=Cookies.get('userId');
   useEffect(() => {
     if (!token) {
       router.push('/');
@@ -67,7 +67,12 @@ const HotelBookDetail: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-
+  useEffect(()=>{
+    console.log(userId)
+    if(!userId){
+      router.push('/')
+    }
+    },[userId])
   return (
     <>
       <BookingSummaryModal

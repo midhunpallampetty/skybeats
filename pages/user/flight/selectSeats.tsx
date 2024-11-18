@@ -197,7 +197,12 @@ console.log(selectedSeat,'selectedSeat')
         }
     };
     
-    
+    useEffect(()=>{
+        console.log(userId)
+        if(!userId){
+          router.push('/')
+        }
+        },[userId])
     
     return (
         <>

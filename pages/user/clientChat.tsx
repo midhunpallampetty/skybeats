@@ -5,7 +5,8 @@ import { Socket } from 'socket.io-client';
 import io from 'socket.io-client';
 import dynamic from 'next/dynamic';
 import EmojiPicker from 'emoji-picker-react';
-
+import { useRouter } from 'next/router';
+import Cookies from 'js-cookie';
 interface Message {
   id: number;
   message: string;
@@ -21,6 +22,8 @@ const UserChat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const userId=Cookies.get('userId');
+  const router=useRouter()
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false); // Simulate loading time
@@ -30,7 +33,7 @@ const UserChat: React.FC = () => {
   }, []);
   // Initialize Socket.io connection
   useEffect(() => {
-    const socketConnection: Socket = io('http://localhost:3300'); // Replace with your backend Socket.io URL
+    const socketConnection: Socket = io('https://skybeats.neptunemusics.shop'); // Replace with your backend Socket.io URL
     setSocket(socketConnection);
 
     // Identify as user
@@ -69,7 +72,12 @@ const UserChat: React.FC = () => {
     }
   };
   
-
+  useEffect(()=>{
+    console.log(userId)
+    if(!userId){
+      router.push('/')
+    }
+    },[userId])
   // Inline styles for loading screen and animation
   const loadingScreenStyle = {
     display: 'flex',

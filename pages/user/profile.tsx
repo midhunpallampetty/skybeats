@@ -113,7 +113,11 @@ export default function ProfileComponent() {
       setSkelton(false);
     }, 2000); // Adjust delay as needed or load when data is ready
 }, []);
-
+useEffect(()=>{
+  if(!userId){
+    router.push('/')
+  }
+  },[])
   const toggleModal = () => {
     setIsWalletModalOpen(prev => !prev);
   };

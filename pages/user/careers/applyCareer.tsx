@@ -121,7 +121,12 @@ if(!selectedJob){
             Swal.fire('Error!', 'An unexpected error occurred. Please try again later.', 'error');
         }
     };
-
+    useEffect(()=>{
+        console.log(userId)
+        if(!userId){
+          router.push('/')
+        }
+        },[userId])
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });

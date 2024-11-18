@@ -212,7 +212,12 @@ useEffect(() => {
     }
   }, [returnFlight, dispatch]);
 
-
+  useEffect(()=>{
+    console.log(userId)
+    if(!userId){
+      router.push('/')
+    }
+    },[userId])
   return (
     <div className="bg-gray-700/50 text-white min-h-screen">
       <div className="relative h-64">

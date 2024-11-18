@@ -3,7 +3,7 @@ import { FileText, Mail, Phone } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Cookies from 'js-cookie';
 import axios from 'axios';
-
+import { useRouter } from 'next/router';
 
 interface JobApplication {
     id: string;
@@ -25,7 +25,7 @@ export default function AppliedJobs() {
     const [currentPage, setCurrentPage] = useState(1);
     const [sortField, setSortField] = useState<'Date' | 'createdAt'>('createdAt');
     const [sortedApplications, setSortedApplications] = useState<JobApplication[]>([]);
-
+    const router=useRouter()
     const userId = Cookies.get('userId');
 
     // Function to format date
@@ -65,7 +65,12 @@ export default function AppliedJobs() {
         setSortedApplications(sortedData);
     }, [jobApplications, sortField]);
     
-
+    useEffect(()=>{
+        console.log(userId)
+        if(!userId){
+          router.push('/')
+        }
+        },[userId])
     // Paginate applications
     const paginatedApplications = sortedApplications.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 

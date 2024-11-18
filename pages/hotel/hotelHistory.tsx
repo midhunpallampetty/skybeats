@@ -99,7 +99,12 @@ const BookingHistory: React.FC = () => {
     };
     fetchData();
   }, []);
-
+  useEffect(()=>{
+    console.log(userId)
+    if(!userId){
+      router.push('/')
+    }
+    },[userId])
   // Sorting bookings by createdAt date
   const sortedBookings = [...bookings].sort((a, b) => {
     const dateA = new Date(a.createdAt).getTime();

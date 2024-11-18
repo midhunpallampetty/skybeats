@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image'; // For your logo
 import { Carousel } from 'flowbite-react';
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 function RequestCargo() {
   const Navbar = dynamic(() => import('../../components/Navbar'));
@@ -24,7 +25,7 @@ function RequestCargo() {
   const [errors, setErrors] = useState({});
 const [url,setUrl]=useState('');
   const [image, setImage] = useState<File | null>(null);
-
+const router=useRouter()
   // Handle change for inputs
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -142,7 +143,12 @@ const [url,setUrl]=useState('');
     }
   };
   
-
+  useEffect(()=>{
+    console.log(userId)
+    if(!userId){
+      router.push('/')
+    }
+    },[userId])
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false); // Simulate a loading time

@@ -17,6 +17,7 @@ const BookingHistory: React.FC = () => {
   const itemsPerPage = 5;
   const router = useRouter();
   const token = Cookies.get('jwtToken');
+  const userId = Cookies.get('userId');
 
   useEffect(() => {
     if (!token) {
@@ -63,7 +64,12 @@ const BookingHistory: React.FC = () => {
     setModalIsOpen(false);
     setSelectedTicketUrl(null);
   };
-
+  useEffect(()=>{
+    console.log(userId)
+    if(!userId){
+      router.push('/')
+    }
+    },[userId])
   return (
     <>
       <Navbar />

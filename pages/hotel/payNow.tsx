@@ -108,7 +108,12 @@ console.log(guestDetails);
       router.push('/hotel/thanksPage');
     }
   };
-
+  useEffect(()=>{
+    console.log(userId)
+    if(!userId){
+      router.push('/')
+    }
+    },[userId])
   return (
     <form onSubmit={handleSubmit}>
       <CardElement

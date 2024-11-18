@@ -3,13 +3,13 @@ import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-
+import { useRouter } from 'next/router';
 const AllCargoRequests = () => {
   const Navbar = dynamic(() => import('../../components/Navbar'), { ssr: false });
   const [cargoRequests, setCargoRequests] = useState([]); // Initialize as an empty array
   const [loading, setLoading] = useState(true); // Add loading state
   const userId = Cookies.get('userId');
-
+ const router=useRouter()
   useEffect(() => {
     const CargoRequests = async () => {
       try {
@@ -41,7 +41,12 @@ const AllCargoRequests = () => {
   }, [userId]);
 
   console.log(cargoRequests);
-
+  useEffect(()=>{
+    console.log(userId)
+    if(!userId){
+      router.push('/')
+    }
+    },[userId])
   return (
     <>
       <Navbar />
