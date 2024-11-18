@@ -10,4 +10,5 @@ export interface bookData{
     phoneNumber: string
     stop: string
     guestName:string
+    createdAt:string
 }

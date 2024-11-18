@@ -16,6 +16,9 @@ const getBookings = async (req: NextApiRequest, res: NextApiResponse) => {
                 flightDuration
                 flightModel
                 flightNumber
+                phoneNumber
+                createdAt
+                
             }
         }
     `;

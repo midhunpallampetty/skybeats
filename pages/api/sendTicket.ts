@@ -83,13 +83,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Set text styles and add passenger details
         ctx.font = 'bold 22px sans-serif';
         ctx.fillStyle = '#000';
-        ctx.fillText(`${passenger.firstName} ${passenger.lastName}`, 155, 175);
-        ctx.fillText(`${passenger.firstName} ${passenger.lastName}`, 1145, 116);
-        ctx.fillText(`${filteredBookingInput.flightNumber}`, 100, 522);
-        ctx.fillText(`${filteredBookingInput.departureAirport}`, 101, 409);
-        ctx.fillText('→ ', 110, 411);
-        ctx.fillText(`${filteredBookingInput.arrivalAirport}`, 243, 416);
-        ctx.fillText(`${filteredBookingInput.DateofJourney}`, 895, 415);
+        ctx.fillText(`${passenger.firstName} ${passenger.lastName}`, 173, 157);
+        ctx.fillText(`${passenger.firstName} ${passenger.lastName}`, 1050, 68);
+        ctx.fillText(`${filteredBookingInput.flightNumber}`, 77, 450);
+        ctx.fillText(`${filteredBookingInput.departureAirport}`, 115, 350);
+        ctx.fillText('→ ', 175, 348);
+        ctx.fillText(`${filteredBookingInput.arrivalAirport}`, 247, 350);
+        ctx.fillText(`${filteredBookingInput.DateofJourney}`, 763, 344);
 
         // Generate the QR code with passenger details
         const qrData = JSON.stringify({
@@ -100,9 +100,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           DateofJourney: filteredBookingInput.DateofJourney,
           seat: filteredBookingInput.seatNumber,
         });
-        const qrCodeBuffer = await QRCode.toBuffer(qrData, { width: 150, margin: 1 });
+        console.log('QR Data:', qrData);
+        const qrCodeBuffer = await QRCode.toBuffer(qrData, { width: 100, margin: 1 });
+        console.log('QR Code Buffer Length:', qrCodeBuffer.length); // Debug buffer length
         const qrCodeImage = await loadImage(qrCodeBuffer);
-        const qrCodeX = 1280, qrCodeY = 500, qrCodeSize = 150;
+        const qrCodeX = 640, qrCodeY = 30, qrCodeSize = 120;
         ctx.drawImage(qrCodeImage, qrCodeX, qrCodeY, qrCodeSize, qrCodeSize);
 
         // Save the canvas as an image buffer and upload to S3
@@ -148,3 +150,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(405).json({ message: 'Method Not Allowed' });
   }
 }
+
