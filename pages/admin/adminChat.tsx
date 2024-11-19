@@ -4,7 +4,8 @@ import io from 'socket.io-client';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import EmojiPicker from 'emoji-picker-react';
-
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/router';
 interface Message {
   id: number;
   message: string;
@@ -22,9 +23,9 @@ const AdminChat: React.FC = () => {
   const [message, setMessage] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [socket, setSocket] = useState<any | null>(null);
-
+  const router=useRouter()
   useEffect(() => {
-    const socketConnection: any = io('http://localhost:3300/graphql');
+    const socketConnection: any = io('https://skybeats.neptunemusics.shop');
     setSocket(socketConnection);
 
     socketConnection.emit('identify', 'admin');
@@ -96,7 +97,18 @@ const AdminChat: React.FC = () => {
       100% { width: 0; }
     }
   `;
+  const token = Cookies.get('jwtToken');
 
+  useEffect(()=>{
+    if(!token){
+      router.push('/admin/signin');
+    }
+    },[token]);
+      useEffect(() => {
+         if (!token) {
+            router.push('/admin/signin');
+         }
+      }, [token, router]);
   return (
     <>
       <style>{loadingKeyframes}</style>

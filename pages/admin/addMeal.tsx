@@ -4,6 +4,8 @@ import AWS from 'aws-sdk';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import S3 from 'aws-sdk/clients/s3';
+import { useRouter } from 'next/router';
+import Cookies from 'js-cookie';
 interface S3UploadResponse {
   uploadUrl: string;
   key: string;
@@ -124,7 +126,7 @@ console.log(mealData,'cdcsd');
     await uploadToS3();
     setShouldAddMeal(true);
   };
-
+const router=useRouter()
   const handleTemperatureChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFoodType(e.target.value);
   };
@@ -159,8 +161,18 @@ console.log(mealData,'cdcsd');
     maxWidth: '600px',
     padding: '20px',
   };
+  const token = Cookies.get('jwtToken');
 
-  
+  useEffect(()=>{
+    if(!token){
+      router.push('/admin/signin');
+    }
+    },[token]);
+      useEffect(() => {
+         if (!token) {
+            router.push('/admin/signin');
+         }
+      }, [token, router]);
   return (
     <div style={backgroundStyle}>
       <AdminNavbar />

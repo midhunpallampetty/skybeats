@@ -167,7 +167,6 @@ const ReceivedCargo: React.FC = ({ bookingData }: any) => {
          <div style={backgroundStyle} />
          <div style={contentStyle}>
             <section className="xl:ml-[250px] xl:w-[1200px] md:w-[800px] sm:w-full bg-transparent" style={{ position: 'relative', zIndex: 10 }}>
-               <AdminAside />
                {authorized ? (
                   currentUsers.map((booking) => (
                      <div key={booking.trackingId} className="bg-blue-900/50 p-6 rounded-2xl shadow-white/25 shadow-inner w-full mb-10 mx-auto">

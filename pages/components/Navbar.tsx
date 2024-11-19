@@ -11,6 +11,7 @@ export default function Component() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSubmenu, setMobileSubmenu] = useState<string | null>(null);
   const token = Cookies.get('jwtToken');
 
   useEffect(() => {
@@ -26,18 +27,7 @@ export default function Component() {
     Cookies.remove('next-auth.callback-url');
     Cookies.remove('next-auth.csrf-token');
     Cookies.remove('userId');
-    
     router.push('/user/signin');
-  };
-
-  const handleMouseEnter = (menu: string) => {
-    setActiveMenu(menu);
-  };
-
-  const handleMouseLeave = () => {
-    setTimeout(() => {
-      setActiveMenu(null);
-    }, 300);
   };
 
   const toggleMobileMenu = () => {
@@ -46,10 +36,52 @@ export default function Component() {
 
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
+    setMobileSubmenu(null);
   };
 
+  const toggleMobileSubmenu = (menu: string) => {
+    setMobileSubmenu((prev) => (prev === menu ? null : menu));
+  };
+
+  const menuItems = [
+    {
+      name: 'Flights',
+      href: '/user/flight/listflights',
+    },
+    {
+      name: 'Cargo',
+      href: '/',
+      submenu: [
+        { name: 'Request Cargo', href: '/user/cargo/RequestCargo' },
+        { name: 'Track Cargo', href: '/user/cargo/TrackCargo' },
+        { name: 'All Cargos', href: '/user/cargo/allCargoRequests' },
+      ],
+    },
+    {
+      name: 'Hotels',
+      href: '/hotel',
+      submenu: [
+        { name: 'Book Hotels', href: '/hotel' },
+        { name: 'Booking History', href: '/hotel/hotelHistory' },
+      ],
+    },
+    {
+      name: 'Careers',
+      href: '/user/careers',
+      submenu: [{ name: 'Job Openings', href: '/user/careers' }],
+    },
+    {
+      name: 'Contact Us',
+      href: '/contact',
+    },
+    {
+      name: 'Chat Support',
+      href: '/user/clientChat',
+    },
+  ];
+
   return (
-    <nav className="bg-blue-950  shadow-white/40 shadow-inner fixed w-full z-20 top-0 start-0 ">
+    <nav className="bg-blue-950 shadow-white/40 shadow-inner fixed w-full z-20 top-0 start-0">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
           <Image src="/logo_airline.png" width={140} height={12} className="h-8" alt="Airline Logo" />
@@ -81,7 +113,7 @@ export default function Component() {
           >
             <span className="sr-only">Open main menu</span>
             <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15"/>
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15" />
             </svg>
           </button>
         </div>
@@ -92,34 +124,31 @@ export default function Component() {
           id="navbar-sticky"
         >
           <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-blue-700 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-transparent">
-            {[
-              { name: 'Flights', href: '/user/flight/listflights'},
-              { name: 'Cargo', href: '/', submenu: [
-                { name: 'Request Cargo', href: '/user/cargo/RequestCargo' },
-                { name: 'Track Cargo', href: '/user/cargo/TrackCargo' },
-                { name: 'All Cargos', href: '/user/cargo/allCargoRequests' },
-              ]},
-              { name: 'Hotels', href: '/hotel', submenu: [
-                { name: 'Book Hotels', href: '/hotel' },
-                { name: 'Booking History', href: '/hotel/hotelHistory' },
-              ]},
-              { name: 'Careers', href: '/user/careers', submenu: [
-                { name: 'Job Openings', href: '/user/careers' },
-                
-              ]},
-              { name: 'Contact Us', href: '/contact'},
-              { name: 'Chat Support', href: '/user/clientChat' },
-            ].map((item) => (
+            {menuItems.map((item) => (
               <li key={item.name} className="relative group">
-                <Link
-                  href={item.href}
-                  className="block py-2 px-3 text-white rounded hover:bg-blue-900 md:hover:bg-transparent md:hover:text-blue-700 md:p-0"
-                  onClick={closeMobileMenu}
-                >
-                  {item.name}
-                </Link>
+                <div className="flex items-center">
+                  <Link
+                    href={item.href}
+                    className="block py-2 px-3 text-white rounded hover:bg-blue-900 md:hover:bg-transparent md:hover:text-blue-700 md:p-0"
+                    onClick={closeMobileMenu}
+                  >
+                    {item.name}
+                  </Link>
+                  {item.submenu && (
+                    <button
+                      className="ml-2 text-white md:hidden"
+                      onClick={() => toggleMobileSubmenu(item.name)}
+                    >
+                      ▼
+                    </button>
+                  )}
+                </div>
                 {item.submenu && (
-                  <ul className="absolute left-0 hidden mt-2 space-y-2 bg-white border rounded-md shadow-lg group-hover:block md:w-48">
+                  <ul
+                    className={`${
+                      mobileSubmenu === item.name ? 'block' : 'hidden'
+                    } mt-2 space-y-2 bg-white border rounded-md shadow-lg md:absolute md:left-0 md:group-hover:block md:w-48`}
+                  >
                     {item.submenu.map((subitem) => (
                       <li key={subitem.name}>
                         <Link

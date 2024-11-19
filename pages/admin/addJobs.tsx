@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import Swal from 'sweetalert2';
-
+import { useEffect } from 'react';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/router';
 const backgroundStyle: React.CSSProperties = {
   backgroundImage: 'url(\'/admin-bg.png\')',
   backgroundSize: 'cover',
@@ -45,10 +47,10 @@ function AddJobs() {
     salary: '',
     image: '',
   });
-
+const router=useRouter()
   const AdminNavbar = dynamic(() => import('../components/AdminNavbar'));
   const AdminAside = dynamic(() => import('../components/Adminaside'));
-
+  
   const validateForm = () => {
     let valid = true;
     let newErrors = { designation: '', description: '', salary: '', image: '' };
@@ -167,7 +169,18 @@ function AddJobs() {
       console.error('Error:', error);
     }
   };
+  const token = Cookies.get('jwtToken');
 
+  useEffect(()=>{
+    if(!token){
+      router.push('/admin/signin');
+    }
+    },[token]);
+      useEffect(() => {
+         if (!token) {
+            router.push('/admin/signin');
+         }
+      }, [token, router]);
   return (
     <>
       <AdminNavbar />
