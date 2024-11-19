@@ -163,10 +163,10 @@ const UserChat: React.FC = () => {
               <h3 className="text-xl font-bold">Chats</h3>
             </div>
             <ul className="space-y-4 p-4">
-              {['Jithin'].map((user, index) => (
+              {['Client'].map((user, index) => (
                 <li key={index} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 cursor-pointer">
                   <img
-                    src="https://media.licdn.com/dms/image/v2/C5603AQFUUiMCTz33zg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1517405946768?e=1732752000&v=beta&t=B8m-ZvygfZNZWpscCYzGxlAjg5c-ZTPZriwmpCYCff8"
+                    src="https://airline-datacenter.s3.ap-south-1.amazonaws.com/cuterobot_0000.jpg"
                     alt={user}
                     className="w-10 h-10 rounded-full"
                   />

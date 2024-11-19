@@ -22,6 +22,7 @@ import { setReturnDate } from '@/redux/slices/returnDate';
 import { setSelectedPassengers } from '@/redux/slices/passengerCountSlice';
 import { OptionType } from '@/interfaces/OptionType';
 import { useRouter } from 'next/router';
+import { clearSelectedReturnFlight } from '@/redux/slices/returnFlightSlice';
 
 const ListFlights: React.FC = () => {
   const Navbar = dynamic(() => import('../../components/Navbar'), { ssr: true });
@@ -54,6 +55,7 @@ const ListFlights: React.FC = () => {
  
   useEffect(()=>{
 dispatch(clearFlights())
+dispatch(clearSelectedReturnFlight())
   },[])
   useEffect(() => {
     const fetchData = async () => {

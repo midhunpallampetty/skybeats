@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-
+import { clearSelectedReturnFlight } from '@/redux/slices/returnFlightSlice';
+import { useDispatch, useSelector } from 'react-redux';
 export default function ThanksPayment() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-
+  const dispatch=useDispatch()
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
+      dispatch(clearSelectedReturnFlight())
     }, 30000); // 1 minute in milliseconds
-
+  
     return () => clearTimeout(timer); // Cleanup the timer on component unmount
   }, []);
 
