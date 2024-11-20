@@ -4,7 +4,7 @@ import { gql, GraphQLClient } from 'graphql-request';
 import { createCanvas, loadImage } from 'canvas';
 import path from 'path';
 import QRCode from 'qrcode';
-const endpoint = 'https://skybeats.neptunemusics.shop/graphql';
+const endpoint = process.env.GRAPHQL_ENDPOINT!;
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,

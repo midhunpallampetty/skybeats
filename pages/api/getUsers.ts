@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { GraphQLClient, gql } from 'graphql-request';
 
 const getUsers = async (req: NextApiRequest, res: NextApiResponse) => {
-    const graphQLClient = new GraphQLClient('https://skybeats.neptunemusics.shop/graphql');
+    const graphQLClient = new GraphQLClient(process.env.GRAPHQL_ENDPOINT!);
 
     const query = gql`
         query getUserList {

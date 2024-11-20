@@ -4,7 +4,7 @@ import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 
 // Create a new Apollo Client instance
 const client = new ApolloClient({
-  uri: 'https://skybeats.neptunemusics.shop/graphql', // Your GraphQL server URL
+  uri: process.env.GRAPHQL_ENDPOINT!, // Your GraphQL server URL
   cache: new InMemoryCache(),
 });
 

@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { GraphQLClient, gql } from 'graphql-request';
 
 // Initialize GraphQL client
-const graphQLClient = new GraphQLClient('https://skybeats.neptunemusics.shop/graphql');
+const graphQLClient = new GraphQLClient(process.env.GRAPHQL_ENDPOINT!);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { userId } = req.body;

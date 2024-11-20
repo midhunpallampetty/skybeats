@@ -23,7 +23,7 @@ console.log(req.body)
   };
 
   try {
-    const response = await fetch('https://skybeats.neptunemusics.shop/graphql', {
+    const response = await fetch(process.env.GRAPHQL_ENDPOINT!, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -30,7 +30,7 @@ const GET_ALL_APPLICATIONS = gql`
 // Create the API handler
 const getAllApplications = async (req: NextApiRequest, res: NextApiResponse) => {
   // Initialize the GraphQL client, replace with your GraphQL server URL
-  const graphQLClient = new GraphQLClient('https://skybeats.neptunemusics.shop/graphql');
+  const graphQLClient = new GraphQLClient(process.env.GRAPHQL_ENDPOINT!);
 
   try {
     // Make the request to the GraphQL API

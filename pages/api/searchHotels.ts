@@ -4,7 +4,7 @@ import { GraphQLClient, gql } from 'graphql-request';
 const searchHotel = async (req: NextApiRequest, res: NextApiResponse) => {
   const { city } = req.body;
 
-  const graphQLClient = new GraphQLClient('https://skybeats.neptunemusics.shop/graphql'); // Your GraphQL endpoint
+  const graphQLClient = new GraphQLClient(process.env.GRAPHQL_ENDPOINT!); // Your GraphQL endpoint
   const query = gql`
     query HotelByLocation($city: String!) {
       HotelByLocation(city: $city) {

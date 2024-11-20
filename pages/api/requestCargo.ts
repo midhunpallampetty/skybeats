@@ -3,7 +3,7 @@ import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import { NextApiRequest,NextApiResponse } from 'next';
 // Define the Apollo Client that connects to the GraphQL server
 const client = new ApolloClient({
-  uri: 'https://skybeats.neptunemusics.shop/graphql', // Replace with your GraphQL server URL
+  uri: process.env.GRAPHQL_ENDPOINT!, // Replace with your GraphQL server URL
   cache: new InMemoryCache(),
 });
 

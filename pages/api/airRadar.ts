@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     // Make a POST request to the GraphQL API with Axios
     const response = await axios.post<AircraftModelResponse>(
-      'https://skybeats.neptunemusics.shop/graphql', // Ensure this is your GraphQL server URL
+      process.env.GRAPHQL_ENDPOINT!, // Ensure this is your GraphQL server URL
       {
         query: GET_AIRCRAFT_MODEL_QUERY,
         variables: { flightNumber, airline }, // Pass both flightNumber and airline

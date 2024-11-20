@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { gql, GraphQLClient } from 'graphql-request';
 
-const endpoint = 'https://skybeats.neptunemusics.shop/graphql';
+const endpoint = process.env.GRAPHQL_ENDPOINT!;
 const client = new GraphQLClient(endpoint);
 
 const GET_PASSENGER_INFO_QUERY = gql`

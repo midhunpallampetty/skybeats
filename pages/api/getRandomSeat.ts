@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { GraphQLClient, gql } from 'graphql-request';
 
 // Initialize the GraphQL Client pointing to your server
-const graphQLClient = new GraphQLClient('https://skybeats.neptunemusics.shop/graphql');
+const graphQLClient = new GraphQLClient(process.env.GRAPHQL_ENDPOINT!);
 
 // GraphQL Query for fetching a random seat
 const GET_RANDOM_SEAT = gql`

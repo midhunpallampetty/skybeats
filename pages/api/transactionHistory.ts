@@ -1,6 +1,6 @@
                                                 import { NextApiRequest,NextApiResponse } from 'next';
                                                 import { GraphQLClient,gql } from 'graphql-request';
-                                                const graphqlClientRequest=new GraphQLClient('https://skybeats.neptunemusics.shop/graphql');
+                                                const graphqlClientRequest=new GraphQLClient(process.env.GRAPHQL_ENDPOINT!);
                                                 export default async function handler(req:NextApiRequest,res:NextApiResponse){
                                                     const {userId}=req.body;
                                                     const query=gql`

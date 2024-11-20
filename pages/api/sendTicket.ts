@@ -5,7 +5,7 @@ import { createCanvas, loadImage,registerFont } from 'canvas';
 
 import path from 'path';
 import QRCode from 'qrcode';
-const endpoint = 'https://skybeats.neptunemusics.shop/graphql';
+const endpoint = process.env.GRAPHQL_ENDPOINT!;
 const fontPath = path.join(process.cwd(), 'pages', 'api', 'Arial.ttf');
 
 // Register the font
