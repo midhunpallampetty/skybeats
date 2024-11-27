@@ -26,11 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const SIGNUP_MUTATION = gql`
     mutation userSignup($username: String!, $email: String!, $password: String!) {
       userSignup(username: $username, email: $email, password: $password) {
-        accessToken
-        refreshToken
-        user {
-          email
-        }
+        message
       }
     }
   `;
@@ -42,11 +38,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       variables: { username, email, password },
     });
 
-    // Return the tokens and user data in the response
+    // Return the message (e.g., "OTP sent to your email") in the response
     res.status(200).json({
-      accessToken: data.userSignup.accessToken,
-      refreshToken: data.userSignup.refreshToken,
-      user: data.userSignup.user,
+      message: data.userSignup.message,
     });
   } catch (error: any) {
     console.error('Error during signup:', error);

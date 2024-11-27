@@ -70,48 +70,63 @@ const Signup: React.FC = () => {
   }, []);
 
   // Handle Signup Function
-  const handleSignup = async (event: React.FormEvent) => {
-    event.preventDefault();
+// Handle Signup Function
+const handleSignup = async (event: React.FormEvent) => {
+  event.preventDefault();
 
-    // Validate inputs
-    const usernameError = validateUsername(username);
-    const emailError = validateEmail(email);
-    const passwordError = validatePassword(password);
+  // Validate inputs
+  const usernameError = validateUsername(username);
+  const emailError = validateEmail(email);
+  const passwordError = validatePassword(password);
 
-    if (usernameError || emailError || passwordError) {
-      setCustomError({ username: usernameError, email: emailError, password: passwordError });
+  if (usernameError || emailError || passwordError) {
+    setCustomError({ username: usernameError, email: emailError, password: passwordError });
+    return;
+  }
+
+  try {
+    console.log(email, password, username, 'data reached');
+    const response = await fetch('/api/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username,
+        email,
+        password,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      setCustomError((prev) => ({
+        ...prev,
+        email: errorData.message || 'Signup failed. Please try again.',
+      }));
       return;
     }
+    
 
-    try {
-      console.log(email, password, username, 'data reached');
-      const response = await fetch('/api/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username,
-          email,
-          password,
-        }),
-      });
+    const data = await response.json();
+    console.log('Signup Successful', data);
 
-      if (!response.ok) {
-        throw new Error('Signup failed');
-      }
+    const { accessToken, refreshToken } = data;
 
-      const data = await response.json();
-      console.log('Signup Successful', data);
+    // Save tokens in cookies
+    Cookies.set('accessToken', accessToken, { expires: 1 }); // Expires in 1 day
+    Cookies.set('refreshToken', refreshToken, { expires: 30 }); // Expires in 30 days
 
-      const token = data.token;
-      Cookies.set('jwtToken', token, { expires: 30 });
+    // Open OTP modal
+    console.log('Setting OTP modal open to true');
+setIsOtpModalOpen(true);
+console.log('isOtpModalOpen:', isOtpModalOpen);
 
-      setIsOtpModalOpen(true);
-    } catch (error) {
-      console.log('Error during signup', error);
-    }
-  };
+  } catch (error) {
+    console.log('Error during signup', error);
+  }
+};
+
 
   return (
     <div
@@ -308,8 +323,8 @@ const Signup: React.FC = () => {
           </div>
         </div>
       </section>
+      {isOtpModalOpen && <OtpModal email={email} isOpen={isOtpModalOpen} onClose={() => setIsOtpModalOpen(false)} />}
 
-      {isOtpModalOpen && <OtpModal closeModal={() => setIsOtpModalOpen(false)} />}
     </div>
   );
 };
