@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const adminAxios = axios.create({
-  baseURL: "https://www.skybeats.site/api", // Update this to match your API base URL
+  baseURL: "https://www.skybeats.site/api/", // Update this to match your API base URL
   withCredentials: true,
 });
 
@@ -48,7 +48,7 @@ adminAxios.interceptors.request.use(
             adminaccessToken = data.adminaccessToken;
             Cookies.set("adminaccessToken", adminaccessToken, {
               secure: true,
-              sameSite: "strict",
+              
             });
           } catch (refreshError) {
             console.error("Failed to refresh token:", refreshError);
