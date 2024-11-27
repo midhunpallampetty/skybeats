@@ -46,10 +46,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.setHeader('Set-Cookie', [
       `accessToken=${accessToken};  Secure=${
         process.env.NODE_ENV === 'production'
-      }; SameSite=Strict; Path=/; Max-Age=${60 * 60}`,
+      };  Path=/; Max-Age=${60 * 60}`,
       `refreshToken=${refreshToken}; Secure=${
         process.env.NODE_ENV === 'production'
-      }; SameSite=Strict; Path=/; Max-Age=${60 * 60 * 24 * 7}`,
+      };  Path=/; Max-Age=${60 * 60 * 24 * 7}`,
     ]);
 
     return res.status(200).json({
