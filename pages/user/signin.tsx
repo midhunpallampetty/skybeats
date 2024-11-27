@@ -2,8 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
+import axios from 'axios';
 import Link from 'next/link';
+
 import {  signIn, signOut ,useSession} from 'next-auth/react';
+import axiosInstance from '../api/utils/axiosInstance';
 import GoogleButton from '../components/GoogleButton';
 import { useMutation } from '@apollo/client';
 import { SIGNIN_MUTATION } from '@/graphql/mutations/loginMutation';
@@ -20,7 +23,7 @@ const SignIn: React.FC = () => {
   });
   const { data: session } = useSession();
 
-  console.log(session?.token); 
+  
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -28,7 +31,9 @@ const SignIn: React.FC = () => {
     }
     return '';
   };
-  
+  useEffect(()=>{
+
+  })
 
   const validatePassword = (password: string) => {
     if (password.length < 8) {
@@ -61,32 +66,16 @@ const handleSignin = async (event: React.FormEvent<HTMLFormElement>) => {
   }
 
   try {
-    // Send login request to the API
-    const response = await fetch('/api/signin', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
+    // Send login request to the API using the Axios instance
+    const response = await axios.post('/api/signin', {
+      email,
+      password,
     });
 
-    if (!response.ok) {
-      if (response.status === 400) {
-        const data = await response.json();
-        console.error(data.error);
-        setCustomError((prevState) => ({
-          ...prevState,
-          general: data.error,
-        }));
-        return;
-      }
+    // Destructure the response data
+    const { token, user } = response.data;
 
-      throw new Error('Failed to log in.');
-    }
-
-    const { token, user } = await response.json();
-
-    // Check if user is blocked
+    // Check if the user is blocked
     if (user.isBlocked) {
       Swal.fire({
         title: 'User Blocked!',
@@ -101,14 +90,14 @@ const handleSignin = async (event: React.FormEvent<HTMLFormElement>) => {
     }
 
     // Set cookies for authentication
-    Cookies.set('jwtToken', token, { expires: 30 });
+   
     Cookies.set('userId', user.id, { expires: 30 });
 
     // Redirect user
     if (user) {
       router.push({
         pathname: '/',
-        query: { userEmail: user.email },
+        
       });
     } else {
       router.push('/');

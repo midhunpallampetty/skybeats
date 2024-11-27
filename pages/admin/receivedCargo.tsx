@@ -8,68 +8,67 @@ import { DotLoader } from 'react-spinners';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
+import adminAxios from '../api/utils/adminAxiosInstance';
 import { cargoData } from '@/interfaces/cargoData';
 import { ADMIN_LOGIN_MUTATION } from '@/graphql/mutations/adminLoginMutation';
 
-const ReceivedCargo: React.FC = ({ bookingData }: any) => {
+const ReceivedCargo: React.FC = () => {
    const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
    const [authorized, setAuthorized] = useState(false);
-   const [email, setEmail] = useState('');
    const [role, setRole] = useState('');
    const AdminNavbar = dynamic(() => import('../components/AdminNavbar'), { ssr: false });
-   const AdminAside = dynamic(() => import('../components/Adminaside'), { ssr: false });
    const [bookings, setBookings] = useState<cargoData[]>([]);
    const [currentPage, setCurrentPage] = useState(1);
+   const [searchQuery, setSearchQuery] = useState('');
+   const [sortBy, setSortBy] = useState('');
    const usersPerPage = 2;
    const router = useRouter();
    const totalPages = Math.ceil(bookings.length / usersPerPage);
-   const token = Cookies.get('jwtToken');
-   const [password, setPassword] = useState('');
-   const [adminType, setadminType] = useState('');
-   const [adminLogin, { loading, error, data }] = useMutation(ADMIN_LOGIN_MUTATION);
-   const [booking, setBooking] = useState(bookingData);
- useEffect(()=>{
- if(!token){
-   router.push('/admin/signin');
- }
- },[token]);
+   const token = Cookies.get('adminaccessToken');
+   const [adminLogin, { loading }] = useMutation(ADMIN_LOGIN_MUTATION);
+
+   // Redirect if not authorized
    useEffect(() => {
       if (!token) {
          router.push('/admin/signin');
       }
    }, [token, router]);
 
+   // Verify token and check role
    useEffect(() => {
       const verifyToken = async () => {
          try {
-            const response = await fetch('/api/tokenVerify', {
-               method: 'POST',
+            const response = await adminAxios.post('/tokenVerify', { token }, {
                headers: {
                   'Content-Type': 'application/json',
                },
-               body: JSON.stringify({ token }),
             });
-
-            const data = await response.json();
+   
+            const data = response.data;
             setRole(data);
-
-            if (data === 'flightoperator' || data==='cargomanager') {
+   
+            if (data === 'flightoperator' || data === 'cargomanager') {
                setAuthorized(true);
+            } else {
+               router.push('/admin/signin');
             }
          } catch (error) {
             console.error('Error verifying token:', error);
+            router.push('/admin/signin'); // Ensure redirection on failure
          }
       };
-
+   
       if (token) {
          verifyToken();
       }
-   }, [token]);
+   }, [token, router]);
+   
 
+   // Fetch cargo requests
    useEffect(() => {
       const fetchData = async () => {
          try {
-            const response = await axios.get<cargoData[]>('/api/getCargoRequests');
+            const response = await adminAxios.get<cargoData[]>('/getCargoRequests');
             setBookings(response.data);
          } catch (error) {
             console.error('Error fetching cargo requests:', error);
@@ -91,13 +90,13 @@ const ReceivedCargo: React.FC = ({ bookingData }: any) => {
             },
             body: JSON.stringify({ trackingId }),
          });
-         Swal.fire('Approved!');
+
          if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
          }
 
+         Swal.fire('Approved!');
          const updatedBooking = await response.json();
-         // Update the state with the new booking status
          setBookings((prevBookings) =>
             prevBookings.map((b) =>
                b.trackingId === trackingId ? { ...b, approved: true } : b
@@ -108,123 +107,83 @@ const ReceivedCargo: React.FC = ({ bookingData }: any) => {
       }
    };
 
-   const currentUsers = bookings.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
+   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+   };
 
-   const handleSignin = async (event: React.MouseEvent<HTMLButtonElement>) => {
-      try {
-         const { data } = await adminLogin({
-            variables: {
-               email,
-               password,
-               adminType,
-            },
-         });
+   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setSortBy(e.target.value);
+   };
 
-         if (data && data.adminLogin) {
-            console.log('Login success', data.adminLogin);
-         } else {
-            throw new Error('Invalid credentials');
+   const filteredBookings = bookings
+      .filter((booking) =>
+         booking.packageName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+         booking.receiverName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+         booking.senderName.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .sort((a, b) => {
+         if (sortBy === 'name') {
+            return a.packageName.localeCompare(b.packageName);
+         } else if (sortBy === 'date') {
+            return new Date(a.Date_Received).getTime() - new Date(b.Date_Received).getTime();
+         } else if (sortBy === 'sender') {
+            return a.senderName.localeCompare(b.senderName);
          }
-      } catch (error) {
-         console.error('Admin login failed:', error);
-      }
-   };
+         return 0;
+      });
 
-   const containerStyle: React.CSSProperties = {
-      position: 'relative',
-      width: '100vw',
-      height: '100vh',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      color: 'white',
-   };
-
-   const contentStyle: React.CSSProperties = {
-      position: 'relative',
-      zIndex: 1,
-   };
-
-   const backgroundStyle: React.CSSProperties = {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      zIndex: 0,
-      opacity: 0.08,
-      pointerEvents: 'none',
-      backgroundImage: 'url(/admin_bg.png)',
-      backgroundSize: 'cover',
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center',
-   };
+   const currentUsers = filteredBookings.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
 
    return (
-      <div style={containerStyle}>
+      <div className="relative min-h-screen bg-gray text-white">
          {loading && <DotLoader color="#ffffff" size={60} />}
          <AdminNavbar />
-         <div style={backgroundStyle} />
-         <div style={contentStyle}>
-            <section className="xl:ml-[250px] xl:w-[1200px] md:w-[800px] sm:w-full bg-transparent" style={{ position: 'relative', zIndex: 10 }}>
-               {authorized ? (
+         <div className="flex justify-center items-center h-[calc(100vh-60px)]">
+            <div className="w-full max-w-4xl bg-blue-700/15 shadow-inner shadow-white/10 rounded-lg p-6">
+               <div className="flex justify-between items-center mb-6">
+                  <input
+                     type="text"
+                     placeholder="Search by name, receiver, or sender..."
+                     className="border p-2  text-black  font-extrabold rounded w-1/2"
+                     value={searchQuery}
+                     onChange={handleSearch}
+                  />
+                  <select className="border p-2 rounded text-black" value={sortBy} onChange={handleSortChange}>
+                     <option value="">Sort by</option>
+                     <option value="name">Receiver Name</option>
+                     <option value="date">Date Received</option>
+                     <option value="sender">Sender Name</option>
+                  </select>
+               </div>
+
+               {authorized &&
                   currentUsers.map((booking) => (
-                     <div key={booking.trackingId} className="bg-blue-900/50 p-6 rounded-2xl shadow-white/25 shadow-inner w-full mb-10 mx-auto">
-                        <div className="relative rounded-t-lg overflow-hidden">
-                           <span className="absolute top-2 left-2 bg-green-400 text-black text-xs px-3 py-1 rounded-full">
-                              International
-                           </span>
-                        </div>
-                        <div className="flex items-center mt-4">
-                           <img
-                              src="https://www.rosenaviation.com/wp-content/uploads/2024/02/Longest-commercial-flights-Rosen-Aviation-scaled.jpeg"
-                              alt="Profile"
-                              className="w-20 h-20 border-4 border-blue-900"
-                           />
-                           <div className="ml-4 text-white flex-1">
-                              <div className="flex justify-between items-center">
-                                 <div ref={targetRef}>
-                                    <p className="text-lg font-semibold">Name: {booking.packageName}</p>
-                                    <p className="text-sm">Weight: {booking.Weight}</p>
-                                    <p className="text-sm">Date Request Received: {booking.Date_Received}</p>
-                                    <p className="text-sm">Receiver: {booking.receiverName}</p>
-                                 </div>
-                                 <div>
-                                    <p className="text-sm">Arrival Airport: N/A</p>
-                                    <p className="text-sm">Status: {booking.approved ? 'Approved' : 'Pending'}</p>
-                                    <p className="text-sm">Sender: {booking.senderName}</p>
-                                 </div>
-                              </div>
-                              <div className="flex mt-4 space-x-4">
-                                <button
-                                   onClick={() => handleUpdation(booking.trackingId)}
-                                   className={`font-extrabold text-white px-4 py-2 rounded-lg ${
-                                     booking.approved ? 'bg-gray-500 cursor-not-allowed' : 'bg-green-500 hover:bg-blue-700'
-                                   }`}
-                                   disabled={booking.approved} // Disable button if approved is true
-                                >
-                                   {booking.approved ? 'Approved' : 'Approve'} {/* Conditional text */}
-                                </button>
-                              </div>
-                           </div>
-                        </div>
+                     <div key={booking.trackingId} className="p-6 rounded-lg mb-4  bg-blue-950/20 shadow-white/15 shadow-inner">
+                        <p className="font-bold">Name: {booking.packageName}</p>
+                        <p>Receiver: {booking.receiverName}</p>
+                        <p>Sender: {booking.senderName}</p>
+                        <p>Date Received: {booking.Date_Received}</p>
+                        <p>Status: {booking.approved ? 'Approved' : 'Pending'}</p>
+                        <button
+                           onClick={() => handleUpdation(booking.trackingId)}
+                           disabled={booking.approved}
+                           className={`mt-2 p-2 rounded ${
+                              booking.approved ? 'bg-gray-400' : 'bg-green-500 text-white hover:bg-green-600'
+                           }`}
+                        >
+                           {booking.approved ? 'Approved' : 'Approve'}
+                        </button>
                      </div>
-                  ))
-               ) : (
-                  <div className="flex items-center justify-center min-h-screen">
-                     <div className="text-center text-red-500">
-                        <h1 className="text-4xl font-bold">Access Denied</h1>
-                        <p className="mt-4 text-lg">You do not have permission to access this page.</p>
-                     </div>
-                  </div>
-               )}
+                  ))}
 
                {authorized && totalPages > 1 && (
-                  <div className="flex justify-center mt-4">
+                  <div className="flex justify-center mt-6">
                      {Array.from({ length: totalPages }, (_, pageNumber) => (
                         <button
                            key={pageNumber}
-                           className={`px-4 py-2 mx-1 rounded ${currentPage === pageNumber + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'}`}
+                           className={`px-4 py-2 mx-1 rounded ${
+                              currentPage === pageNumber + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'
+                           }`}
                            onClick={() => handlePageChange(pageNumber + 1)}
                         >
                            {pageNumber + 1}
@@ -232,7 +191,7 @@ const ReceivedCargo: React.FC = ({ bookingData }: any) => {
                      ))}
                   </div>
                )}
-            </section>
+            </div>
          </div>
       </div>
    );

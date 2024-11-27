@@ -15,21 +15,32 @@ export default function Component() {
   const token = Cookies.get('jwtToken');
 
   useEffect(() => {
-    if (router.query.userEmail || router.query.googleauth || token) {
+    const accessToken = Cookies.get('accessToken');
+    const refreshToken = Cookies.get('refreshToken');
+console.log("accessToken",accessToken,"refreshToken",refreshToken)
+    if (accessToken) {
       setIsLoggedIn(true);
     } else {
       setIsLoggedIn(false);
     }
-  }, [router.query, token]);
+  }, []);
 
-  const handleLogout = () => {
-    Cookies.remove('jwtToken');
-    Cookies.remove('next-auth.callback-url');
-    Cookies.remove('next-auth.csrf-token');
+  const handleLogout = async () => {
+    // Remove the cookies accessible by JavaScript
+    Cookies.remove('accessToken');
+    Cookies.remove('refreshToken');
+
     Cookies.remove('userId');
-    router.push('/user/signin');
+ 
+    // Call the API to remove the HttpOnly refresh token cookie
+    
+  
+   
+      // If the response is successful, redirect the user
+      router.push('/user/signin');
+    
   };
-
+console.log(isLoggedIn)
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
@@ -52,8 +63,8 @@ export default function Component() {
       name: 'Cargo',
       href: '/',
       submenu: [
-        { name: 'Request Cargo', href: '/user/cargo/RequestCargo' },
-        { name: 'Track Cargo', href: '/user/cargo/TrackCargo' },
+        { name: 'Request Cargo', href: '/user/cargo/requestCargo' },
+        { name: 'Track Cargo', href: '/user/cargo/trackCargo' },
         { name: 'All Cargos', href: '/user/cargo/allCargoRequests' },
       ],
     },
@@ -68,7 +79,7 @@ export default function Component() {
     {
       name: 'Careers',
       href: '/user/careers',
-      submenu: [{ name: 'Job Openings', href: '/user/careers' }],
+      submenu: [{ name: 'Job Openings', href: '/user/careers' },{ name: 'Applied Jobs', href: '/user/careers/appliedJobs' }],
     },
     {
       name: 'Contact Us',

@@ -11,8 +11,9 @@ const AdminNavbar: React.FC = () => {
     setIsOpen(!isOpen);
   };
   const handleLogout = () => {
-    Cookies.remove('jwtToken');
-  
+    Cookies.remove('adminaccessToken');
+    Cookies.remove('adminrefreshToken');
+
     router.push('/admin/signin');
   };
   return (
@@ -119,7 +120,7 @@ const AdminNavbar: React.FC = () => {
           <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border rounded-lg  md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0    ">
             <li>
              
-<form className="max-w-md mx-auto">   
+{/* <form className="max-w-md mx-auto">   
     <label  className="mb-2 text-sm font-medium sr-only ">Search</label>
     <div className="relative">
         <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -130,7 +131,7 @@ const AdminNavbar: React.FC = () => {
         <input type="search" id="default-search" className="cursor-text block w-full p-3 ps-10 text-sm bg-gray-600/30  rounded-lg  focus:ring-blue-500 focus:border-blue-500      " placeholder="Search.." required />
         
     </div>
-</form>
+</form> */}
 
             </li>
           

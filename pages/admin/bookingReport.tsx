@@ -6,10 +6,11 @@ import Cookies from 'js-cookie';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { DotLoader } from 'react-spinners';
+import adminAxios from '../api/utils/adminAxiosInstance';
+
 import { Guests } from '@/interfaces/Guests';
 const Super_adminDashboard: React.FC = () => {
    const AdminNavbar=dynamic(()=>import('../components/AdminNavbar'),{ssr:true});
-   const Adminaside=dynamic(()=>import('../components/Adminaside'));
    const [authorized,setAuthorized]=useState(false);
    const [email, setEmail] = useState('');
    const [role,setRole]=useState('');
@@ -19,7 +20,7 @@ const Super_adminDashboard: React.FC = () => {
  const router=useRouter();
   
    const totalPages = Math.ceil(bookings.length / usersPerPage);
-   const token=Cookies.get('jwtToken');
+   const token=Cookies.get('adminaccessToken');
 
    useEffect(()=>{
     if(!token){
@@ -33,7 +34,17 @@ const Super_adminDashboard: React.FC = () => {
 
       const currentUsers = bookings.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
 
-   
+      useEffect(() => {
+         if (role) {
+            console.log(role, 'role...................................');
+            if (role !== 'hoteladmin') {
+               router.push('/admin/dashboard');
+            } else {
+               console.log('Authorized as flight operator');
+               setAuthorized(true);
+            }
+         }
+      }, [role]);
    useEffect(() => {
       (async () => {
          try {
@@ -193,7 +204,6 @@ const Super_adminDashboard: React.FC = () => {
                   </svg>
                </button>
 
-    <Adminaside/>
 
                <div className="p-6 mt-[200px]">
       <div className="grid grid-cols-12 md:grid-cols-3 gap-6">
@@ -230,10 +240,7 @@ const Super_adminDashboard: React.FC = () => {
   ))
 ) : (
 <div className="flex items-center justify-center min-h-screen">
-    <div className="text-center text-red-500">
-      <h1 className="text-4xl font-bold">Access Denied</h1>
-      <p className="mt-4 text-lg">You do not have permission to access this page.</p>
-    </div>
+ 
   </div>
  
  

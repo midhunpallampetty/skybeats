@@ -9,6 +9,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import { ADMIN_LOGIN_MUTATION } from '@/graphql/mutations/adminLoginMutation';
+import adminAxios from '../api/utils/adminAxiosInstance';
 
 export interface applyJob {
   name: string;

@@ -6,10 +6,10 @@ import { bookData } from '@/interfaces/bookData';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
-
+import axiosInstance from '../api/utils/axiosInstance';
 const Navbar = dynamic(() => import('../components/Navbar'));
-const MapModal = dynamic(() => import('../components/mapModal'), { ssr: false });
-const HotelBookingDetailsModal = dynamic(() => import('../components/hotelBookingDetails'), { ssr: false });
+const MapModal = dynamic(() => import('../components/MapModal'), { ssr: false });
+const HotelBookingDetailsModal = dynamic(() => import('../components/HotelBookingDetails'), { ssr: false });
 
 const BookingHistory: React.FC = () => {
   const [bookings, setBookings] = useState<bookData[]>([]);
@@ -22,13 +22,13 @@ const BookingHistory: React.FC = () => {
   const userId = Cookies.get('userId');
   const itemsPerPage = 5;
   const router = useRouter();
-  const token = Cookies.get('jwtToken');
-
+  const accessToken = Cookies.get('accessToken');
+  const refreshToken=Cookies.get('accessToken');
   useEffect(() => {
-    if (!token) {
+    if (!accessToken || !refreshToken) {
       router.push('/');
     }
-  }, []);
+  }, [accessToken,router,refreshToken]);
 
   const handleCancelFlight = async (bookingId: string) => {
     try {
@@ -44,8 +44,8 @@ const BookingHistory: React.FC = () => {
       });
 
       if (result.isConfirmed) {
-        const response = await axios.post(
-          '/api/cancelHotel',
+        const response = await axiosInstance.post(
+          '/cancelHotel',
           { bookingId },
           {
             headers: {
@@ -79,7 +79,7 @@ const BookingHistory: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response: any = await axios.post('/api/getHotelBookings',
+        const response: any = await axiosInstance.post('/getHotelBookings',
           { userId },
           {
             headers: {

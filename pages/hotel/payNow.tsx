@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import axios from 'axios';
+import axiosInstance from '../api/utils/axiosInstance';
 import Cookies from 'js-cookie';
 interface PaymentIntentResponse {
   clientSecret: string;
@@ -25,14 +26,22 @@ const PaymentForm: React.FC = () => {
   const token=Cookies.get('jwtToken');
   const router=useRouter();
 console.log(guestDetails);
-  useEffect(()=>{
-  if(!token){
-    router.push('/');
+
+useEffect(() => {
+  const userId = Cookies.get('userId');
+  const accessToken = Cookies.get('accessToken');
+  const refreshToken = Cookies.get('refreshToken');
+
+  if (!userId || !accessToken || !refreshToken) {
+    Cookies.remove('userId');
+    Cookies.remove('accessToken');
+    Cookies.remove('refreshToken');
+    router.push('/');  // Redirect to home or login page
   }
-  },[]);
+}, [router]);
   useEffect(() => {
     if (getGuestDetails) {
-      axios.post<PaymentIntentResponse>('/api/create-payment-intent', { amount: getGuestDetails!.amount * 100 })
+      axiosInstance.post<PaymentIntentResponse>('/create-payment-intent', { amount: getGuestDetails!.amount * 100 })
         .then((response) => {
           setClientSecret(response.data.clientSecret);
         })
@@ -88,7 +97,7 @@ console.log(guestDetails);
       console.error('Payment error:', result.error.message);
     } else if (result.paymentIntent?.status === 'succeeded') {
       console.log('Payment successful!');
-      axios.post('https://www.skybeats.site/api/saveHotelBooking', data, {
+      axiosInstance.post('/saveHotelBooking', data, {
         headers: {
           'Content-Type': 'application/json',
         },

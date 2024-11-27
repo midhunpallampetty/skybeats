@@ -1,39 +1,58 @@
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const client = new ApolloClient({
-  uri: process.env.GRAPHQL_ENDPOINT!,
-  cache: new InMemoryCache(),
-});
-
-export default async function handler(req:NextApiRequest, res:NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    console.log('coach is here',req.body);
-    const { input } = req.body;
-   console.log(input,'freffsef');
-    const HOLD_SEAT_MUTATION = gql`
-      mutation($input: CheckSeatInput!) {
-        holdSeat(input: $input) {
-          aircraftId
-          holdSeatId
-          userId
-        }
-      }
-    `;
+    const { holdSeatIds, aircraftId, sessionId, userId } = req.body;
+
+    // Validate the required fields
+    if (!Array.isArray(holdSeatIds) || holdSeatIds.length === 0 || !aircraftId || !sessionId || !userId) {
+      return res.status(400).json({ success: false, error: 'Missing or invalid required fields.' });
+    }
 
     try {
-      const { data } = await client.mutate({
-        mutation: HOLD_SEAT_MUTATION,
-        variables: { input },
+      // GraphQL mutation payload
+      const mutation = `
+        mutation HoldSeats($holdSeatIds: [String!]!, $aircraftId: String!, $sessionId: String!, $userId: String!) {
+          holdSeats(holdSeatIds: $holdSeatIds, aircraftId: $aircraftId, sessionId: $sessionId, userId: $userId) {
+            holdSeatId
+            aircraftId
+            userId
+            sessionId
+            status
+          }
+        }
+      `;
+
+      // Send the mutation request to the GraphQL server
+      const response = await fetch(process.env.GRAPHQL_ENDPOINT!, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: mutation,
+          variables: { holdSeatIds, aircraftId, sessionId, userId },
+        }),
       });
 
-      res.status(200).json(data.holdSeat);
-    } catch (error) {
-      console.error('Error holding seat:', error);
-      res.status(500).json({ error: 'An error occurred while holding the seat.' });
+      const data = await response.json();
+
+      // Handle successful response from GraphQL server
+      if (response.ok && data?.data?.holdSeats) {
+        return res.status(200).json({ success: true, data: data.data.holdSeats });
+      } else {
+        // Handle errors from GraphQL response
+        const errorMessage = data.errors?.[0]?.message || 'Failed to hold the seats.';
+        console.error('GraphQL Error:', data.errors);
+        return res.status(400).json({ success: false, error: errorMessage });
+      }
+    } catch (error: any) {
+      // Handle unexpected server errors
+      console.error('Internal Server Error:', error);
+      return res.status(500).json({ success: false, error: 'Internal Server Error' });
     }
   } else {
-    res.setHeader('Allow', ['POST']);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+    // Handle unsupported HTTP methods
+    return res.status(405).json({ success: false, error: 'Method Not Allowed' });
   }
 }

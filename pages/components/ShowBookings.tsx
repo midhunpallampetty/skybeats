@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Plane, Clock, Calendar, CreditCard } from 'lucide-react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import axiosInstance from '../api/utils/axiosInstance';
 
 interface Passenger {
   age: string
@@ -67,8 +68,8 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }: Bookin
       });
   
       if (result.isConfirmed) {
-        const response = await axios.post(
-          '/api/cancelFlights',
+        const response = await axiosInstance.post(
+          '/cancelFlights',
           { bookingId },
           {
             headers: {
@@ -117,7 +118,7 @@ export default function BookingDetailsModal({ isOpen, onClose, booking }: Bookin
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const requestCancellation = await axios.post('/api/cancelByOne', data, {
+          const requestCancellation = await axiosInstance.post('/cancelByOne', data, {
             headers: {
               'Content-Type': 'application/json'
             }

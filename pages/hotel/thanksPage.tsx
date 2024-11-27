@@ -1,12 +1,26 @@
 'use client';
-import React from 'react';
+import React,{useEffect} from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
+import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 export default function BookingConfirmation() {
     const getGuestDetails=useSelector((state:RootState)=>state.hotelGuestData.selectedUser);
 
   const router=useRouter();
+
+  useEffect(() => {
+    const userId = Cookies.get('userId');
+    const accessToken = Cookies.get('accessToken');
+    const refreshToken = Cookies.get('refreshToken');
+
+    if (!userId || !accessToken || !refreshToken) {
+      Cookies.remove('userId');
+      Cookies.remove('accessToken');
+      Cookies.remove('refreshToken');
+      router.push('/');  // Redirect to home or login page
+    }
+  }, [router]);
   console.log(getGuestDetails);
     return (
       <div className="min-h-screen bg-blue-950 flex items-center justify-center p-4 ">

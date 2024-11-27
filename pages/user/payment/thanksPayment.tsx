@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { clearSelectedReturnFlight } from '@/redux/slices/returnFlightSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import Cookies from 'js-cookie';
 export default function ThanksPayment() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -15,6 +16,18 @@ export default function ThanksPayment() {
     return () => clearTimeout(timer); // Cleanup the timer on component unmount
   }, []);
 
+  useEffect(() => {
+    const userId = Cookies.get('userId');
+    const accessToken = Cookies.get('accessToken');
+    const refreshToken = Cookies.get('refreshToken');
+
+    if (!userId || !accessToken || !refreshToken) {
+      Cookies.remove('userId');
+      Cookies.remove('accessToken');
+      Cookies.remove('refreshToken');
+      router.push('/');  // Redirect to home or login page
+    }
+  }, [router]);
   return (
     <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
       {loading ? (

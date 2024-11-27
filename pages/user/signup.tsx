@@ -1,13 +1,12 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import OtpModal from '../components/otpModal';
+import OtpModal from '../components/OtpModal';
 import Link from 'next/link';
 import * as THREE from 'three';
 import FOG from 'vanta/dist/vanta.fog.min';
-import { useMutation } from '@apollo/client';
-import { SIGNUP_MUTATION } from '@/graphql/mutations/userSignupMutation';
 import Cookies from 'js-cookie';
+
 const validateUsername = (username: string) => {
   if (username.length < 4) {
     return 'Username must be at least 4 characters long';
@@ -38,7 +37,6 @@ const Signup: React.FC = () => {
   const [password, setPassword] = useState('');
   const [customError, setCustomError] = useState({ username: '', email: '', password: '' });
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
-  const [userSignup, { loading, error }] = useMutation(SIGNUP_MUTATION);
 
   useEffect(() => {
     if (!vantaEffect && myRef.current) {
@@ -85,18 +83,29 @@ const Signup: React.FC = () => {
       return;
     }
 
-    try {685785;
-      console.log(email, password, username, 'data reached yahooooo~');
-      const { data } = await userSignup({
-        variables: {
+    try {
+      console.log(email, password, username, 'data reached');
+      const response = await fetch('/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           username,
           email,
           password,
-        },
+        }),
       });
-      console.log('Signup Successful', data.userSignup);
-      const token=data.userSignup.token;
-      Cookies.set('jwtToken',token,{expires:30});
+
+      if (!response.ok) {
+        throw new Error('Signup failed');
+      }
+
+      const data = await response.json();
+      console.log('Signup Successful', data);
+
+      const token = data.token;
+      Cookies.set('jwtToken', token, { expires: 30 });
 
       setIsOtpModalOpen(true);
     } catch (error) {
@@ -226,16 +235,18 @@ const Signup: React.FC = () => {
                   id="username"
                   className="block w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 placeholder-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                   placeholder="user123"
-                  
                 />
-                <span className="text-red-500 text-xs">{customError.username}</span>
+                {customError.username && (
+                  <span className="text-red-500 text-sm">{customError.username}</span>
+                )}
               </div>
+
               <div>
                 <label
                   htmlFor="email"
-                  className={'block mb-2 text-sm font-medium text-white'}
+                  className="block mb-2 text-sm font-medium text-white"
                 >
-                  Your email
+                  Email
                 </label>
                 <input
                   type="email"
@@ -247,17 +258,19 @@ const Signup: React.FC = () => {
                   name="email"
                   id="email"
                   className="block w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 placeholder-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                  placeholder="name@company.com"
-                  
+                  placeholder="youremail@example.com"
                 />
-                <span className="text-red-500 text-xs">{customError.email}</span>
+                {customError.email && (
+                  <span className="text-red-500 text-sm">{customError.email}</span>
+                )}
               </div>
+
               <div>
                 <label
                   htmlFor="password"
-                  className={'block mb-2 text-sm font-medium text-white'}
+                  className="block mb-2 text-sm font-medium text-white"
                 >
-                  Your password
+                  Password
                 </label>
                 <input
                   type="password"
@@ -268,39 +281,35 @@ const Signup: React.FC = () => {
                   }}
                   name="password"
                   id="password"
-                  className="block w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 placeholder-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                   placeholder="••••••••"
+                  className="block w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 placeholder-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                 />
-                <span className="text-red-500 text-xs">{customError.password}</span>
+                {customError.password && (
+                  <span className="text-red-500 text-sm">{customError.password}</span>
+                )}
               </div>
+
               <button
                 type="submit"
-                className="w-full py-2.5 px-5 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 font-extrabold"
+                className="w-full text-white bg-[#0091ea] hover:bg-[#1b72d0] focus:ring-4 focus:outline-none focus:ring-[#1e40af] font-medium rounded-lg text-sm px-5 py-2.5 text-center"
               >
-                Register
+                Sign up
               </button>
-              {error && (
-                <p className="text-red-500 mb-4">User Already Exists</p>
-              )}
-              <div className="text-sm font-medium text-white dark:white-black">
-                Already Registered?{' '}
+              <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+                Already have an account?{' '}
                 <Link
-                  href="/user/signin"
-                  className="text-blue-700 hover:underline dark:text-blue-500"
+                  href="/login"
+                  className="font-medium text-blue-600 hover:underline dark:text-blue-500"
                 >
-                  Log In to account
+                  Login here
                 </Link>
-              </div>
+              </p>
             </form>
           </div>
         </div>
       </section>
 
-      <OtpModal
-        email={email}
-        isOpen={isOtpModalOpen}
-        onClose={() => setIsOtpModalOpen(false)}
-      />
+      {isOtpModalOpen && <OtpModal closeModal={() => setIsOtpModalOpen(false)} />}
     </div>
   );
 };

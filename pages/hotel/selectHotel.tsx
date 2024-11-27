@@ -25,11 +25,19 @@ const SelectHotel = () => {
 
   console.log(data, 'vdvdsvData');
 const userId=Cookies.get('userId');
-  useEffect(() => {
-    if (!token) {
-      router.push('/');
-    }
-  }, []);
+  
+useEffect(() => {
+  const userId = Cookies.get('userId');
+  const accessToken = Cookies.get('accessToken');
+  const refreshToken = Cookies.get('refreshToken');
+
+  if (!userId || !accessToken || !refreshToken) {
+    Cookies.remove('userId');
+    Cookies.remove('accessToken');
+    Cookies.remove('refreshToken');
+    router.push('/');  // Redirect to home or login page
+  }
+}, [router]);
 
   const handleBookHotel = () => {
     dispatch(setSelectedUser({ checkin, checkout, guests, rooms, bedType, amount }));

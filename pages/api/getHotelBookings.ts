@@ -53,7 +53,6 @@ const getHotelBookings = async (req: NextApiRequest, res: NextApiResponse) => {
         const data = await graphQLClient.request<{ getAllHotelBooking: HotelBooking[] }>(query, { userId });
         const hotelBookings = data.getAllHotelBooking;
 
-        console.log('Data received from gql:', hotelBookings);
         return res.status(200).json(hotelBookings);
     } catch (error: any) {
         console.error('GraphQL server error:', error.response || error.message || error);

@@ -1,32 +1,65 @@
-import Link from 'next/link';
+import Link from 'next/link'
 
 export default function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-sky-400 to-indigo-600 text-white px-4">
-      <div className="text-center">
-        <h1 className="text-9xl font-extrabold mb-4 animate-pulse">404</h1>
-        <div className="mb-8 w-64 h-64 mx-auto animate-bounce">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
-            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-            <path d="M14.05 2a9 9 0 0 1 8 7.94"></path>
-            <path d="M14.05 6A5 5 0 0 1 18 10"></path>
-          </svg>
+    <div className="min-h-screen bg-[#1e1b4b] flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-8 left-8">
+        <div className="w-16 h-16 rounded-full bg-[#8b9dff] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-[#ff7171] flex items-center justify-center">
+            <div className="w-4 h-4 rounded-full bg-[#1e1b4b]"></div>
+          </div>
         </div>
-        <h2 className="text-4xl font-bold mb-4">Oops! Flight Not Found</h2>
-        <p className="text-xl mb-8">We couldn't locate the page you're looking for. It seems to have flown off course!</p>
-        <Link href="/" className="inline-block px-6 py-3 text-lg font-semibold bg-white text-indigo-600 rounded-full hover:bg-indigo-100 hover:text-indigo-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-opacity-50">
-          Return to Home Terminal
+      </div>
+      
+      <div className="absolute top-16 right-16">
+        <div className="w-16 h-16 bg-[#7ee7e7] rounded-full blur-lg opacity-60"></div>
+      </div>
+      
+      <div className="absolute bottom-16 left-16">
+        <div className="w-32 h-8 bg-[#4b7bff] rounded-full blur-lg transform -rotate-45"></div>
+      </div>
+      
+      {/* Starburst */}
+      <div className="absolute top-1/4 left-1/4">
+        <div className="w-12 h-12 bg-[#ff7171] rounded-xl transform rotate-45 animate-pulse"></div>
+      </div>
+
+      {/* Main content */}
+      <div className="text-center z-10 max-w-2xl">
+        <h1 className="text-[#8b9dff] text-3xl mb-4 font-medium tracking-wide">ERROR</h1>
+        <div className="text-white text-[180px] font-bold leading-none tracking-tighter mb-8">404</div>
+        <h2 className="text-[#8b9dff] text-3xl md:text-4xl mb-4 font-medium">
+          This page is outside of the universe
+        </h2>
+        <p className="text-[#8b9dff]/80 text-lg mb-8">
+          The page you are trying to access doesn't exist or has been moved.
+          <br />
+          Try going back to our homepage.
+        </p>
+        <Link 
+          href="/"
+          className="inline-block bg-[#4b7bff] text-white px-8 py-3 rounded-lg font-medium transition-transform hover:scale-105 hover:bg-[#4b7bff]/90 focus:outline-none focus:ring-2 focus:ring-[#4b7bff]/50 focus:ring-offset-2 focus:ring-offset-[#1e1b4b]"
+        >
+          Go to homepage
         </Link>
       </div>
-      <div className="mt-12 animate-float">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-48 h-48">
-          <path d="M22 2L2 22"></path>
-          <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
-          <line x1="12" y1="12" x2="12" y2="12"></line>
-          <path d="M12 12l-2-2"></path>
-          <path d="M12 12l2-2"></path>
-        </svg>
+
+      {/* Platform decorations */}
+      <div className="absolute bottom-0 left-0 right-0 flex justify-between p-8">
+        <div className="w-32 h-16 bg-white/10 transform skew-y-12"></div>
+        <div className="w-32 h-24 bg-white/10 transform -skew-y-12"></div>
       </div>
+
+      {/* Noise overlay */}
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-50"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          mixBlendMode: 'overlay'
+        }}
+      ></div>
     </div>
-  );
+  )
 }
+

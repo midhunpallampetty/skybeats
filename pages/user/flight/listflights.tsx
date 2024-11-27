@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback,useRef } from 'react';
 import Cookies from 'js-cookie';
 import DatePicker from 'react-datepicker';
 import Select, { SingleValue, ActionMeta, InputActionMeta } from 'react-select';
@@ -12,7 +12,8 @@ import { Flight } from '../../../interfaces/flight';
 import Swal from 'sweetalert2';
 import Image from 'next/image';
 import { clearSelectedSeat } from '@/redux/slices/selectedSeat';
-import FlightModal from '../../components/returnFlightModal';
+import FlightModal from '../../components/ReturnFlightModal';
+import axiosInstance from '@/pages/api/utils/axiosInstance';
 import dynamic from 'next/dynamic';
 import { Airport } from '@/interfaces/Airport';
 import { RootState } from '@/redux/store';
@@ -36,6 +37,8 @@ const ListFlights: React.FC = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [returnDate, setreturnDate] = useState<Date | null>(null);
   const [error, setError] = useState('');
+  const hasFetched = useRef(false);
+
   const [passengers, setPassengers] = useState({
     adults: 0,
     seniors: 0,
@@ -57,6 +60,19 @@ const ListFlights: React.FC = () => {
 dispatch(clearFlights())
 dispatch(clearSelectedReturnFlight())
   },[])
+
+  useEffect(() => {
+    const userId = Cookies.get('userId');
+    const accessToken = Cookies.get('accessToken');
+    const refreshToken = Cookies.get('refreshToken');
+
+    if (!userId || !accessToken || !refreshToken) {
+      Cookies.remove('userId');
+      Cookies.remove('accessToken');
+      Cookies.remove('refreshToken');
+      router.push('/');  // Redirect to home or login page
+    }
+  }, [router]);
   useEffect(() => {
     const fetchData = async () => {
       // Simulate API call delay
@@ -143,32 +159,32 @@ dispatch(clearSelectedReturnFlight())
     },
   ];
   useEffect(() => {
+  
     const fetchAirports = async () => {
+      if (hasFetched.current) return; // Skip if already fetched
+  
       try {
-        const response = await fetch('/api/getAirports');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const airportsData: Airport[] = await response.json();
+        hasFetched.current = true; // Mark as fetched
+        const response = await axiosInstance.get('/getAirports');
+        const airportsData: Airport[] = response.data;
+  
         const airportOptions = airportsData.map((airport) => ({
           value: airport.code,
           label: `${airport.city} (${airport.code}) ${airport.country}`,
         }));
+  
         dispatch(setAirports(airportOptions));
         dispatch(setFilteredAirports(airportOptions));
-        setFilteredAirports(airportsData.map(airport => ({
-          value: airport.code,
-          label: `${airport.city} (${airport.code}) ${airport.country}`,
-        })));
+        setFilteredAirports(airportOptions);
       } catch (error) {
         Swal.fire({
           text: 'Error Searching Flights',
-          background: 'dark'
+          background: 'dark',
         });
         console.error('Error fetching airports:', error);
       }
     };
-
+  
     fetchAirports();
   }, [dispatch]);
 
@@ -227,7 +243,7 @@ if(error!=''){
     if (selectedFrom && selectedTo && startDate) {
       try {
         console.log(selectedFrom.label.split(' ')[0].toLowerCase(), selectedTo.label.split(' ')[0].toLowerCase(), 'ok ');
-        const response = await axios.post('/api/searchFlights', {
+        const response = await axiosInstance.post('/searchFlights', {
           from: selectedFrom.label.split(' ')[0].toLowerCase(),
           to: selectedTo.label.split(' ')[0].toLowerCase(),
           date: startDate,

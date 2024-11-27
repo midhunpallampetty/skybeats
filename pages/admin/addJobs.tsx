@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import { useEffect } from 'react';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
+import adminAxios from '../api/utils/adminAxiosInstance';
 const backgroundStyle: React.CSSProperties = {
   backgroundImage: 'url(\'/admin-bg.png\')',
   backgroundSize: 'cover',
@@ -49,7 +50,6 @@ function AddJobs() {
   });
 const router=useRouter()
   const AdminNavbar = dynamic(() => import('../components/AdminNavbar'));
-  const AdminAside = dynamic(() => import('../components/Adminaside'));
   
   const validateForm = () => {
     let valid = true;
@@ -184,7 +184,6 @@ const router=useRouter()
   return (
     <>
       <AdminNavbar />
-      <AdminAside />
       <div className="flex justify-center h-screen" style={gridBackgroundStyle}>
         <div style={formContainerStyle}>
           <form onSubmit={handleSubmit} className="flex-1">

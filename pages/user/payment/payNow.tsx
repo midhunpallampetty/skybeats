@@ -1,11 +1,12 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { RootState } from '@/redux/store';
 import Swal from 'sweetalert2';
 import Cookies from 'js-cookie';
 import { loadStripe } from '@stripe/stripe-js';
+import axiosInstance from '@/pages/api/utils/axiosInstance';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import axios from 'axios';
 
@@ -23,7 +24,7 @@ const PaymentForm: React.FC = () => {
   const passengerDetails = useSelector((state: RootState) => state.bookdetail.passengerDetails);
   const returnFlight=useSelector((state:RootState)=>state.returnFlights.selectedReturnFlight);
   const passengers=useSelector((state:RootState)=>state.bookdetail.passengerDetails);
-  
+  const holdSeatRequestInProgress = useRef(false);
   const returnDate=useSelector((state:RootState)=>state.returnDate.returndate);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const stripe = useStripe();
@@ -31,16 +32,24 @@ const PaymentForm: React.FC = () => {
   const router=useRouter();
   const elements = useElements();
   const token=Cookies.get('jwtToken');
-useEffect(()=>{
-if(!token){
-  router.push('/');
-}
-},[]);
+
+  useEffect(() => {
+    const userId = Cookies.get('userId');
+    const accessToken = Cookies.get('accessToken');
+    const refreshToken = Cookies.get('refreshToken');
+
+    if (!userId || !accessToken || !refreshToken) {
+      Cookies.remove('userId');
+      Cookies.remove('accessToken');
+      Cookies.remove('refreshToken');
+      router.push('/');  // Redirect to home or login page
+    }
+  }, [router]);
 
 
   useEffect(() => {
     if (selectedFlight) {
-      axios.post<PaymentIntentResponse>('/api/create-payment-intent', { amount: selectedFlight.price * 100 })
+      axiosInstance.post<PaymentIntentResponse>('/create-payment-intent', { amount: selectedFlight.price * 100 })
         .then((response) => {
           setClientSecret(response.data.clientSecret);
         })
@@ -136,14 +145,14 @@ const handleSubmit = async (event: React.FormEvent) => {
 
     const handleRequests = async (data: {}, data2?: {}) => {
       try {
-        const sendTicketAndBookingRequest = await axios.post('/api/sendTicket', data, {
+        const sendTicketAndBookingRequest = await axiosInstance.post('/sendTicket', data, {
           headers: {
             'Content-Type': 'application/json',
           },
         });
 
         if (returnFlight && data2) {
-          const sendReturnTicketAndBookingRequest = await axios.post('/api/bookReturn', data2, {
+          const sendReturnTicketAndBookingRequest = await axiosInstance.post('/bookReturn', data2, {
             headers: {
               'Content-Type': 'application/json',
             },
@@ -172,7 +181,70 @@ const handleSubmit = async (event: React.FormEvent) => {
 };
 
 
+useEffect(() => {
+  const holdSeats = async () => {
+    const sessionId = 'test-session'; // Replace with actual session ID logic if dynamic
+    const userId = Cookies.get('userId'); // Retrieve `userId` from cookies
 
+    // Check for required details
+    if (!userId || !sessionId || !selectedSeat.length || !selectedFlight) {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Missing required details to hold seats. Redirecting back.',
+        icon: 'error',
+      });
+      
+      return;
+    }
+
+    // Generate `aircraftId` from `flightNumber` and `airline`
+    const aircraftId = `${selectedFlight.flightNumber}-${selectedFlight.airline}`;
+    console.log('Aircraft ID:', aircraftId);
+    console.log('Selected Seat IDs:', selectedSeat.map((seat) => seat._id));
+
+    try {
+      // API call to hold all selected seats
+      const response = await axiosInstance.post('/holdSeat', {
+        holdSeatIds: selectedSeat.map((seat) => seat._id), // Array of seat IDs
+        aircraftId,
+        sessionId,
+        userId,
+      });
+
+      // Handle successful seat holding
+      if (response.data.success) {
+        Swal.fire({
+          title: 'Seats Held Successfully!',
+          text: 'Your selected seats are held. Proceed to payment.',
+          icon: 'success',
+        });
+      } else {
+        // Handle failure from the API
+        Swal.fire({
+          title: 'Seat Hold Failed!',
+          text: response.data.error || 'Unable to hold the selected seats. Redirecting back.',
+          icon: 'error',
+        });
+       
+      }
+    } catch (error: any) {
+      console.error('Error holding seats:', error);
+
+      // Provide user feedback for server or network errors
+      Swal.fire({
+        title: 'Error!',
+        text: error.response?.data?.error || 'An error occurred while holding seats. Redirecting back.',
+        icon: 'error',
+      });
+     
+    }
+  };
+
+  // Call the function only if required dependencies change
+  if (selectedSeat.length && selectedFlight) {
+    holdSeats();
+  }
+}, [selectedSeat, selectedFlight, router]);
 
   return (
     <form onSubmit={handleSubmit}>

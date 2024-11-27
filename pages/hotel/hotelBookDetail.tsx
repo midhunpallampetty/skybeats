@@ -22,11 +22,19 @@ const HotelBookDetail: React.FC = () => {
   const hotelBookingDetail = useSelector((state: RootState) => state.hotelBookDetail.selectedHotel);
   const token = Cookies.get('jwtToken');
 const userId=Cookies.get('userId');
-  useEffect(() => {
-    if (!token) {
-      router.push('/');
-    }
-  }, []);
+ 
+useEffect(() => {
+  const userId = Cookies.get('userId');
+  const accessToken = Cookies.get('accessToken');
+  const refreshToken = Cookies.get('refreshToken');
+
+  if (!userId || !accessToken || !refreshToken) {
+    Cookies.remove('userId');
+    Cookies.remove('accessToken');
+    Cookies.remove('refreshToken');
+    router.push('/');  // Redirect to home or login page
+  }
+}, [router]);
 
   useEffect(() => {
     if (!hotelBookingDetail) {

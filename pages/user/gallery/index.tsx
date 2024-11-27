@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
-
+import axiosInstance from '@/pages/api/utils/axiosInstance';
 interface Cloud {
   imageUrl: string
 }
@@ -13,7 +13,7 @@ function Index() {
   const [imageUrl, setImageUrl] = useState<string[]>([]);
 
   useEffect(() => {
-    axios.get<Cloud[]>('http://localhost:3000/api/getClouds')
+    axiosInstance.get<Cloud[]>('http://localhost:3000/api/getClouds')
       .then((response) => {
         setImages(response.data);
       })

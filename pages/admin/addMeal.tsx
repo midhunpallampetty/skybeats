@@ -5,6 +5,8 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import S3 from 'aws-sdk/clients/s3';
 import { useRouter } from 'next/router';
+import adminAxios from '../api/utils/adminAxiosInstance';
+
 import Cookies from 'js-cookie';
 interface S3UploadResponse {
   uploadUrl: string;
@@ -12,7 +14,6 @@ interface S3UploadResponse {
 }
 function AddMeal() {
   const AdminNavbar = dynamic(() => import('../components/AdminNavbar'));
-  const AdminAside = dynamic(() => import('../components/Adminaside'));
   const Modal = dynamic(() => import('react-modal'));
   const [image, setImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -176,7 +177,6 @@ const router=useRouter()
   return (
     <div style={backgroundStyle}>
       <AdminNavbar />
-      <AdminAside />
       <div style={formContainerStyle}>
         <div className="mb-6">
           <label className="block mb-2 text-sm font-extrabold text-white">Item Name</label>

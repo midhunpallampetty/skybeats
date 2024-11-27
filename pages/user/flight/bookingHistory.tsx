@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import Modal from 'react-modal';
-
+import axiosInstance from '@/pages/api/utils/axiosInstance';
 // Set the app element for accessibility
 Modal.setAppElement('#__next');
 
@@ -16,21 +16,28 @@ const BookingHistory: React.FC = () => {
   const [selectedTicketUrl, setSelectedTicketUrl] = useState<string | null>(null);
   const itemsPerPage = 5;
   const router = useRouter();
-  const token = Cookies.get('jwtToken');
   const userId = Cookies.get('userId');
 
+ 
   useEffect(() => {
-    if (!token) {
-      router.push('/');
+    const userId = Cookies.get('userId');
+    const accessToken = Cookies.get('accessToken');
+    const refreshToken = Cookies.get('refreshToken');
+
+    if (!userId || !accessToken || !refreshToken) {
+      Cookies.remove('userId');
+      Cookies.remove('accessToken');
+      Cookies.remove('refreshToken');
+      router.push('/');  // Redirect to home or login page
     }
-  }, [token, router]);
+  }, [router]);
 
   useEffect(() => {
     const userId = Cookies.get('userId');
 
     const fetchData = async () => {
       try {
-        const response = await axios.post('/api/getBookingById', {
+        const response = await axiosInstance.post('/getBookingById', {
           userId: userId, 
         });
         console.log(response.data, 'congratulations.........');

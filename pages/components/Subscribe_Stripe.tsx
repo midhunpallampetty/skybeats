@@ -3,6 +3,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
+import axiosInstance from '../api/utils/axiosInstance';
 import React from 'react';
 type SubscribeComponentProps = {
   price: string;
@@ -20,7 +21,7 @@ const SubscribeComponent:React.FC<SubscribeComponentProps> = () => {
       return;
     }
     try {
-      const response = await axios.post('/api/stripe/checkout', {
+      const response = await axiosInstance.post('/stripe/checkout', {
       });
       const data:any = response.data;
       if (!data.ok) throw new Error('Something went wrong');

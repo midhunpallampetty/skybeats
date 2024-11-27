@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Socket } from 'socket.io-client';
 import socketIOClient from 'socket.io-client';
+import adminAxios from '../api/utils/adminAxiosInstance';
 
 // Define the type for the message data structure
 interface MessageData {

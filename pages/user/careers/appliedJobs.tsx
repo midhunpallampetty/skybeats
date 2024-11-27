@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import { FileText, Mail, Phone } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import axiosInstance from '@/pages/api/utils/axiosInstance';
 import { useRouter } from 'next/router';
 
 interface JobApplication {
@@ -26,8 +27,18 @@ export default function AppliedJobs() {
     const [sortField, setSortField] = useState<'Date' | 'createdAt'>('createdAt');
     const [sortedApplications, setSortedApplications] = useState<JobApplication[]>([]);
     const router=useRouter()
+    const hasFetched = useRef(false);
     const userId = Cookies.get('userId');
-
+    const accessToken = Cookies.get('accessToken');
+    const refreshToken = Cookies.get('refreshToken');
+    useEffect(()=>{
+   if(!userId || !accessToken || !refreshToken){
+    Cookies.remove('userId')
+    Cookies.remove('accessToken')
+    Cookies.remove('refreshToken')
+    router.push('/')
+   }
+    },[router,accessToken,refreshToken,userId])
     // Function to format date
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -39,19 +50,24 @@ export default function AppliedJobs() {
 
     useEffect(() => {
         const fetchAppliedJobs = async () => {
-            try {
-                const response = await axios.post('/api/getApplied', {
-                    userId,
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                setJobApplications(response.data);
-            } catch (error) {
-                console.error('Error fetching job applications:', error);
-            }
+          try {
+            const response = await axiosInstance.post(
+              '/getApplied',
+              { userId },
+              { headers: { 'Content-Type': 'application/json' } } // Pass headers as the third argument
+            );
+            setJobApplications(response.data);
+          } catch (error) {
+            console.error('Error fetching job applications:', error);
+          }
         };
-
-        if (userId) fetchAppliedJobs();
-    }, [userId]);
+    
+        if (userId && !hasFetched.current) {
+          // Only fetch if userId exists and the API hasn't been called yet
+          hasFetched.current = true; // Mark as fetched
+          fetchAppliedJobs();
+        }
+      }, [userId]);
 
     useEffect(() => {
         // Sort applications based on the selected field
@@ -65,12 +81,7 @@ export default function AppliedJobs() {
         setSortedApplications(sortedData);
     }, [jobApplications, sortField]);
     
-    useEffect(()=>{
-        console.log(userId)
-        if(!userId){
-          router.push('/')
-        }
-        },[userId])
+    
     // Paginate applications
     const paginatedApplications = sortedApplications.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
@@ -83,7 +94,7 @@ export default function AppliedJobs() {
     return (
         <>
             <Navbar />
-            <div className="container mx-auto py-10 bg-navy-50 mt-20 min-h-screen">
+            <div className="container mx-auto py-10 bg-navy-50 text-black mt-20 min-h-screen">
                 <h1 className="text-3xl font-bold mb-6 text-white">Applied Jobs</h1>
 
                 {/* Sorting Controls */}
@@ -104,7 +115,7 @@ export default function AppliedJobs() {
 <div className="space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto pr-4">
     {paginatedApplications.length > 0 ? (
         paginatedApplications.map((job) => (
-            <div key={job.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-navy-200">
+            <div key={job.id} className="bg-white text-balck rounded-lg shadow-md overflow-hidden border border-navy-200">
                 <div className="bg-navy-100 px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div>

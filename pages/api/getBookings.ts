@@ -18,6 +18,15 @@ const getBookings = async (req: NextApiRequest, res: NextApiResponse) => {
                 flightNumber
                 phoneNumber
                 createdAt
+                  passengerName {
+      age
+      disability
+      firstName
+      lastName
+      middleName
+      passportNumber
+    }
+      stop
                 
             }
         }

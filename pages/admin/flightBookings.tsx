@@ -10,13 +10,13 @@ import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import { DotLoader } from 'react-spinners';
 import { bookData } from '@/interfaces/bookData';
-const SuperadminDashboard: React.FC = () => {
+import adminAxios from '../api/utils/adminAxiosInstance';
+const FlightBookings: React.FC = () => {
    const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
    const [authorized, setAuthorized] = useState(false);
    const [email, setEmail] = useState('');
    const [role, setRole] = useState('');
    const AdminNavbar  = dynamic(() => import('../components/AdminNavbar'), { ssr: false });
-   const Adminaside  = dynamic(() => import('../components/Adminaside'), { ssr: false });
 
    const [bookings, setBookings] = useState<bookData[]>([]);
    const [currentPage, setCurrentPage] = useState(1);
@@ -24,7 +24,7 @@ const SuperadminDashboard: React.FC = () => {
    const router = useRouter();
 
    const totalPages = Math.ceil(bookings.length / usersPerPage);
-   const token = Cookies.get('jwtToken');
+   const token = Cookies.get('adminaccessToken');
                                     
    useEffect(() => {
       if (!token) {
@@ -34,40 +34,45 @@ const SuperadminDashboard: React.FC = () => {
    const handlePageChange = (pageNumber: number) => {
       setCurrentPage(pageNumber);
    };
+   useEffect(() => {
+      if (role) {
+         console.log(role, 'role...................................');
+         if (role !== 'flightoperator') {
+            router.push('/admin/dashboard');
+         } else {
+            console.log('Authorized as flight operator');
+            setAuthorized(true);
+         }
+      }
+   }, [role]);
+   
 
 
 
 
 
    useEffect(() => {
-      (async () => {
+      const verifyToken = async () => {
          try {
             console.log('Sending token to API:', token);
-            const response = await fetch('/api/tokenVerify', {
-               method: 'POST',
-               headers: {
-                  'Content-Type': 'application/json',
-               },
-               body: JSON.stringify({ token }),
-            });
+            const response = await adminAxios.post('/tokenVerify', { token });
             console.log('Response status:', response.status);
             console.log('Response headers:', response.headers);
-            const data = await response.json();
+   
+            const data = response.data;
             console.log('Received data:', data);
-
+   
             setRole(data);
-
-
-
-            console.log(role, 'datahvbfdhvb');
-            if (!response.ok) {
-               console.error('Error from API:', data.message);
+   
+            if (response.status !== 200) {
+               console.error('Error from API:', response.statusText);
             }
-         } catch (error) {
-            console.log('External api error');
-
+         } catch (error: any) {
+            console.error('External API error:', error.response?.data?.message || error.message);
          }
-      })();
+      };
+   
+      verifyToken();
    }, [token]);
    useEffect(() => {
       if (role !== null) {
@@ -95,7 +100,7 @@ const SuperadminDashboard: React.FC = () => {
    useEffect(() => {
       const fetchData = async () => {
          try {
-            const response: any = await axios.get('/api/getBookings');
+            const response: any = await adminAxios.get('/getBookings');
             console.log(response.data, 'congratulations.........');
             setBookings(response?.data);
          } catch (error) {
@@ -193,7 +198,6 @@ const SuperadminDashboard: React.FC = () => {
                   </svg>
                </button>
 
-               <Adminaside />
 
                {authorized ? (
                   currentUsers.map((bookings, index) => (
@@ -211,7 +215,10 @@ const SuperadminDashboard: React.FC = () => {
                            <div className="ml-4 text-white flex-1">
                               <div className="flex justify-between items-center">
                                  <div ref={targetRef}>
-                                    <p className="text-lg font-semibold">Name: {bookings?.passengerName}</p>
+                                 <p className="text-lg font-semibold">
+                              Name: {bookings.passengerName[0]?.firstName}{' '}
+                              {bookings.passengerName[0]?.lastName}
+                           </p>
                                     <p className="text-sm">Paid: {bookings.FarePaid}</p>
                                     <p className="text-sm">Duration: {bookings.flightDuration}</p>
                                     <p className="text-sm">Stop: {bookings.stop}</p>
@@ -247,9 +254,8 @@ const SuperadminDashboard: React.FC = () => {
                   ))
                ) : (
                   <div className="flex items-center justify-center min-h-screen">
-                     <div className="text-center text-red-500">
-                        <h1 className="text-4xl font-bold">Access Denied</h1>
-                        <p className="mt-4 text-lg">You do not have permission to access this page.</p>
+                     <div className="text-center text-white/5">
+                       
                      </div>
                   </div>
 
@@ -278,4 +284,4 @@ const SuperadminDashboard: React.FC = () => {
    );
 };
 
-export default SuperadminDashboard;
+export default FlightBookings;

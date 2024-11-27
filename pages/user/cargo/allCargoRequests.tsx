@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
+import axiosInstance from '@/pages/api/utils/axiosInstance';
 const AllCargoRequests = () => {
   const Navbar = dynamic(() => import('../../components/Navbar'), { ssr: false });
   const [cargoRequests, setCargoRequests] = useState([]); // Initialize as an empty array
@@ -13,7 +14,7 @@ const AllCargoRequests = () => {
   useEffect(() => {
     const CargoRequests = async () => {
       try {
-        const response = await axios.post('/api/getCargoBookings', {
+        const response = await axiosInstance.post('/getCargoBookings', {
           userId,
           header: {
             'Content-Type': 'application/json'
@@ -41,12 +42,20 @@ const AllCargoRequests = () => {
   }, [userId]);
 
   console.log(cargoRequests);
-  useEffect(()=>{
-    console.log(userId)
-    if(!userId){
-      router.push('/')
+  
+
+  useEffect(() => {
+    const userId = Cookies.get('userId');
+    const accessToken = Cookies.get('accessToken');
+    const refreshToken = Cookies.get('refreshToken');
+
+    if (!userId || !accessToken || !refreshToken) {
+      Cookies.remove('userId');
+      Cookies.remove('accessToken');
+      Cookies.remove('refreshToken');
+      router.push('/');  // Redirect to home or login page
     }
-    },[userId])
+  }, [router]);
   return (
     <>
       <Navbar />

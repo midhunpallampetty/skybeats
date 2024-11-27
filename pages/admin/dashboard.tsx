@@ -2,17 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import Cookies from 'js-cookie';
-
+import withAuthorization from '../hoc/withAuthorization';
+import adminAxios from '../api/utils/adminAxiosInstance';
 const SuperAdminDashboard: React.FC = () => {
     const [authorized, setAuthorized] = useState(false);
+    const [loading, setLoading] = useState(true); // Add a loading state
     const AdminNavbar = dynamic(() => import('../components/AdminNavbar'));
-    const Adminaside = dynamic(() => import('../components/Adminaside'));
     const [role, setRole] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const usersPerPage = 12;
     const router = useRouter();
-    const token = Cookies.get('jwtToken');
-    
+    const token = Cookies.get('adminaccessToken');
+console.log(role,'setRole')
     const cardsData = [
         {
             id: 1,
@@ -60,7 +61,7 @@ const SuperAdminDashboard: React.FC = () => {
             email: 'offers@example.com',
             isBlocked: false,
             imageUrl: 'https://img.freepik.com/premium-photo/flight-attendant-serving-foods-plane_946209-4125.jpg',
-            Redirect:'/admin/Menu'
+            Redirect:'/admin/menu'
         },
         {
             id: 7,
@@ -79,43 +80,36 @@ const SuperAdminDashboard: React.FC = () => {
             Redirect:'/admin/Menu'
         },   {
             id: 9,
-            name: 'Menu',
+            name: 'Recent Bookings',
             email: 'offers@example.com',
             isBlocked: false,
-            imageUrl: 'https://img.freepik.com/premium-photo/flight-attendant-serving-foods-plane_946209-4125.jpg',
-            Redirect:'/admin/Menu'
+            imageUrl: 'https://airline-datacenter.s3.ap-south-1.amazonaws.com/flight2.jpg',
+            Redirect:'/admin/flightBookings'
         },
     ];
 
     useEffect(() => {
         if (!token) {
             router.push('/admin/signin');
+            return;
         }
-    }, [token, router]);
 
-    useEffect(() => {
         (async () => {
             try {
-                const response = await fetch('/api/tokenVerify', {
-                    method: 'POST',
+                const response = await adminAxios.post('/tokenVerify', { token }, {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ token }),
                 });
-                const data = await response.json();
-                setRole(data);
+                setRole(response.data);
+                                setAuthorized(true);
             } catch (error) {
                 console.error('Error occurred while verifying token');
+            } finally {
+                setLoading(false); // Loading complete
             }
         })();
-    }, [token]);
-
-    useEffect(() => {
-        if (role) {
-            setAuthorized(true);
-        }
-    }, [role]);
+    }, [token, router]);
 
     const handlePageChange = (pageNumber: number) => {
         setCurrentPage(pageNumber);
@@ -123,12 +117,24 @@ const SuperAdminDashboard: React.FC = () => {
 
     const currentUsers = cardsData.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage);
 
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center text-gray-500">
+                    <h1 className="text-2xl font-bold">Loading...</h1>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="relative w-full h-full flex justify-center items-center text-white">
             <AdminNavbar />
-            <div className="absolute top-0 left-0 w-full h-full mb-64 opacity-8 pointer-events-none bg-cover bg-no-repeat bg-center" style={{ backgroundImage: 'url(/admin_bg.png)', opacity: 0.1 }} />
+            <div
+                className="absolute top-0 left-0 w-full h-full mb-64 opacity-8 pointer-events-none bg-cover bg-no-repeat bg-center"
+                style={{ backgroundImage: 'url(/admin_bg.png)', opacity: 0.1 }}
+            />
             <div className="relative z-10 xl:ml-[250px] xl:w-[1200px] md:w-[800px] sm:w-full">
-
                 <div className="p-4 mt-[200px]">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-10 mb-28">
                         {authorized ? (
@@ -139,8 +145,14 @@ const SuperAdminDashboard: React.FC = () => {
                                         (role !== 'hoteladmin' && user.name === 'Hotel Management') ||
                                         (role !== 'hradmin' && user.name === 'Career Management') ||
                                         (role !== 'flightoperator' && user.name === 'Flight Management') ||
-                                        (role !== 'cargomanager' && user.name === 'Cargo Management')||(role !== 'hoteladmin' && user.name === 'Menu') || (role !== 'flightoperator' && user.name === 'Booking-Report') 
-                                    ) ? 'border-gray-400 cursor-not-allowed opacity-50' : 'border-gray-600/60 cursor-pointer'} rounded-lg shadow-lg relative focus:outline-none`}
+                                        (role !== 'cargomanager' && user.name === 'Cargo Management') ||
+                                        (role !== 'hoteladmin' && user.name === 'Menu') ||
+                                        (role !== 'flightoperator' && user.name === 'Booking-Report') ||
+                                        (role !== 'flightoperator' && user.name === 'Recent Bookings')
+                                    )
+                                        ? 'border-gray-400 cursor-not-allowed opacity-50'
+                                        : 'border-gray-600/60 cursor-pointer'
+                                    } rounded-lg shadow-lg relative focus:outline-none`}
                                     onClick={() => {
                                         if (user.Redirect && !(
                                             (role !== 'hoteladmin' && user.name === 'Hotel Management') ||
@@ -183,4 +195,4 @@ const SuperAdminDashboard: React.FC = () => {
     );
 };
 
-export default SuperAdminDashboard;
+export default withAuthorization(SuperAdminDashboard, 'superadmin');

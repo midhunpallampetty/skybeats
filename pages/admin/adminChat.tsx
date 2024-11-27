@@ -4,6 +4,7 @@ import io from 'socket.io-client';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import EmojiPicker from "emoji-picker-react";
+import adminAxios from '../api/utils/adminAxiosInstance';
 
 interface Message {
   id: number;
@@ -14,7 +15,6 @@ interface Message {
 
 // Dynamically import components to prevent SSR issues
 const AdminNavbar = dynamic(() => import('../components/AdminNavbar'), { ssr: false });
-const AdminAside = dynamic(() => import('../components/Adminaside'), { ssr: false });
 
 const AdminChat: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -127,7 +127,6 @@ const AdminChat: React.FC = () => {
       <AdminNavbar />
       <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="flex flex-row w-full">
-          <AdminAside />
           <div className="w-[70%] ml-[500px] h-[85vh] rounded-lg shadow-inner shadow-white/25 flex flex-col bg-blue-900/20">
             {/* Top Navbar */}
             <div className="w-full h-16 bg-blue-900/50 flex items-center justify-between px-4 rounded-t-lg">

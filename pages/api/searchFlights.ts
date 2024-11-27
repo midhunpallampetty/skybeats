@@ -4,8 +4,8 @@ import { Flight } from '../../interfaces/flight';
 
 const searchFlights = async (req: NextApiRequest, res: NextApiResponse) => {
   const { from, to } = req.body;
-
-  const graphQLClient = new GraphQLClient('https://ringtail-amazing-shepherd.ngrok-free.app/graphql');
+ console.log(req.body)
+  const graphQLClient = new GraphQLClient('http://localhost:3300/graphql');
 
   const query = gql`
     query searchFlights($fromAirport: String!, $toAirport: String!) {
@@ -27,7 +27,8 @@ const searchFlights = async (req: NextApiRequest, res: NextApiResponse) => {
   console.log(from, to);
 
   try {
-                                                                                                                                                                                        const variables = { fromAirport: from, toAirport: to };
+                                                                                                                                                                                        
+    const variables = { fromAirport: from, toAirport:to };
     const data: any = await graphQLClient.request(query, variables);
     const flights: Flight[] = data.searchFlights;
 

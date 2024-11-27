@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Wallet, ArrowUpRight, Plus, X, ChevronUp, ChevronDown } from 'lucide-react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
-
+import axiosInstance from '../api/utils/axiosInstance';
 interface WalletModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -22,7 +22,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   useEffect(() => {
     const fetchTransactions = async () => {     
       try {
-        const response = await axios.post('/api/transactionHistory', { userId }, {
+        const response = await axiosInstance.post('/transactionHistory', { userId }, {
           headers: { 'Content-Type': 'application/json' }
         });
         setTransactions(response.data.ListTransactions);
@@ -39,7 +39,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   useEffect(() => {
     const fetchBalance = async () => {     
       try {
-        const response = await axios.post('/api/getWallet', { userId }, {
+        const response = await axiosInstance.post('/getWallet', { userId }, {
           headers: { 'Content-Type': 'application/json' }
         });
         setBalance(response.data.walletBalance);

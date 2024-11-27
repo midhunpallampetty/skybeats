@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import { setAircraftModel } from '@/redux/slices/aircraftModelSlice';
 import { setSelectedSeat, clearSelectedSeat, clearSpecificSeat } from '@/redux/slices/selectedSeat';
 import axios from 'axios';
+import axiosInstance from '@/pages/api/utils/axiosInstance';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -46,7 +47,7 @@ const SelectSeats: React.FC = () => {
     useEffect(() => {
         const fetchAircraftModel = async () => {
             try {
-                const response: any = await axios.post('/api/airRadar', {
+                const response: any = await axiosInstance.post('/airRadar', {
                     flightNumber: selectedFlight?.flightNumber,
                     airline: selectedFlight?.airline,
                 });
@@ -68,27 +69,27 @@ const SelectSeats: React.FC = () => {
         setLocalSelectedSeats([]);
     }, [dispatch]);
 console.log(selectedSeat,'selectedSeat')
-    useEffect(() => {
-        const fetchSeats = async () => {
-            if (!aircraftModel) return;
-            try {
-                const response = await fetch('/api/getSeats', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ flightNumber: selectedFlight?.flightNumber, flightModel: aircraftModel }),
-                });
-                const data = await response.json();
-                console.log(data,'seats')
-                dispatch(setSeats(data || []));
-            } catch (error: any) {
-                console.error('Error fetching seats:', error.message);
-            }
-        };
+useEffect(() => {
+    const fetchSeats = async () => {
+        if (!aircraftModel) return;
 
-        if (aircraftModel && selectedFlight?.flightNumber) {
-            fetchSeats();
+        try {
+            const response = await axiosInstance.post('/getSeats', {
+                flightNumber: selectedFlight?.flightNumber,
+                flightModel: aircraftModel,
+            });
+
+            console.log(response.data, 'seats');
+            dispatch(setSeats(response.data || []));
+        } catch (error: any) {
+            console.error('Error fetching seats:', error.message);
         }
-    }, [dispatch, aircraftModel, selectedFlight?.flightNumber]);
+    };
+
+    if (aircraftModel && selectedFlight?.flightNumber) {
+        fetchSeats();
+    }
+}, [dispatch, aircraftModel, selectedFlight?.flightNumber]);
 
     const getPriceByClass = (seatClass: string) => {
         switch (seatClass) {
@@ -101,29 +102,65 @@ console.log(selectedSeat,'selectedSeat')
         }
     };
 
-    const handleSeatClick = (seat: any) => {
-        const alreadySelected = localSelectedSeats.find(s => s._id === seat._id);
-        const seatPrice = getPriceByClass(seat.class);
-
-        if (localSelectedSeats.length >= totalPassengers && !alreadySelected) {
-            toast.error(`You can select exactly ${totalPassengers} seats.`, {
+    const handleSeatClick = async (seat:any) => {
+        const aircraftId = `${selectedFlight?.flightNumber}-${selectedFlight?.airline}`;
+        try {
+           
+            // Show loading indicator or disable seat interaction
+            const response = await axios.post('/api/checkSeat', {
+                holdSeatId: seat._id, // Unique identifier for the seat
+                aircraftId: aircraftId, // ID of the aircraft model
+            });
+    
+            const isHeld = response.data.isHeld;
+    console.log(isHeld,"isHeld")
+            // If the seat is held by another passenger, show a toast and exit
+            if (isHeld) {
+                toast.error(`Seat ${seat.row}${seat.col} is currently held by another passenger. Please select a different seat.`, {
+                    position: "top-center",
+                    autoClose: 3000,
+                    hideProgressBar: true,
+                });
+                return;
+            }
+    
+            // Check if the seat is already selected
+            const alreadySelected = localSelectedSeats.find((s) => s._id === seat._id);
+            const seatPrice = getPriceByClass(seat.class);
+    
+            // Enforce selection limit equal to the total number of passengers
+            if (localSelectedSeats.length >= totalPassengers && !alreadySelected) {
+                toast.error(`You can select exactly ${totalPassengers} seats.`, {
+                    position: "top-center",
+                    autoClose: 3000,
+                    hideProgressBar: true,
+                });
+                return;
+            }
+    
+            if (alreadySelected) {
+                // Remove the seat if it was already selected
+                const updatedSeats = localSelectedSeats.filter((s) => s._id !== seat._id);
+                setLocalSelectedSeats(updatedSeats);
+                dispatch(clearSpecificSeat(seat._id)); // Update Redux state
+            } else {
+                // Add the seat with its price if not already selected
+                const seatWithPrice = { ...seat, price: seatPrice };
+                setLocalSelectedSeats([...localSelectedSeats, seatWithPrice]);
+                dispatch(setSelectedSeat(seatWithPrice)); // Update Redux state
+            }
+        } catch (error) {
+            // Handle any API errors
+            console.error('Error checking seat availability:', error);
+            toast.error('Error checking seat availability. Please try again.', {
                 position: "top-center",
                 autoClose: 3000,
                 hideProgressBar: true,
             });
-            return;
-        }
-
-        if (alreadySelected) {
-            const updatedSeats = localSelectedSeats.filter(s => s._id !== seat._id);
-            setLocalSelectedSeats(updatedSeats);
-            dispatch(clearSpecificSeat(seat._id));
-        } else {
-            const seatWithPrice = { ...seat, price: seatPrice };
-            setLocalSelectedSeats([...localSelectedSeats, seatWithPrice]);
-            dispatch(setSelectedSeat(seatWithPrice));
         }
     };
+    
+    
 
     const handleContinueWithSelectedSeat = () => {
         if (localSelectedSeats.length === totalPassengers) {
@@ -146,7 +183,7 @@ console.log(selectedSeat,'selectedSeat')
     
             // Fetch random seat for each passenger
             for (let i = 0; i < totalPassengers; i++) {
-                const response = await axios.post('/api/getRandomSeat', {
+                const response = await axiosInstance.post('/getRandomSeat', {
                     flightModel: aircraftModel,
                 });
     
@@ -197,12 +234,19 @@ console.log(selectedSeat,'selectedSeat')
         }
     };
     
-    useEffect(()=>{
-        console.log(userId)
-        if(!userId){
-          router.push('/')
-        }
-        },[userId])
+   
+  useEffect(() => {
+    const userId = Cookies.get('userId');
+    const accessToken = Cookies.get('accessToken');
+    const refreshToken = Cookies.get('refreshToken');
+
+    if (!userId || !accessToken || !refreshToken) {
+      Cookies.remove('userId');
+      Cookies.remove('accessToken');
+      Cookies.remove('refreshToken');
+      router.push('/');  // Redirect to home or login page
+    }
+  }, [router]);
     
     return (
         <>

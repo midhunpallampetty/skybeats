@@ -4,8 +4,8 @@ import Link from 'next/link';
 import Navbar from './components/Navbar';
 import { useSession } from 'next-auth/react';
 import Cookies from 'js-cookie';
-import ImageCarousel from './components/imageCarousel';
-import NetworkStatus from './components/networkStatus';
+import ImageCarousel from './components/ImageCarousel';
+import NetworkStatus from './components/NetworkStatus';
 import NetworkSpeedButton from './components/NetworkSpeed';
 import dynamic from 'next/dynamic';
 

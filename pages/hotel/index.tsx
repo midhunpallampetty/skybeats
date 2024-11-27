@@ -6,6 +6,7 @@ import { Airport } from '@/interfaces/Airport';
 import { setHotelBookDetail } from '@/redux/slices/hotelBookDetailSlice';
 import Modal from 'react-modal';
 import Footer from '../components/Footer';
+import axiosInstance from '../api/utils/axiosInstance';
 import DatePicker from 'react-datepicker';
 import { useDispatch, UseDispatch,useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
@@ -142,18 +143,19 @@ const router=useRouter();
   useEffect(() => {
     const fetchAirports = async () => {
       try {
-        const response = await fetch('/api/getAirports');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const airportsData: Airport[] = await response.json();
+        const response = await axiosInstance.get<Airport[]>('/getAirports');
+    
+        const airportsData = response.data; // Extract the data from the response
         setAirports(airportsData);
-        setFilteredAirports(airportsData.map(airport => ({
-          value: airport.code,
-          label: `${airport.city}`,
-        })));
-      } catch (error) {
-        console.error('Error fetching airports:', error);
+    
+        setFilteredAirports(
+          airportsData.map(airport => ({
+            value: airport.code,
+            label: `${airport.city}`,
+          }))
+        );
+      } catch (error: any) {
+        console.error('Error fetching airports:', error.message || error);
       }
     };
 
@@ -195,7 +197,7 @@ const router=useRouter();
     if (selectedCity && startDate && endDate) {
       try {
         console.log(selectedCity.label.toLowerCase(), 'ok');
-        const response = await axios.post('/api/searchHotels', {
+        const response = await axiosInstance.post('/searchHotels', {
           city: selectedCity.label.toLowerCase(),
         });
         dispatch(setHotelOptions(response.data as any));  

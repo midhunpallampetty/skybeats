@@ -6,6 +6,8 @@ import axios from 'axios';
 import { bookData } from '@/interfaces/bookData';
 import { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
+import adminAxios from '../api/utils/adminAxiosInstance';
+
 const categoryData = [
   { category: "Alpha", value: 8 },
   { category: "Omega", value: 6 },
@@ -40,6 +42,7 @@ const companyData = [
 
 export default function InvestmentDashboard() {
   const [bookings, setBookings] = useState<bookData[]>([]);
+  
   const [weeklyData, setWeeklyData] = useState([
     { day: "Mon", value: 0 },
     { day: "Tue", value: 0 },
@@ -50,12 +53,15 @@ export default function InvestmentDashboard() {
     { day: "Sun", value: 0 },
   ]);
   const [role, setRole] = useState('');
-  const token = Cookies.get('jwtToken');
+  const token = Cookies.get('adminaccessToken');
   const router=useRouter()
 
   const [total, setTotal] = useState(0);
   const [pieData, setPieData] = useState<any[]>([]); // To store the top 4 arrival airports pie data
   const [authorized, setAuthorized] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(6);
+  const [displayedBookings, setDisplayedBookings] = useState<bookData[]>([]);
   useEffect(() => {
     if (!token) {
        router.push('/admin/signin');
@@ -114,7 +120,14 @@ console.log(data,'cdscds')
       setTotal(total);
     }
   }, [bookings]);
-
+  useEffect(() => {
+    if (bookings.length > 0) {
+      // Initialize displayedBookings with the first 6 items
+      const initialItems = bookings.slice(0, 6);
+      setDisplayedBookings(initialItems);
+    }
+  }, [bookings]);
+  
   useEffect(() => {
     if (bookings) {
       // Create a copy of the weekly data
@@ -204,7 +217,15 @@ console.log(data,'cdscds')
   
     return `rgb(${r}, ${g}, ${b})`; // Return in RGB format
   };
-  
+  const loadMore = () => {
+    setLoading(true);
+    setTimeout(() => {
+      const nextItems = bookings.slice(currentIndex, currentIndex + 6);
+      setDisplayedBookings([...displayedBookings, ...nextItems]);
+      setCurrentIndex(currentIndex + 6);
+      setLoading(false);
+    }, 1000); // Simulating a delay for loading
+  };
   if (!authorized) {
     return (
       <div className="flex h-screen items-center justify-center bg-[#050b2c] text-white">
@@ -280,30 +301,40 @@ console.log(data,'cdscds')
         </div>
       </div>
       <div className="col-span-full rounded-lg bg-[#0a1445] p-4 m-10">
-          <h2 className="mb-4 text-xl font-semibold">Company Information</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr>
-                  <th className="text-left font-semibold">Fare</th>
-                  <th className="text-left font-semibold">Departure</th>
-                  <th className="text-left font-semibold">Arrival</th>
-                  <th className="text-left font-semibold">Phone</th>
+        <h2 className="mb-4 text-xl font-semibold">Company Information</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr>
+                <th className="text-left font-semibold">Fare</th>
+                <th className="text-left font-semibold">Departure</th>
+                <th className="text-left font-semibold">Arrival</th>
+                <th className="text-left font-semibold">Phone</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayedBookings.map((booking, index) => (
+                <tr key={index} className="border-t border-gray-700">
+                  <td className="py-2">₹{booking?.FarePaid}</td>
+                  <td className="py-2">{booking?.departureAirport}</td>
+                  <td className="py-2">{booking?.arrivalAirport}</td>
+                  <td className="py-2">{booking?.phoneNumber}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {bookings.map((booking, index) => (
-                  <tr key={index} className="border-t border-gray-700">
-                    <td className="py-2">₹{booking?.FarePaid}</td>
-                    <td className="py-2">{booking?.departureAirport}</td>
-                    <td className="py-2">{booking?.arrivalAirport}</td>
-                    <td className="py-2">{booking?.phoneNumber}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
+              ))}
+            </tbody>
+          </table>
         </div>
+        {currentIndex < bookings.length && (
+          <div className="mt-4 text-center">
+            <button
+              onClick={loadMore}
+              disabled={loading}
+              className="px-4 py-2 bg-[#00ffff] text-[#0a1445] rounded-md font-semibold hover:bg-[#00cccc] transition-colors duration-300"
+            >
+              {loading ? 'Loading...' : 'Load More'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
     

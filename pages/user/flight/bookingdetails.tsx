@@ -6,9 +6,10 @@ import { useRouter } from 'next/router';
 import { RootState } from '@/redux/store';
 import { setPassengerDetails } from '@/redux/slices/bookdetailSlice';
 import Swal from 'sweetalert2';
-import FoodMenuModal from '@/pages/components/foodMenuModal';
+import FoodMenuModal from '@/pages/components/FoodMenuModal';
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import axiosInstance from '@/pages/api/utils/axiosInstance';
 import { clearSelectedReturnFlight } from '@/redux/slices/returnFlightSlice';
 
 interface PassengerDetails {
@@ -38,12 +39,12 @@ const BookingDetailsPage: React.FC = () => {
   const [isChecked, setIsChecked] = useState(false);
   const passengerTotal=selectedSeat.length;
   console.log(passengerTotal)
-  const token = Cookies.get('jwtToken');
+  const token = Cookies.get('accessToken');
   const userId = Cookies.get('userId');
 console.log(passengerDetails,'zzzzzzzzzzzz')
 const fetchPassengerInfo = async () => {
   try {
-    const response = await axios.post('/api/getPassengerInfo', { userId }, {
+    const response = await axiosInstance.post('/getPassengerInfo', { userId }, {
       headers: { 'Content-Type': 'application/json' }
     });
     const passengerInfoArray = response.data.getPassengerInfo;
@@ -110,7 +111,7 @@ useEffect(() => {
       };
 
       try {
-        const response = await axios.post('/api/savePassengerInfo', data, {
+        const response = await axiosInstance.post('/savePassengerInfo', data, {
           headers: { 'Content-Type': 'application/json' }
         });
         console.log('Passenger info saved successfully:', response.data);

@@ -291,7 +291,7 @@
                 <div style={{ position: 'relative', flexGrow: 1 }}>
                   <input
                     type="text"
-                    value={inputValue}
+                    value={inputValue} className='text-black font-extrabold '
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         handleSendMessage(); 
