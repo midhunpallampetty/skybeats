@@ -26,12 +26,24 @@ console.log(session,'dscd');
 
   useEffect(() => {
     // If session exists and the token is available, set it in a cookie
-    if (session && session.user?.token) {
-      Cookies.set('jwtToken', session.user.token, { expires: 7 }); // Expires in 7 days
-      Cookies.set('userId',session.user.usersId);
-      console.log('JWT Token set in cookie:', session.user.token);
+    if (session && session.user?.accessToken && session.user?.refreshToken) {
+      const currentRefreshToken = Cookies.get('refreshToken');
+      const currentAccessToken = Cookies.get('accessToken');
+      const currentUserId = Cookies.get('userId');
+      
+      if (
+        session.user.accessToken !== currentRefreshToken ||
+        session.user.refreshToken !== currentAccessToken ||
+        session.user.usersId !== currentUserId
+      ) {
+        Cookies.set('refreshToken', session.user.refreshToken, { expires: 7 }); // Expires in 7 days
+        Cookies.set('accessToken', session.user.accessToken, { expires: 7 }); 
+        Cookies.set('userId', session.user.usersId);
+        console.log('JWT Token set in cookie:', session.user.token);
+      }
     }
   }, [session]);
+  
 
   // Inline styles for loading screen and animation
   const loadingScreenStyle = {

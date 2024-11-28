@@ -19,14 +19,15 @@ const authOptions = {
           mutation($input: GoogleLoginInput!) {
             handleGoogleLogin(input: $input) {
               email
-              token
+              accessToken
+              refreshToken
               id
             }
           }
         `;
 
         try {
-          const response = await fetch('https://skybeats.neptunemusics.shop/graphql', {
+          const response = await fetch(process.env.GRAPHQL_ENDPOINT!, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -49,16 +50,17 @@ const authOptions = {
           }
 
           const result = await response.json();
-
+      console.log(result)
           if (result.errors) {
             console.error('GraphQL Errors:', result.errors);
             return token;
           }
+console.log(result.data)
+          const { email, accessToken: accessToken,refreshToken:refreshToken, id: usersId } = result.data?.handleGoogleLogin || {};
 
-          const { email, token: accessToken, id: usersId } = result.data?.handleGoogleLogin || {};
-
-          if (accessToken && email && usersId) {
+          if (accessToken && email && usersId && refreshToken) {
             token.accessToken = accessToken;
+            token.refreshToken=refreshToken;
             token.email = email;
             token.usersId = usersId;
           }
@@ -75,7 +77,8 @@ const authOptions = {
       if (token) {
         session.user = {
           email: token.email,
-          token: token.accessToken,
+          accessToken: token.accessToken,
+          refreshToken:token.refreshToken,
           usersId: token.usersId,
         };
       }
