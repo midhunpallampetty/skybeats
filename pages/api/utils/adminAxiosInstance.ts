@@ -7,15 +7,32 @@ const adminAxios = axios.create({
 });
 
 // Function to verify the adminaccessToken
-const verifyAdminAccessToken = async (token:string) => {
+let cachedVerificationResult: boolean | null = null;
+let lastVerificationTime: number | null = null;
+
+const verifyAdminAccessToken = async (token: string): Promise<boolean> => {
+  // Return cached result if verification was done recently (e.g., within 1 minute)
+  const currentTime = Date.now();
+  if (
+    cachedVerificationResult !== null &&
+    lastVerificationTime !== null &&
+    currentTime - lastVerificationTime < 60000 // 1 minute
+  ) {
+    return cachedVerificationResult;
+  }
+
   try {
     const { data } = await axios.post(
-      "/api/verifyAccessToken",
+      "/api/tokenVerify",
       { token },
       { withCredentials: true }
     );
-    return data.isValid; // Assuming API returns an `isValid` field
+    cachedVerificationResult = data.isValid; // Cache the result
+    lastVerificationTime = currentTime; // Cache the timestamp of the verification
+    return cachedVerificationResult;
   } catch (error: unknown) {
+    cachedVerificationResult = false; // Cache invalid result on error
+    lastVerificationTime = currentTime; // Cache the timestamp of the error
     if (
       typeof error === 'object' &&
       error !== null &&
@@ -36,8 +53,8 @@ const verifyAdminAccessToken = async (token:string) => {
     }
     return false; // Treat as invalid if any error occurs
   }
-  
 };
+
 
 // Request interceptor to attach access token to headers
 adminAxios.interceptors.request.use(
