@@ -57,10 +57,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.error('GraphQL Errors:', data.errors || response.statusText);
         return res.status(500).json({ error: 'Failed to apply for job', details: data.errors || response.statusText });
       }
-    } catch (error: any) {
-      console.error('Server Error:', error.message);
-      return res.status(500).json({ error: 'Internal server error', details: error.message });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Server Error:', error.message);
+        return res.status(500).json({ error: 'Internal server error', details: error.message });
+      } else {
+        console.error('Unexpected Server Error:', error);
+        return res.status(500).json({ error: 'Internal server error', details: 'An unknown error occurred.' });
+      }
     }
+    
   } else {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }

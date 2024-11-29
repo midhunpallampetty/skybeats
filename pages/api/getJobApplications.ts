@@ -7,6 +7,7 @@ interface Application {
   name: string;
   phone: string;
   Date: string;
+  id:string;
 }
 
 interface GetAllApplicationsResponse {
@@ -23,6 +24,7 @@ const GET_ALL_APPLICATIONS = gql`
       name
       phone
       Date
+      id
     }
   }
 `;

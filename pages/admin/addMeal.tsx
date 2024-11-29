@@ -1,149 +1,157 @@
-import React, { ChangeEvent, useState,useEffect } from 'react';
+import React, { ChangeEvent, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import AWS from 'aws-sdk';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import S3 from 'aws-sdk/clients/s3';
 import { useRouter } from 'next/router';
-import adminAxios from '../api/utils/adminAxiosInstance';
-
 import Cookies from 'js-cookie';
+
 interface S3UploadResponse {
   uploadUrl: string;
   key: string;
 }
+interface FoodImage {
+  SaveImage: {
+    imageUrl: string;
+  };
+}
+
 function AddMeal() {
   const AdminNavbar = dynamic(() => import('../components/AdminNavbar'));
-  const Modal = dynamic(() => import('react-modal'));
   const [image, setImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [itemName, setItemName] = useState('');
   const [stock, setStock] = useState(0);
   const [foodType, setFoodType] = useState('');
-  const [price,setPrice]=useState(0);
-  const [foodImage, setFoodImage] = useState<any>('');
-  const [shouldAddMeal, setShouldAddMeal] = useState(false); 
-  console.log(itemName,stock,foodType,foodImage);
+  const [price, setPrice] = useState(0);
+  const [foodImage, setFoodImage] = useState<FoodImage | null>(null);
+
+  const [itemNameError, setItemNameError] = useState('');
+  const [stockError, setStockError] = useState('');
+  const [foodTypeError, setFoodTypeError] = useState('');
+  const [priceError, setPriceError] = useState('');
+  const [imageError, setImageError] = useState('');
+
+  const router = useRouter();
+  const token = Cookies.get('adminaccessToken');
+
+  // Redirect if not authenticated
   useEffect(() => {
-    if (shouldAddMeal && itemName && stock && foodType && foodImage &&price) {
-      addMealToAPI();
-      setShouldAddMeal(false); 
+    if (!token) {
+      router.push('/admin/signin');
     }
-  }, [shouldAddMeal, itemName, stock, foodType, foodImage,price]);
-  async function addMealToAPI() {
+  }, [token, router]);
+
+  // Validation function
+  const validateFields = (): boolean => {
+    let isValid = true;
+
+    if (!itemName) {
+      setItemNameError('Item Name is required');
+      isValid = false;
+    } else {
+      setItemNameError('');
+    }
+
+    if (!stock || stock <= 0) {
+      setStockError('Stock must be greater than zero');
+      isValid = false;
+    } else {
+      setStockError('');
+    }
+
+    if (!foodType) {
+      setFoodTypeError('Please select a Food Type');
+      isValid = false;
+    } else {
+      setFoodTypeError('');
+    }
+
+    if (!price || price <= 0) {
+      setPriceError('Price must be greater than zero');
+      isValid = false;
+    } else {
+      setPriceError('');
+    }
+
+    if (!image) {
+      setImageError('Please upload an image');
+      isValid = false;
+    } else {
+      setImageError('');
+    }
+
+    return isValid;
+  };
+
+  const handleAddMeal = async (imageUrl: string) => {
     try {
       const mealData = {
         itemName,
         stock,
-        hotOrCold:foodType,
-        ImageUrl:foodImage.SaveImage.imageUrl,
+        hotOrCold: foodType,
+        ImageUrl: imageUrl, // Use the passed imageUrl
         price,
-        
       };
-console.log(mealData,'cdcsd');
-      // Send POST request to add meal API
-      const response = await axios.post('/api/addMeal', mealData, {
+  
+      await axios.post('/api/addMeal', mealData, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
-
-      Swal.fire({
-        title: 'Success!',
-        text: 'Meal added successfully!',
-        icon: 'success',
+  
+      Swal.fire('Success!', 'Meal added successfully!', 'success').then(() => {
+        router.push('/admin/menu');
       });
     } catch (error) {
       console.error('Error adding meal:', error);
-      Swal.fire({
-        title: 'Error!',
-        text: 'There was an error adding the meal',
-        icon: 'error',
-      });
+      Swal.fire('Error!', 'There was an error adding the meal', 'error');
     }
-  }
-  async function uploadToS3() {
-    if (!image) {
-      console.log('No image selected');
-      return null;
-    }
-
-    const fileType = encodeURIComponent(image.type);
-
-    try {
-      console.log('Upload starting...');
-      setUploading(true);
-      setIsModalOpen(true);
-
-      const { data } = await axios.get<S3UploadResponse>(`/api/media?fileType=${fileType}`);
-      const { uploadUrl, key } = data;
-
-      console.log('Uploading...');
-      await axios.put(uploadUrl, image);
-
-      console.log(`Upload completed.with key:${key}`);
-      const formatedImage = { imageUrl: 'https://airline-datacenter.s3.ap-south-1.amazonaws.com/' + key };
-      axios.post('http://localhost:3000/api/saveCloud', formatedImage, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-        .then(response => setFoodImage(response.data))
-
-        .catch(error => console.error('Error:', error));
-      setUploading(false);
-      setIsModalOpen(false);
-      Swal.fire({
-        title: 'uploaded!',
-        text: 'Data Reached There',
-        imageUrl: 'https://cdn.dribbble.com/users/374672/screenshots/3295528/compbig.gif',
-        imageWidth: 400,
-        imageHeight: 200,
-        imageAlt: 'Custom image',
-
-      });
- 
-
+  };
   
 
-      
-      return key;
+  const handleUploadToS3 = async () => {
+    if (!validateFields()) return;
+  
+    const fileType = encodeURIComponent(image?.type || '');
+  
+    try {
+      setUploading(true);
+  
+      // Step 1: Get the S3 upload URL
+      const { data } = await axios.get<S3UploadResponse>(`/api/media?fileType=${fileType}`);
+      const { uploadUrl, key } = data;
+  
+      // Step 2: Upload the file to S3
+      await axios.put(uploadUrl, image);
+  
+      // Step 3: Save the image URL in your database
+      const formatedImage = { imageUrl: `https://airline-datacenter.s3.ap-south-1.amazonaws.com/${key}` };
+      const response = await axios.post('/api/saveCloud', formatedImage, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+  
+      setFoodImage(response.data); // Update the state
+  
+      // Step 4: Wait for the state to be updated before calling handleAddMeal
+      setUploading(false);
+      Swal.fire('Uploaded!', 'Image uploaded successfully', 'success').then(() => {
+        handleAddMeal(response.data.SaveImage.imageUrl); // Pass the image URL directly
+      });
     } catch (error) {
       console.error('Error during upload:', error);
       setUploading(false);
-      setIsModalOpen(false);
-      return null;
+      Swal.fire('Error!', 'Error uploading the image', 'error');
     }
-  }
- 
- 
+  };
+  
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) setImage(e.target.files[0]);
   };
 
-  const handleUploadClick = async () => {
-    await uploadToS3();
-    setShouldAddMeal(true);
-  };
-const router=useRouter()
   const handleTemperatureChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFoodType(e.target.value);
   };
-
-  const allowedTypes = [
-    'image/jpeg',
-    'image/png',
-    'application/pdf',
-    'video/mp4',
-    'video/quicktime',
-    'audio/mpeg',
-    'audio/wav',
-  ];
-
-
-
 
   const backgroundStyle: React.CSSProperties = {
     backgroundImage: 'url(\'/admin-bg.png\')',
@@ -162,122 +170,92 @@ const router=useRouter()
     maxWidth: '600px',
     padding: '20px',
   };
-  const token = Cookies.get('jwtToken');
 
-  useEffect(()=>{
-    if(!token){
-      router.push('/admin/signin');
-    }
-    },[token]);
-      useEffect(() => {
-         if (!token) {
-            router.push('/admin/signin');
-         }
-      }, [token, router]);
   return (
     <div style={backgroundStyle}>
-      <AdminNavbar />
-      <div style={formContainerStyle}>
+    <AdminNavbar />
+    <div className="flex w-4/5 max-w-screen-lg items-start justify-between">
+      {/* Form Section */}
+      <div style={formContainerStyle} className="w-3/5">
+        {/* Item Name */}
         <div className="mb-6">
           <label className="block mb-2 text-sm font-extrabold text-white">Item Name</label>
           <input
-            type="text" onChange={(e) => setItemName(e.target.value)}
-            id="large-input"
-            className="block w-full p-4 text-white font-extrabold border border-white/10 rounded-lg bg-blue-900/30 text-base focus:ring-blue-500 focus:border-blue-500   dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            type="text"
+            onChange={(e) => setItemName(e.target.value)}
+            className="block w-full p-4 text-white font-extrabold border border-white/10 rounded-lg bg-blue-900/30"
           />
+          {itemNameError && <p className="text-red-500 text-sm mt-1">{itemNameError}</p>}
         </div>
+
+        {/* Stock */}
         <div className="mb-6">
           <label className="block mb-2 text-sm font-extrabold text-white">Stock</label>
           <input
             type="number"
-            onChange={(e) => setStock(Number(e.target.value))}  // Convert string to number
-            id="large-input"
-            className="block w-full p-4 text-white font-extrabold border border-white/10 rounded-lg bg-blue-900/30 text-base focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            onChange={(e) => setStock(Number(e.target.value))}
+            className="block w-full p-4 text-white font-extrabold border border-white/10 rounded-lg bg-blue-900/30"
           />
-
+          {stockError && <p className="text-red-500 text-sm mt-1">{stockError}</p>}
         </div>
+
+        {/* Price */}
         <div className="mb-6">
           <label className="block mb-2 text-sm font-extrabold text-white">Price</label>
           <input
             type="number"
-            onChange={(e) => setPrice(Number(e.target.value))}  // Convert string to number
-            id="large-input"
-            className="block w-full p-4 text-white font-extrabold border border-white/10 rounded-lg bg-blue-900/30 text-base focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            onChange={(e) => setPrice(Number(e.target.value))}
+            className="block w-full p-4 text-white font-extrabold border border-white/10 rounded-lg bg-blue-900/30"
           />
-
+          {priceError && <p className="text-red-500 text-sm mt-1">{priceError}</p>}
         </div>
-        {/* <div className="mb-6">
-          <label className="block mb-2 text-sm  font-extrabold text-white">Description</label>
-          <input
-            type="text"onChange={(e)=>setItemDescription(e.target.value)}
-            id="default-input"
-            className="block w-full p-4 text-gray-900 border border-white/10 rounded-lg bg-blue-900/30 text-base focus:ring-blue-500 focus:border-blue-500   dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          />
-        </div> */}
+
+        {/* Food Type */}
         <div className="mb-6">
           <label className="block mb-2 text-sm font-extrabold text-white">Food Type</label>
           <select
-      id="temperature"
-      value={foodType} // This binds the select value to the state
-      onChange={handleTemperatureChange} // This updates the state when a selection is made
-      className="block w-full p-4 text-white border border-white/10 rounded-lg bg-blue-900/30 text-base focus:ring-blue-500 focus:border-blue-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-    >
-      <option value="" className="text-white">Select Temperature</option>
-      <option value="hot">Hot</option>
-      <option value="cold">Cold</option>
-    </select>
+            value={foodType}
+            onChange={handleTemperatureChange}
+            className="block w-full p-4 text-white border border-white/10 rounded-lg bg-blue-900/30"
+          >
+            <option value="">Select Temperature</option>
+            <option value="hot">Hot</option>
+            <option value="cold">Cold</option>
+          </select>
+          {foodTypeError && <p className="text-red-500 text-sm mt-1">{foodTypeError}</p>}
         </div>
 
-        <div className="flex items-center justify-center w-full">
-          <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-blue-950/30 hover:bg-blue-800/35 dark:border-gray-600">
+        {/* File Upload */}
+        <div className="flex items-center justify-center w-full mb-6">
+          <label className="flex flex-col items-center justify-center w-full h-52 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-blue-950/30 hover:bg-blue-800/35">
             <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <svg className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
-              </svg>
-              <p className="mb-2 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Upload an image</p>
             </div>
-            {image && <img className='opacity-20 w-28 h-52' src={URL.createObjectURL(image)} alt="Preview" />}
-            <input onChange={handleFileChange} id="dropzone-file" type="file" className="hidden" />
+            <input onChange={handleFileChange} type="file" className="hidden" />
           </label>
         </div>
+        {imageError && <p className="text-red-500 text-sm mt-1">{imageError}</p>}
 
-        <button onClick={handleUploadClick} className='bg-blue-950 mt-10 w-28 h-12 hover:bg-blue-700/30 rounded-lg border border-blue-900 text-white font-extrabold'>
+        {/* Submit Button */}
+        <button onClick={handleUploadToS3} className="bg-blue-950 mt-6 w-28 h-12 hover:bg-blue-700/30 rounded-lg text-white font-extrabold">
           {uploading ? 'Adding...' : 'Add'}
         </button>
       </div>
 
-
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        className="custom-modal"
-        overlayClassName="custom-overlay"
-      >
-        <h2>Uploading to AWS...</h2>
-        <span>Contacting AWS Datacenters...</span>
-        <div className="loader"></div>
-      </Modal>
-
-
-      <style jsx>{`
-  .loader {
-    border: 4px solid #f3f3f3;
-    border-radius: 50%;
-    border-top: 4px solid #3498db;
-    width: 40px;
-    height: 40px;
-    animation: spin 2s linear infinite;
-    margin: 20px auto;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`}</style>
-
+      {/* Image Preview Section */}
+      <div className="w-2/5 mt-40 flex justify-center items-center">
+        {image ? (
+          <img
+            className="rounded-lg shadow-lg w-64 h-64 object-cover"
+            src={URL.createObjectURL(image)}
+            alt="Preview"
+          />
+        ) : (
+          <p className="text-gray-500 text-sm">Image preview will appear here</p>
+        )}
+      </div>
     </div>
+  </div>
   );
 }
 

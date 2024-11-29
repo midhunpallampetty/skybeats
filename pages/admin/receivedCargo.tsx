@@ -102,9 +102,14 @@ const ReceivedCargo: React.FC = () => {
                b.trackingId === trackingId ? { ...b, approved: true } : b
             )
          );
-      } catch (error: any) {
-         console.error('Error updating cargo status:', error.message);
-      }
+      } catch (error: unknown) {
+         if (error instanceof Error) {
+           console.error('Error updating cargo status:', error.message);
+         } else {
+           console.error('An unknown error occurred during the update.');
+         }
+       }
+       
    };
 
    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

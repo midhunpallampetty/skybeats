@@ -73,11 +73,11 @@ console.log(role,'setRole')
         },
         {
             id: 8,
-            name: 'Menu',
+            name: 'Users',
             email: 'offers@example.com',
             isBlocked: false,
-            imageUrl: 'https://img.freepik.com/premium-photo/flight-attendant-serving-foods-plane_946209-4125.jpg',
-            Redirect:'/admin/Menu'
+            imageUrl: 'https://airline-datacenter.s3.ap-south-1.amazonaws.com/2240x1090-1-1560x760.jpg',
+            Redirect:'/admin/super_adminDashboard'
         },   {
             id: 9,
             name: 'Recent Bookings',

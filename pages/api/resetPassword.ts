@@ -48,13 +48,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       success: true,
       message,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error resetting password:', error);
-
+  
     // Differentiate error types if possible
-    const errorMessage = error.message || 'Failed to reset password';
-    const statusCode = error.networkError ? 503 : 500;
-
+    let errorMessage = 'Failed to reset password';
+    let statusCode = 500;
+  
+    if (error instanceof Error) {
+      errorMessage = error.message || errorMessage;
+    }
+  
+    if (error instanceof Object && 'networkError' in error) {
+      statusCode = 503; // Service Unavailable for network errors
+    }
+  
     return res.status(statusCode).json({ error: errorMessage });
   }
+  
 }

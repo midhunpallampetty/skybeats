@@ -24,10 +24,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const data:any = await client.request(CANCEL_TICKET_BY_ONE, variables);
 
       res.status(200).json(data.CancelTicketByOne);
-    } catch (error: any) {
-      console.error('Error in CancelTicketByOne mutation:', error);
-      res.status(500).json({ message: 'Error canceling the ticket', error: error.message });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error in CancelTicketByOne mutation:', error.message);
+        res.status(500).json({
+          message: 'Error canceling the ticket',
+          error: error.message,
+        });
+      } else {
+        console.error('Unexpected error in CancelTicketByOne mutation:', error);
+        res.status(500).json({
+          message: 'Error canceling the ticket',
+          error: 'An unexpected error occurred.',
+        });
+      }
     }
+    
   } else {
     res.status(405).json({ message: 'Method Not Allowed' });
   }

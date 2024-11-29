@@ -21,9 +21,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const variables = { blockUserId };  // Passing the id directly in the variables
       const data = await client.request(BLOCK_USER_MUTATION, variables);
       res.status(200).json(data);
-    } catch (error: any) {
-      res.status(500).json({ message: 'Error blocking/unblocking user', error: error.message });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        res.status(500).json({
+          message: 'Error blocking/unblocking user',
+          error: error.message,
+        });
+      } else {
+        res.status(500).json({
+          message: 'Error blocking/unblocking user',
+          error: 'An unknown error occurred.',
+        });
+      }
     }
+    
   } else {
     res.status(405).json({ message: 'Method Not Allowed' });
   }

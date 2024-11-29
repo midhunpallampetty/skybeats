@@ -36,10 +36,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             // Extract and return response
             const isHeld = data.data.checkSeat;
             return res.status(200).json({ isHeld });
-        } catch (error: any) {
-            console.error('Error checking seat availability:', error.message);
-            return res.status(500).json({ error: 'Internal Server Error' });
-        }
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+              console.error('Error checking seat availability:', error.message);
+              return res.status(500).json({ error: 'Internal Server Error', details: error.message });
+            } else {
+              console.error('Unexpected error checking seat availability:', error);
+              return res.status(500).json({ error: 'An unexpected error occurred' });
+            }
+          }
+          
     } else {
         // Handle unsupported methods
         res.setHeader('Allow', ['POST']);

@@ -133,12 +133,15 @@ const JobApplicationForm = () => {
                 });
                 router.push('/');
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error:', error);
-            if (error.response) {
-                const { status, data } = error.response;
+        
+            if (error instanceof Error && 'response' in error) {
+                const { response } = error as { response: { status: number; data: { error: string } } };
+        
+                const { status, data } = response;
                 console.log('Status code:', status);
-    
+        
                 if (status === 400 && data.error === 'All fields are required.') {
                     Swal.fire({
                         icon: 'warning',
@@ -159,7 +162,8 @@ const JobApplicationForm = () => {
                     text: 'An unexpected error occurred. Please try again later.',
                 });
             }
-        } finally {
+        }
+         finally {
             isSubmitting.current = false; // Reset submitting state
         }
     }

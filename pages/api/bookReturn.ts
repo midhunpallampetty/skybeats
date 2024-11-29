@@ -131,10 +131,22 @@ console.log(variables,'dscsdc');
         message: 'Tickets generated and uploaded to S3 successfully!',
         ticketUrls,
       });
-    } catch (error: any) {
-      console.error('Error generating or uploading tickets:', error);
-      res.status(500).json({ message: 'Error creating booking', error: error.message });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error generating or uploading tickets:', error.message);
+        res.status(500).json({
+          message: 'Error creating booking',
+          error: error.message,
+        });
+      } else {
+        console.error('Unexpected error generating or uploading tickets:', error);
+        res.status(500).json({
+          message: 'Error creating booking',
+          error: 'An unexpected error occurred.',
+        });
+      }
     }
+    
   } else {
     res.status(405).json({ message: 'Method Not Allowed' });
   }

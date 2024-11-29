@@ -37,8 +37,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Return the relevant data from the mutation
     res.status(200).json(data.cancelHotel);
-  } catch (error: any) {
-    console.error('Error cancelling hotel:', error.message || error);
-    res.status(500).json({ error: 'An error occurred while cancelling the hotel booking.' });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error cancelling hotel:', error.message);
+      res.status(500).json({ error: 'An error occurred while cancelling the hotel booking.', details: error.message });
+    } else {
+      console.error('Unexpected error cancelling hotel:', error);
+      res.status(500).json({ error: 'An unexpected error occurred while cancelling the hotel booking.' });
+    }
   }
+  
 }

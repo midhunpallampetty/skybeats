@@ -18,9 +18,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       res.status(200).json({ clientSecret: paymentIntent.client_secret });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        res.status(500).json({ error: err.message });
+      } else {
+        res.status(500).json({ error: 'An unknown error occurred' });
+      }
     }
+    
   } else {
     res.setHeader('Allow', 'POST');
     res.status(405).end('Method Not Allowed');

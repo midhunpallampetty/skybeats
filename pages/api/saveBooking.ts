@@ -33,9 +33,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const variables = { input: bookingInput };
       const data = await client.request(CREATE_BOOKING_MUTATION, variables);
       res.status(200).json(data);
-    } catch (error: any) {
-      res.status(500).json({ message: 'Error creating booking', error: error.message });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        // Handle the error if it's an instance of Error
+        res.status(500).json({ message: 'Error creating booking', error: error.message });
+      } else {
+        // If the error is not an instance of Error, send a generic message
+        res.status(500).json({ message: 'Error creating booking', error: 'Unknown error' });
+      }
     }
+    
   } else {
     res.status(405).json({ message: 'Method Not Allowed' });
   }

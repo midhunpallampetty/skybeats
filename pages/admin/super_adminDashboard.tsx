@@ -47,9 +47,14 @@ const Super_adminDashboard: React.FC = () => {
                 } else {
                     Swal.fire('Error!', data.message, 'error');
                 }
-            } catch (error: any) {
-                Swal.fire('Error!', error.message || 'Failed to process the request.', 'error');
-            }
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                  Swal.fire('Error!', error.message || 'Failed to process the request.', 'error');
+                } else {
+                  Swal.fire('Error!', 'An unknown error occurred. Please try again.', 'error');
+                }
+              }
+              
         }
     };
 

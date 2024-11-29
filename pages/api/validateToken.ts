@@ -39,7 +39,7 @@ console.log(req.body,'cdscdsc')
           variables: { token },
         }
       );
-
+console.log(response.data,"response")
       // Extract data from the response
       const { success } = response.data.data.validateToken;
 

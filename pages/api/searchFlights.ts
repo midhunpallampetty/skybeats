@@ -33,10 +33,21 @@ const searchFlights = async (req: NextApiRequest, res: NextApiResponse) => {
     const flights: Flight[] = data.searchFlights;
 
     res.status(200).json(flights);
-  } catch (error: any) {
-    console.error('Error searching flights:', error.response ? error.response.errors : error.message);
-    res.status(500).json({ message: 'Error searching flights' });
+  }catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error searching flights:', error.message);
+      res.status(500).json({ message: 'Error searching flights' });
+    } else if (error instanceof Response) {
+      // If the error has a `response` property (e.g., network request errors)
+      console.error('Error searching flights:', error.statusText || 'Unknown network error');
+      res.status(500).json({ message: 'Error searching flights' });
+    } else {
+      // Handle unknown error type
+      console.error('Error searching flights: Unknown error');
+      res.status(500).json({ message: 'Error searching flights' });
+    }
   }
+  
 };
 
 export default searchFlights;

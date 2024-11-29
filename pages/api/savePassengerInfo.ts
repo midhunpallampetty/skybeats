@@ -29,9 +29,14 @@ console.log(req.body.input);
       const variables = { input: passengerInput };
       const data = await client.request(SAVE_PASSENGER_INFO_MUTATION, variables);
       res.status(200).json(data);
-    } catch (error: any) {
-      res.status(500).json({ message: 'Error saving passenger information', error: error.message });
+    }catch (error: unknown) {
+      if (error instanceof Error) {
+        res.status(500).json({ message: 'Error saving passenger information', error: error.message });
+      } else {
+        res.status(500).json({ message: 'Error saving passenger information', error: 'Unknown error occurred' });
+      }
     }
+    
   } else {
     res.status(405).json({ message: 'Method Not Allowed' });
   }

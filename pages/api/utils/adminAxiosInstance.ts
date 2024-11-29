@@ -7,7 +7,7 @@ const adminAxios = axios.create({
 });
 
 // Function to verify the adminaccessToken
-const verifyAdminAccessToken = async (token:any) => {
+const verifyAdminAccessToken = async (token:string) => {
   try {
     const { data } = await axios.post(
       "/api/verifyAccessToken",
@@ -15,14 +15,28 @@ const verifyAdminAccessToken = async (token:any) => {
       { withCredentials: true }
     );
     return data.isValid; // Assuming API returns an `isValid` field
-  } catch (error:any) {
-    if (error.response?.status === 500 || error.response?.status === 404) {
-      console.error("Server error during token verification. Assuming token invalid.");
+  } catch (error: unknown) {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      typeof (error as any).response === 'object' &&
+      (error as any).response !== null
+    ) {
+      const response = (error as { response: { status: number } }).response;
+      if (response.status === 500 || response.status === 404) {
+        console.error("Server error during token verification. Assuming token invalid.");
+      } else {
+        console.error("Access token verification failed:", error);
+      }
+    } else if (error instanceof Error) {
+      console.error("Unexpected error during token verification:", error.message);
     } else {
-      console.error("Access token verification failed:", error);
+      console.error("Unknown error during token verification:", error);
     }
     return false; // Treat as invalid if any error occurs
   }
+  
 };
 
 // Request interceptor to attach access token to headers

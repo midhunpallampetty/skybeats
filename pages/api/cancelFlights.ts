@@ -37,8 +37,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Respond with the mutation result
     res.status(200).json(data.CancelTicketById);
-  } catch (error: any) {
-    console.error('Error cancelling ticket:', error);
-    res.status(500).json({ error: 'An error occurred while cancelling the ticket.' });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error cancelling ticket:', error.message);
+      res.status(500).json({ error: 'An error occurred while cancelling the ticket.', details: error.message });
+    } else {
+      console.error('Unexpected error cancelling ticket:', error);
+      res.status(500).json({ error: 'An unexpected error occurred while cancelling the ticket.' });
+    }
   }
+  
 }

@@ -35,16 +35,29 @@ const getRandomSeat = async (req: NextApiRequest, res: NextApiResponse) => {
 
       // Return the seat data from the GraphQL response
       res.status(200).json(data.getRandomSeat);
-    } catch (error: any) {
-      console.error(
-        'Error fetching random seat:',
-        error.response ? error.response.errors : error.message
-      );
-      res.status(500).json({
-        message: 'Error fetching random seat',
-        error: error.response ? error.response.errors : error.message,
-      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error fetching random seat:', error.message);
+        res.status(500).json({
+          message: 'Error fetching random seat',
+          error: error.message,
+        });
+      } else if (error && typeof error === 'object' && 'response' in error) {
+        const e = error as { response?: { errors: string } };
+        console.error('Error fetching random seat:', e.response?.errors || 'Unknown error');
+        res.status(500).json({
+          message: 'Error fetching random seat',
+          error: e.response?.errors || 'Unknown error',
+        });
+      } else {
+        console.error('Unknown error fetching random seat:', error);
+        res.status(500).json({
+          message: 'Error fetching random seat',
+          error: 'Unknown error',
+        });
+      }
     }
+    
   } else {
     res.status(405).json({ message: 'Method Not Allowed' });
   }

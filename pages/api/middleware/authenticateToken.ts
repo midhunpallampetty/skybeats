@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 
-export const authenticateToken = async (
+ const authenticateToken = async (
   req: NextApiRequest,
   res: NextApiResponse,
   next: Function
@@ -13,6 +13,7 @@ export const authenticateToken = async (
   }
 
   const token = authHeader.split(' ')[1]; // Extract Bearer token
+  console.log('header',token)
   if (!token) {
     return res.status(401).json({ message: 'Unauthorized: Token missing' });
   }
@@ -20,18 +21,26 @@ export const authenticateToken = async (
   try {
     
     const response = await axios.post(
-      '/api/validateToken', 
+      'https://www.skybeats.site/api/validateToken', 
       { token }, 
       { headers: { 'Content-Type': 'application/json' } }
     );
-
-    if (response.data?.isValid) {
+console.log('database',response.data)
+    if (response.data?.success===true) {
+      console.log('hai')
       next(); // Proceed to the handler
     } else {
       return res.status(403).json({ message: 'Forbidden: Invalid token' });
     }
-  } catch (error:any) {
-    console.error('Error verifying token:', error.message);
-    return res.status(500).json({ message: 'Internal server error during token verification' });
+  }catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error verifying token:', error.message);
+      return res.status(500).json({ message: 'Internal server error during token verification' });
+    } else {
+      console.error('Unknown error verifying token:', error);
+      return res.status(500).json({ message: 'An unknown error occurred during token verification' });
+    }
   }
+  
 };
+export default authenticateToken;

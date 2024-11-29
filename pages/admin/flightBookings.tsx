@@ -11,6 +11,30 @@ import { useRouter } from 'next/router';
 import { DotLoader } from 'react-spinners';
 import { bookData } from '@/interfaces/bookData';
 import adminAxios from '../api/utils/adminAxiosInstance';
+interface ApiError extends Error {
+   response?: {
+     data: {
+       message: string;
+     };
+   };
+ }
+ interface Booking {
+   id: string;
+   customerName: string;
+   flightNumber: string;
+   date: string;
+   seatNumber: string[];
+   FarePaid:number;
+   createdAt:string;
+   arrivalAirport:string;
+   phoneNumber:string;
+   departureAirport:string;
+   // Add other fields as per your data
+ }
+ 
+ interface BookingsResponse {
+   data: Booking[];
+ }
 const FlightBookings: React.FC = () => {
    const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
    const [authorized, setAuthorized] = useState(false);
@@ -18,7 +42,7 @@ const FlightBookings: React.FC = () => {
    const [role, setRole] = useState('');
    const AdminNavbar  = dynamic(() => import('../components/AdminNavbar'), { ssr: false });
 
-   const [bookings, setBookings] = useState<bookData[]>([]);
+   const [bookings, setBookings] = useState<Booking[]>([]);
    const [currentPage, setCurrentPage] = useState(1);
    const usersPerPage = 2;
    const router = useRouter();
@@ -67,9 +91,18 @@ const FlightBookings: React.FC = () => {
             if (response.status !== 200) {
                console.error('Error from API:', response.statusText);
             }
-         } catch (error: any) {
-            console.error('External API error:', error.response?.data?.message || error.message);
-         }
+         }catch (error: unknown) {
+            if (error instanceof Error) {
+              const apiError = error as ApiError; // Type assertion to ApiError
+              console.error(
+                'External API error:',
+                apiError.response?.data?.message || error.message
+              );
+            } else {
+              console.error('External API error: An unknown error occurred');
+            }
+          }
+
       };
    
       verifyToken();
@@ -94,13 +127,13 @@ const FlightBookings: React.FC = () => {
    const [password, setPassword] = useState('');
    const [adminType, setadminType] = useState('');
    const [adminLogin, { loading, error, data }] = useMutation(ADMIN_LOGIN_MUTATION);
-   const handleDropdown = (e: any) => {
-      setadminType(e.target.value);
-   };
+   // const handleDropdown = (e: any) => {
+   //    setadminType(e.target.value);
+   // };
    useEffect(() => {
       const fetchData = async () => {
          try {
-            const response: any = await adminAxios.get('/getBookings');
+            const response: BookingsResponse = await adminAxios.get('/getBookings');
             console.log(response.data, 'congratulations.........');
             setBookings(response?.data);
          } catch (error) {

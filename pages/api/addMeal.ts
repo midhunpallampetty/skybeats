@@ -51,10 +51,16 @@ console.log(hotOrCold, ImageUrl, itemName, stock,price);
         console.error('GraphQL error:', data.errors);
         return res.status(500).json({ error: data.errors || 'Failed to add meal' });
       }
-    } catch (error: any) {
-      console.error('Fetch error:', error.message);
-      return res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Fetch error:', error.message);
+        return res.status(500).json({ error: error.message });
+      } else {
+        console.error('Unknown fetch error:', error);
+        return res.status(500).json({ error: 'An unexpected error occurred.' });
+      }
     }
+    
   } else {
     res.status(405).json({ message: 'Method Not Allowed' });
   }

@@ -43,10 +43,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Respond with the new tokens
       res.status(200).json({ accessToken, refreshToken: newRefreshToken });
-    } catch (error: any) {
-      console.error('Refresh Token Error:', error.message);
-      res.status(401).json({ message: 'Failed to refresh token', error: error.message });
+    }catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Refresh Token Error:', error.message);
+        res.status(401).json({ message: 'Failed to refresh token', error: error.message });
+      } else {
+        console.error('Unknown error during refresh token:', error);
+        res.status(401).json({ message: 'Failed to refresh token', error: 'Unknown error' });
+      }
     }
+    
   } else {
     res.setHeader('Allow', ['POST']);
     res.status(405).json({ message: 'Method not allowed' });

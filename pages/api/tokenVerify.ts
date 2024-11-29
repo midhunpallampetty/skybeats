@@ -28,10 +28,16 @@ const getUsers = async (req: NextApiRequest, res: NextApiResponse) => {
         console.log('Received GraphQL response:', data.isAuthorised.message);
 
         res.status(200).json(data.isAuthorised.message);
-    } catch (error: any) {
-        console.error('Error fetching users:', error.message);
-        res.status(500).json({ message: 'Error fetching users', error: error.message });
+    }catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error('Error fetching users:', error.message);
+            res.status(500).json({ message: 'Error fetching users', error: error.message });
+        } else {
+            console.error('Unknown error fetching users:', error);
+            res.status(500).json({ message: 'Error fetching users', error: 'An unknown error occurred' });
+        }
     }
+    
 };
 
 export default getUsers;

@@ -12,7 +12,13 @@ interface Message {
   from: 'admin' | 'user';
   userId?: string;
 }
-
+interface EmojiObject {
+  emoji: string; // The emoji character itself
+  // You can add other properties if needed
+  native?: string;  // Native emoji representation (optional)
+  unified?: string; // Unicode representation (optional)
+  short_names?: string[]; // Array of short names for the emoji (optional)
+}
 // Dynamically import components to prevent SSR issues
 const AdminNavbar = dynamic(() => import('../components/AdminNavbar'), { ssr: false });
 
@@ -51,7 +57,7 @@ const AdminChat: React.FC = () => {
 
     return () => clearTimeout(timer); // Cleanup the timer
   }, []);
-  const handleEmojiClick = (emojiObject: any) => {
+  const handleEmojiClick = (emojiObject: EmojiObject) => {
     // Append the emoji to the current message
     setMessage(prevMessage => prevMessage + emojiObject.emoji);
   };

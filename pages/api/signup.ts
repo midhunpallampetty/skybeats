@@ -42,13 +42,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(200).json({
       message: data.userSignup.message,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error during signup:', error);
-
-    // Return an internal server error response if something goes wrong
-    res.status(500).json({
-      error: 'Internal Server Error',
-      details: error.message || 'An unknown error occurred.',
-    });
+  
+    // Check if the error is an instance of Error to safely access its properties
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: 'Internal Server Error',
+        details: error.message || 'An unknown error occurred.',
+      });
+    } else {
+      // If error is not an instance of Error, handle it as an unknown type
+      console.error('Unknown error during signup:', error);
+      res.status(500).json({
+        error: 'Internal Server Error',
+        details: 'An unknown error occurred.',
+      });
+    }
   }
+  
 }

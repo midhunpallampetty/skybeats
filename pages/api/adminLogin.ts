@@ -46,11 +46,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Return the token and admin details
     res.status(200).json({ adminaccessToken, adminrefreshToken ,admin});
-  } catch (error: any) {
-    console.error('Error during admin login:', error);
-    res.status(500).json({
-      error: 'Failed to log in as admin.',
-      details: error.message || 'Unexpected error',
-    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error during admin login:', error.message);
+      res.status(500).json({
+        error: 'Failed to log in as admin.',
+        details: error.message,
+      });
+    } else {
+      console.error('Unexpected error during admin login:', error);
+      res.status(500).json({
+        error: 'Failed to log in as admin.',
+        details: 'An unexpected error occurred.',
+      });
+    }
   }
+  
 }

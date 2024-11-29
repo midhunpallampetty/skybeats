@@ -19,8 +19,14 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
     const airports = await response.json();
     res.status(200).json(airports);
-  } catch (error: any) {
-    console.error('Error fetching airports:', error.message, error.stack);
-    res.status(500).json({ message: 'Error fetching airports' });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error fetching airports:', error.message, error.stack);
+      res.status(500).json({ message: 'Error fetching airports' });
+    } else {
+      console.error('Unexpected error:', error);
+      res.status(500).json({ message: 'Error fetching airports' });
+    }
   }
+  
 };

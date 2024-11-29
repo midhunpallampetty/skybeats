@@ -142,10 +142,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         message: 'Tickets generated and uploaded to S3 successfully!',
         ticketUrls,
       });
-    } catch (error: any) {
-      console.error('Error generating or uploading tickets:', error);
-      res.status(500).json({ message: 'Error creating booking', error: error.message });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Error generating or uploading tickets:', error.message);
+        res.status(500).json({ message: 'Error creating booking', error: error.message });
+      } else {
+        console.error('Unknown error generating or uploading tickets');
+        res.status(500).json({ message: 'Error creating booking', error: 'Unknown error' });
+      }
     }
+    
   } else {
     res.status(405).json({ message: 'Method Not Allowed' });
   }

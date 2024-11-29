@@ -8,6 +8,29 @@ import { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
 import adminAxios from '../api/utils/adminAxiosInstance';
 
+interface PieInterface{
+  name:string;
+  value:number;
+  fill:string;
+}
+interface Booking {
+  id: string;
+  customerName: string;
+  flightNumber: string;
+  date: string;
+  seatNumber: string[];
+  FarePaid:number;
+  createdAt:string;
+  arrivalAirport:string;
+  phoneNumber:string;
+  departureAirport:string;
+  // Add other fields as per your data
+}
+
+interface BookingsResponse {
+  data: Booking[];
+}
+
 const categoryData = [
   { category: "Alpha", value: 8 },
   { category: "Omega", value: 6 },
@@ -41,7 +64,7 @@ const companyData = [
 ];
 
 export default function InvestmentDashboard() {
-  const [bookings, setBookings] = useState<bookData[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   
   const [weeklyData, setWeeklyData] = useState([
     { day: "Mon", value: 0 },
@@ -57,11 +80,11 @@ export default function InvestmentDashboard() {
   const router=useRouter()
 
   const [total, setTotal] = useState(0);
-  const [pieData, setPieData] = useState<any[]>([]); // To store the top 4 arrival airports pie data
+  const [pieData, setPieData] = useState<PieInterface[]>([]); // To store the top 4 arrival airports pie data
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(6);
-  const [displayedBookings, setDisplayedBookings] = useState<bookData[]>([]);
+  const [displayedBookings, setDisplayedBookings] = useState<Booking[]>([]);
   useEffect(() => {
     if (!token) {
        router.push('/admin/signin');
@@ -101,7 +124,7 @@ console.log(data,'cdscds')
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response: any = await axios.get('/api/getBookings');
+        const response: BookingsResponse = await axios.get('/api/getBookings');
         console.log(response.data, 'congratulations.........');
         setBookings(response?.data);
       } catch (error) {
