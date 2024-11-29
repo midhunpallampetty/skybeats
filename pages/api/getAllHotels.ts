@@ -2,11 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { GraphQLClient, gql } from 'graphql-request';
 
 // Initialize the GraphQL Client
-const graphQLClient = new GraphQLClient(process.env.GRAPHQL_ENDPOINT!, {
-  headers: {
-    authorization: `Bearer ${process.env.GRAPHQL_API_TOKEN || ''}`, // Optional: Include token if required by GraphQL API
-  },
-});
+const graphQLClient = new GraphQLClient(process.env.GRAPHQL_ENDPOINT!);
 
 // GraphQL Query for listing all hotels
 const LIST_ALL_HOTELS = gql`
