@@ -226,7 +226,7 @@ const UserChat: React.FC = () => {
                   }
                 }}
                 onChange={(e) => setMessage(e.target.value)}
-                className="flex-grow p-2 border rounded-lg mx-2"
+                className="flex-grow p-2 border text-black font-extrabold rounded-lg mx-2"
               />
               <button onClick={sendMessage} className="p-2 bg-blue-600 text-white rounded-lg">
                 Send

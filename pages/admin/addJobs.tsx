@@ -54,33 +54,37 @@ const router=useRouter()
   const validateForm = () => {
     let valid = true;
     let newErrors = { designation: '', description: '', salary: '', image: '' };
-
+  
     if (!designation) {
       newErrors.designation = 'Please select a job designation.';
       valid = false;
     }
-
+  
     if (!description) {
       newErrors.description = 'Description is required.';
       valid = false;
     }
-
+  
     if (!salary) {
       newErrors.salary = 'Salary is required.';
       valid = false;
     } else if (isNaN(Number(salary))) {
       newErrors.salary = 'Please enter a valid number for salary.';
       valid = false;
+    } else if (Number(salary) <= 0) {
+      newErrors.salary = 'Salary must be greater than zero.';
+      valid = false;
     }
-
+  
     if (!image) {
       newErrors.image = 'Please upload an image.';
       valid = false;
     }
-
+  
     setErrors(newErrors);
     return valid;
   };
+  
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -162,6 +166,9 @@ const router=useRouter()
         setImage(null);
         setImagePreview(null);
         setImageUrl('');
+        setTimeout(()=>{
+router.push('/admin/dashboard')
+        },300)
       } else {
         console.error('Failed to add job');
       }
@@ -169,7 +176,7 @@ const router=useRouter()
       console.error('Error:', error);
     }
   };
-  const token = Cookies.get('jwtToken');
+  const token = Cookies.get('accessToken');
 
   useEffect(()=>{
     if(!token){

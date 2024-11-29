@@ -115,7 +115,7 @@ const Signin: React.FC = () => {
 
                 {/* Email Field */}
                 <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-900">Your email</label>
+                  <label className="block mb-2 text-sm font-medium text-white">Your email</label>
                   <input
                     type="email"
                     onChange={(e) => setEmail(e.target.value)}
@@ -129,7 +129,7 @@ const Signin: React.FC = () => {
 
                 {/* Password Field */}
                 <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-900">Password</label>
+                  <label className="block mb-2 text-sm font-medium text-white">Password</label>
                   <input
                     onChange={(e) => setPassword(e.target.value)}
                     type="password"
@@ -143,7 +143,7 @@ const Signin: React.FC = () => {
 
                 {/* Admin Type Dropdown */}
                 <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-900">Select Role</label>
+                  <label className="block mb-2 text-sm font-medium text-white">Select Role</label>
                   <select
                     id="role"
                     value={adminType}
