@@ -185,30 +185,57 @@ const router=useRouter();
   };
   const handleSearchHotels = async (event: React.FormEvent) => {
     event.preventDefault();
+  
+    // Validate inputs
     if (!selectedCity) {
-      Swal.fire('Please select a city.');
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Please select a city.',
+        icon: 'error',
+      });
       return;
     }
-    
+  
     if (!startDate || !endDate) {
-      Swal.fire('Please select both start and end dates.');
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Please select both start and end dates.',
+        icon: 'error',
+      });
       return;
     }
-    if (selectedCity && startDate && endDate) {
-      try {
-        console.log(selectedCity.label.toLowerCase(), 'ok');
-        const response = await axiosInstance.post('/searchHotels', {
-          city: selectedCity.label.toLowerCase(),
-        });
-        dispatch(setHotelOptions(response.data as any));  
-        console.log(response.data, 'got data hotels from gql server');
-      } catch (error: any) {
-        console.error('Error searching hotels:', error.message);
-      }
-    } else {
-      console.log('Please select all fields');
+  
+    if (startDate > endDate) {
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'End date cannot be earlier than start date.',
+        icon: 'error',
+      });
+      return;
+    }
+  
+    try {
+      console.log(selectedCity.label.toLowerCase(), 'searching hotels...');
+      
+      const response = await axiosInstance.post('/searchHotels', {
+        city: selectedCity.label.toLowerCase(),
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+      });
+  
+      // Dispatch the data to Redux or update state
+      dispatch(setHotelOptions(response.data));  
+      console.log('Hotels fetched successfully:', response.data);
+    } catch (error: any) {
+      console.error('Error searching hotels:', error.message);
+      Swal.fire({
+        title: 'Error',
+        text: 'An error occurred while searching for hotels. Please try again.',
+        icon: 'error',
+      });
     }
   };
+  
   console.log(hotelOptions, 'bhthbnghrbgrhebgh');
   function truncateWords(text: string, wordLimit: number): string {
     const words = text.split(' ');
@@ -218,7 +245,38 @@ const router=useRouter();
     return text;
   }
 
+  const validateForm = (): boolean => {
+    if (!selectedCity) {
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Please select a city.',
+        icon: 'error',
+      });
+      return false;
+    }
 
+    if (!startDate) {
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Please select a start date.',
+        icon: 'error',
+      });
+      return false;
+    }
+
+    if (!endDate) {
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Please select an end date.',
+        icon: 'error',
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+ 
 
   return (
     <>
@@ -257,41 +315,40 @@ const router=useRouter();
       >
         <div className="container w-[620px] h-[250px] mx-auto p-8 bg-blue-950/80 bg-opacity-90 rounded-3xl flex flex-col justify-center space-y-6">
         <form onSubmit={handleSearchHotels}>
-  <div className="flex flex-col items-center space-y-4">
-    <div className="flex space-x-10">
-      <Select
-        options={filteredAirports}
-        className="w-64 border-none rounded-r-lg text-black bg-blue-900"
-        onChange={setSelectedCity}
-        value={selectedCity}
-        placeholder="Select City"
-      />
-    </div>
-    <div className="relative flex text-black space-x-4 mt-4">
-      <DatePicker
-        selected={startDate}
-        onChange={(date) => setStartDate(date)}
-        placeholderText="Start Date"
-        className="border p-2 rounded"
-        minDate={new Date()}
-      />
-      <DatePicker
-        selected={endDate}
-        onChange={(date) => setEndDate(date)}
-        placeholderText="End Date"
-        className="border p-2 rounded"
-        minDate={new Date()}
-      />
-    </div>
-    <button
-      type="submit"
-      className="mt-4 p-2 bg-blue-700 text-white rounded"
-      disabled={!selectedCity || !startDate || !endDate}
-    >
-      Search Hotels
-    </button>
-  </div>
-</form>
+      <div className="flex flex-col items-center space-y-4">
+        <div className="flex space-x-10">
+          <Select
+            options={filteredAirports}
+            className="w-64 border-none rounded-r-lg text-black bg-blue-900"
+            onChange={setSelectedCity}
+            value={selectedCity}
+            placeholder="Select City"
+          />
+        </div>
+        <div className="relative flex text-black space-x-4 mt-4">
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            placeholderText="Start Date"
+            className="border p-2 rounded"
+            minDate={new Date()}
+          />
+          <DatePicker
+            selected={endDate}
+            onChange={(date) => setEndDate(date)}
+            placeholderText="End Date"
+            className="border p-2 rounded"
+            minDate={startDate || new Date()}
+          />
+        </div>
+        <button
+          type="submit"
+          className="mt-4 p-2 bg-blue-700 text-white rounded"
+        >
+          Search Hotels
+        </button>
+      </div>
+    </form>
 
         </div>
       </div>

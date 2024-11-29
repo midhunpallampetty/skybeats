@@ -10,31 +10,32 @@ import Cookies from 'js-cookie';
 
 const HotelBookDetail: React.FC = () => {
   const dispatch = useDispatch();
-  const router = useRouter(); 
+  const router = useRouter();
   const bookdata = useSelector((state: RootState) => state.hotelGuestData.selectedUser);
+  const hotelBookingDetail = useSelector((state: RootState) => state.hotelBookDetail.selectedHotel);
+
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null); // State to manage form error messages
-  const updatedGuestDetails = useSelector((state: RootState) => state.bookdetail.guestDetails);
-  const hotelBookingDetail = useSelector((state: RootState) => state.hotelBookDetail.selectedHotel);
-  const token = Cookies.get('jwtToken');
-const userId=Cookies.get('userId');
- 
-useEffect(() => {
-  const userId = Cookies.get('userId');
-  const accessToken = Cookies.get('accessToken');
-  const refreshToken = Cookies.get('refreshToken');
+  const [errors, setErrors] = useState<Record<string, string>>({}); // State to manage field-specific errors
 
-  if (!userId || !accessToken || !refreshToken) {
-    Cookies.remove('userId');
-    Cookies.remove('accessToken');
-    Cookies.remove('refreshToken');
-    router.push('/');  // Redirect to home or login page
-  }
-}, [router]);
+  const token = Cookies.get('jwtToken');
+  const userId = Cookies.get('userId');
+
+  useEffect(() => {
+    const userId = Cookies.get('userId');
+    const accessToken = Cookies.get('accessToken');
+    const refreshToken = Cookies.get('refreshToken');
+
+    if (!userId || !accessToken || !refreshToken) {
+      Cookies.remove('userId');
+      Cookies.remove('accessToken');
+      Cookies.remove('refreshToken');
+      router.push('/'); // Redirect to home or login page
+    }
+  }, [router]);
 
   useEffect(() => {
     if (!hotelBookingDetail) {
@@ -42,30 +43,42 @@ useEffect(() => {
     }
   }, [hotelBookingDetail]);
 
+  const validateFields = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!firstName.trim()) {
+      newErrors.firstName = 'First name is required.';
+    }
+    if (!lastName.trim()) {
+      newErrors.lastName = 'Last name is required.';
+    }
+    if (!email.trim()) {
+      newErrors.email = 'Email is required.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'Please enter a valid email address.';
+    }
+    if (!phoneNumber.trim()) {
+      newErrors.phoneNumber = 'Phone number is required.';
+    } else if (!/^\d{10}$/.test(phoneNumber)) {
+      newErrors.phoneNumber = 'Phone number must be 10 digits.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Return true if no errors
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation check for empty fields
-    if (!firstName || !lastName || !email || !phoneNumber) {
-      setFormError('Please fill out all fields.');
-      return;
+    if (!validateFields()) {
+      return; // Exit if validation fails
     }
 
-    // Clear error if all fields are filled
-    setFormError(null);
-
     // Dispatch the guest details
-    dispatch(setGuestDetails({
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-    }));
-
-    console.log('Updated Passenger Details State:', updatedGuestDetails);
+    dispatch(setGuestDetails({ firstName, lastName, email, phoneNumber }));
 
     // Redirect to the payment page
-    router.push('/hotel/payNow'); 
+    router.push('/hotel/payNow');
   };
 
   const handleShowModal = () => {
@@ -75,22 +88,14 @@ useEffect(() => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-  useEffect(()=>{
-    console.log(userId)
-    if(!userId){
-      router.push('/')
-    }
-    },[userId])
+
   return (
     <>
-      <BookingSummaryModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
+      <BookingSummaryModal isOpen={isModalOpen} onClose={handleCloseModal} />
       <div className="bg-gray-900 text-white min-h-screen">
         <div className="relative h-64">
           <Image
-            src="https://images2.alphacoders.com/258/thumb-1920-258412.jpg" 
+            src="https://images2.alphacoders.com/258/thumb-1920-258412.jpg"
             alt="Header Image"
             layout="fill"
             objectFit="cover"
@@ -106,8 +111,8 @@ useEffect(() => {
             <>
               <div className="flex justify-between mb-4">
                 <div>
-                  <p className='text-black font-extrabold'>{hotelBookingDetail.name}</p>
-                  <p className='text-black font-extrabold'>{hotelBookingDetail?.overall_rating}</p>
+                  <p className="text-black font-extrabold">{hotelBookingDetail.name}</p>
+                  <p className="text-black font-extrabold">{hotelBookingDetail?.overall_rating}</p>
                 </div>
                 <div>
                   <p className="text-right text-black font-extrabold">Fare Type: Regular</p>
@@ -122,12 +127,14 @@ useEffect(() => {
                   <p className="text-sm text-black font-extrabold">Bed Type: {bookdata?.bedType}</p>
                 </div>
                 <div className="flex space-x-4">
-                  <button className="bg-blue-500 text-white font-semibold px-4 py-2 rounded" onClick={handleShowModal}>Details</button>
+                  <button className="bg-blue-500 text-white font-semibold px-4 py-2 rounded" onClick={handleShowModal}>
+                    Details
+                  </button>
                 </div>
               </div>
             </>
           ) : (
-            <p className='text-black font-extrabold'>No hotels selected</p>
+            <p className="text-black font-extrabold">No hotels selected</p>
           )}
         </div>
 
@@ -144,6 +151,7 @@ useEffect(() => {
                   className="mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter your first name"
                 />
+                {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
               </div>
               <div>
                 <label className="block text-sm font-extrabold text-black">Last Name</label>
@@ -154,6 +162,7 @@ useEffect(() => {
                   className="mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter your last name"
                 />
+                {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
               </div>
               <div>
                 <label className="block text-sm font-extrabold text-black">Email</label>
@@ -164,6 +173,7 @@ useEffect(() => {
                   className="mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter your email"
                 />
+                {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
               </div>
               <div>
                 <label className="block text-sm font-extrabold text-black">Phone Number</label>
@@ -174,21 +184,12 @@ useEffect(() => {
                   className="mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-3 text-sm leading-5 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter your phone number"
                 />
+                {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber}</p>}
               </div>
             </div>
 
-            {/* Display error if any field is missing */}
-            {formError && (
-              <div className="text-red-500 mt-4">
-                {formError}
-              </div>
-            )}
-
             <div className="mt-6 flex justify-end">
-              <button
-                type="submit"
-                className="bg-green-500 text-white font-semibold px-4 py-2 rounded"
-              >
+              <button type="submit" className="bg-green-500 text-white font-semibold px-4 py-2 rounded">
                 Submit
               </button>
             </div>

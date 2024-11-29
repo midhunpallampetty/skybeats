@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 import { RootState } from '@/redux/store';
 import { setSelectedUser } from '@/redux/slices/hotelGuestSlice';
 import Cookies from 'js-cookie';
-
+import Swal from 'sweetalert2';
 const SelectHotel = () => {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -25,7 +25,64 @@ const SelectHotel = () => {
 
   console.log(data, 'vdvdsvData');
 const userId=Cookies.get('userId');
-  
+const validateBookingForm = () => {
+  if (!checkin) {
+    Swal.fire({
+      title: 'Validation Error',
+      text: 'Please select a check-in date.',
+      icon: 'error',
+    });
+    return false;
+  }
+
+  if (!checkout) {
+    Swal.fire({
+      title: 'Validation Error',
+      text: 'Please select a check-out date.',
+      icon: 'error',
+    });
+    return false;
+  }
+
+  if (new Date(checkout) <= new Date(checkin)) {
+    Swal.fire({
+      title: 'Validation Error',
+      text: 'Check-out date must be after the check-in date.',
+      icon: 'error',
+    });
+    return false;
+  }
+
+  if (!guests || parseInt(guests) < 1) {
+    Swal.fire({
+      title: 'Validation Error',
+      text: 'Please select at least one guest.',
+      icon: 'error',
+    });
+    return false;
+  }
+
+  if (!rooms || parseInt(rooms) < 1) {
+    Swal.fire({
+      title: 'Validation Error',
+      text: 'Please select at least one room.',
+      icon: 'error',
+    });
+    return false;
+  }
+
+  if (!bedType) {
+    Swal.fire({
+      title: 'Validation Error',
+      text: 'Please select a room type.',
+      icon: 'error',
+    });
+    return false;
+  }
+
+  return true;
+};
+
 useEffect(() => {
   const userId = Cookies.get('userId');
   const accessToken = Cookies.get('accessToken');
@@ -39,11 +96,19 @@ useEffect(() => {
   }
 }, [router]);
 
-  const handleBookHotel = () => {
-    dispatch(setSelectedUser({ checkin, checkout, guests, rooms, bedType, amount }));
-    
-    router.push('/hotel/hotelBookDetail');
-  };
+const handleBookHotel = () => {
+  // Validate form fields before proceeding
+  if (!validateBookingForm()) {
+    return; // Exit if validation fails
+  }
+
+  // Dispatch user-selected booking details
+  dispatch(setSelectedUser({ checkin, checkout, guests, rooms, bedType, amount }));
+
+  // Navigate to the booking details page
+  router.push('/hotel/hotelBookDetail');
+};
+
 
   useEffect(() => {
     if (checkin && checkout && guests && rooms && bedType) {
