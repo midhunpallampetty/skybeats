@@ -6,6 +6,7 @@ import Link from 'next/link';
 import * as THREE from 'three';
 import FOG from 'vanta/dist/vanta.fog.min';
 import Cookies from 'js-cookie';
+import axios from 'axios';
 import axiosInstance from '../api/utils/axiosInstance';
 const validateUsername = (username: string) => {
   if (username.length < 4) {
@@ -87,7 +88,7 @@ const handleSignup = async (event: React.FormEvent) => {
   try {
     console.log(email, password, username, 'data reached');
 
-    const response = await axiosInstance.post('/signup', {
+    const response = await axios.post('/api/signup', {
       username,
       email,
       password,
