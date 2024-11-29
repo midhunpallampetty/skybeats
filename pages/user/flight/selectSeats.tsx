@@ -13,6 +13,7 @@ import axiosInstance from '@/pages/api/utils/axiosInstance';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+
 const SelectSeats: React.FC = () => {
     const userId = Cookies.get('userId');
     const [isLoading, setIsLoading] = useState(true);
@@ -107,7 +108,7 @@ useEffect(() => {
         try {
            
             // Show loading indicator or disable seat interaction
-            const response = await axios.post('/api/checkSeat', {
+            const response = await axiosInstance.post('/checkSeat', {
                 holdSeatId: seat._id, // Unique identifier for the seat
                 aircraftId: aircraftId, // ID of the aircraft model
             });

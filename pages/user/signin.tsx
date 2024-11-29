@@ -67,7 +67,7 @@ const handleSignin = async (event: React.FormEvent<HTMLFormElement>) => {
 
   try {
     // Send login request to the API using the Axios instance
-    const response = await axios.post('/api/signin', {
+    const response = await axiosInstance.post('/signin', {
       email,
       password,
     });

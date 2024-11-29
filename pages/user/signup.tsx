@@ -6,7 +6,7 @@ import Link from 'next/link';
 import * as THREE from 'three';
 import FOG from 'vanta/dist/vanta.fog.min';
 import Cookies from 'js-cookie';
-
+import axiosInstance from '../api/utils/axiosInstance';
 const validateUsername = (username: string) => {
   if (username.length < 4) {
     return 'Username must be at least 4 characters long';
@@ -86,46 +86,39 @@ const handleSignup = async (event: React.FormEvent) => {
 
   try {
     console.log(email, password, username, 'data reached');
-    const response = await fetch('/api/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username,
-        email,
-        password,
-      }),
+
+    const response = await axiosInstance.post('/signup', {
+      username,
+      email,
+      password,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      setCustomError((prev) => ({
-        ...prev,
-        email: errorData.message || 'Signup failed. Please try again.',
-      }));
-      return;
-    }
-    
-
-    const data = await response.json();
-    console.log('Signup Successful', data);
-
-    const { accessToken, refreshToken } = data;
+    const { accessToken, refreshToken } = response.data;
 
     // Save tokens in cookies
     Cookies.set('accessToken', accessToken, { expires: 1 }); // Expires in 1 day
     Cookies.set('refreshToken', refreshToken, { expires: 30 }); // Expires in 30 days
 
+    console.log('Signup Successful', response.data);
+
     // Open OTP modal
     console.log('Setting OTP modal open to true');
-setIsOtpModalOpen(true);
-console.log('isOtpModalOpen:', isOtpModalOpen);
+    setIsOtpModalOpen(true);
+    console.log('isOtpModalOpen:', isOtpModalOpen);
 
-  } catch (error) {
-    console.log('Error during signup', error);
+  } catch (error: any) {
+    console.error('Error during signup', error);
+
+    const errorMessage =
+      error.response?.data?.message || 'Signup failed. Please try again.';
+
+    setCustomError((prev) => ({
+      ...prev,
+      email: errorMessage,
+    }));
   }
 };
+
 
 
   return (

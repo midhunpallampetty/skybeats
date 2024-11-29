@@ -13,7 +13,7 @@ import WalletModal from '../components/Wallet';
 import { useRouter } from 'next/router';
 import { Edit, Mail, Phone, MapPin, Cake, User, Briefcase, Calendar, Key } from 'lucide-react';
 import { contextType } from 'react-modal';
-
+import axiosInstance from '../api/utils/axiosInstance';
 const GET_USER_BY_ID = gql`
         query GetUserById($userId: String!) {
           getUserById(userId: $userId) {
@@ -95,7 +95,7 @@ export default function ProfileComponent() {
 
     const fetchData = async () => {
       try {
-        const response = await axios.post('/api/getBookingById', {
+        const response = await axiosInstance.post('/getBookingById', {
           userId: userId,
         });
 
@@ -139,7 +139,7 @@ useEffect(()=>{
     }); // Log variable values
 
     try {
-      const response = await axios.post('/api/addorUpdateProfile', {
+      const response = await axiosInstance.post('/addorUpdateProfile', {
         userId: userId,
         gender: profile.gender,
         contactNo: profile.contactNo,
@@ -216,8 +216,8 @@ useEffect(()=>{
     const fetchProfileDetails = async () => {
       try {
         // Send POST request to your Next.js API
-        const response: any = await axios.post(
-          '/api/getProfile', // API route
+        const response: any = await axiosInstance.post(
+          '/getProfile', // API route
           {
             userId: userId // Pass the userId in the request body
           },
@@ -294,8 +294,8 @@ useEffect(()=>{
       console.log("User ID:", userId, "Old Password:", oldPassword, "New Password:", newPassword);
   
       // Sending the request to the server
-      const response = await axios.post(
-        "/api/changePassword",
+      const response = await axiosInstance.post(
+        "/changePassword",
         {
           id: userId,
           oldpassword: oldPassword,

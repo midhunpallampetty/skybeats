@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import Navbar from '../components/Navbar';
 import Swal from 'sweetalert2';
 import Link from 'next/link';
-
+import axiosInstance from '../api/utils/axiosInstance';
 export default function ResetPassword() {
   const router = useRouter();
   const { token } = router.query;
@@ -18,40 +18,38 @@ export default function ResetPassword() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
+  
     try {
-      const response = await fetch('/api/resetPassword', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token, newPassword }),
+      const response = await axiosInstance.post('/resetPassword', {
+        token,
+        newPassword,
       });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Password reset failed');
-      }
-
+  
       Swal.fire({
         title: 'Success',
         text: 'Password successfully updated',
         icon: 'success',
       });
+  
       router.push('/user/signin');
     } catch (err: any) {
       console.error(err);
+  
+      const errorMessage =
+        err.response?.data?.error || err.message || 'Password Reset Failed';
+  
       Swal.fire({
         title: 'Error',
-        text: err.message || 'Password Reset Failed',
+        text: errorMessage,
         icon: 'error',
       });
-      setError(err.message || 'Something went wrong.');
+  
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <>
