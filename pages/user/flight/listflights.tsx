@@ -237,28 +237,53 @@ if(error!=''){
       dispatch(setFilteredAirports(filteredOptions));
     }, 300), [airports, dispatch]);
 
-  const handleSearch = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (selectedFrom && selectedTo && startDate) {
+    const handleSearch = async (event: React.FormEvent) => {
+      event.preventDefault();
+    
+      // Validate fields
+      if (!selectedFrom || !selectedTo) {
+        console.log('Please select both "From" and "To" locations.');
+        Swal.fire('Please select both "From" and "To" locations.');
+        return;
+      }
+    
+      if (!startDate) {
+        console.log('Please select a departure date.');
+        Swal.fire('Please select a departure date.');
+        return;
+      }
+    
+      const totalPassengers = Object.values(passengers).reduce((sum, count) => sum + count, 0);
+      if (totalPassengers === 0) {
+        console.log('Please select at least one passenger.');
+        Swal.fire('Please select at least one passenger.');
+        return;
+      }
+    
+      // Make API call
       try {
-        console.log(selectedFrom.label.split(' ')[0].toLowerCase(), selectedTo.label.split(' ')[0].toLowerCase(), 'ok ');
+        const from = selectedFrom.label.split(' ')[0].toLowerCase();
+        const to = selectedTo.label.split(' ')[0].toLowerCase();
+    
+        console.log(from, to, 'ok');
         const response = await axiosInstance.post('/searchFlights', {
-          from: selectedFrom.label.split(' ')[0].toLowerCase(),
-          to: selectedTo.label.split(' ')[0].toLowerCase(),
+          from,
+          to,
           date: startDate,
         });
+    
+        // Dispatch data to Redux
         dispatch(setFlights(response.data as Flight[]));
         dispatch(setDate(startDate.toDateString()));
         dispatch(setReturnDate(returnDate?.toDateString()));
+    
         console.log(response.data, bookDate, 'got data flights from gql server');
       } catch (error: any) {
         console.error('Error searching flights:', error.message);
+        alert('An error occurred while searching for flights. Please try again.');
       }
-    } else {
-      console.log('Please select all fields');
-    }
-  };
+    };
+    
 
   const sortFlights = (flights: Flight[], criteria: string) => {
     switch (criteria) {
@@ -325,116 +350,118 @@ if(error!=''){
   ) : (
     // Form View
     <form onSubmit={handleSearch}>
-      <div className="flex flex-col items-center space-y-4">
-      <div className="flex space-x-4">
-                <Select
-                    name="from"
-                    options={filteredAirports}
-                    value={selectedFrom}
-                    onChange={handleSelectChange}
-                    onInputChange={handleInputChange}
-                    placeholder="From"
-                    className="p-2 rounded-lg text-black w-48"
-                />
-                <Select
-                    name="to"
-                    options={filteredAirports}
-                    value={selectedTo}
-                    onChange={handleSelectChange}
-                    onInputChange={handleInputChange}
-                    placeholder="To"
-                    className="p-2 rounded-lg w-48"
-                />
-            </div>
-        <div className="flex space-x-4 w-full justify-between">
-          <div className="w-full">
-            <DatePicker
-              selected={startDate}
-              onChange={(date: Date | null) => setStartDate(date)}
-              className="w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
-              placeholderText="Select date"
-              minDate={new Date()}
-            />
-          </div>
-          <div className="w-full">
-            <DatePicker
-              selected={returnDate}
-              onChange={(date: Date | null) => setreturnDate(date)}
-              className="w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
-              placeholderText="Select Return Date"
-              minDate={startDate || new Date()}
-            />
-          </div>
-
-          <div className="w-full">
-            <Select
-              name="sort"
-              options={[
-                { value: 'price', label: 'Price(Sort)' },
-                { value: 'duration', label: 'Duration(Sort)' },
-                { value: 'departureTime', label: 'Departure Time(Sort)' },
-              ]}
-              value={{ value: sortOption, label: sortOption.charAt(0).toUpperCase() + sortOption.slice(1) }}
-              onChange={(option: SingleValue<OptionType>) => setSortOption(option?.value || 'price')}
-              placeholder="Sort by"
-              className="rounded-lg w-full"
-            />
-          </div>
-        </div>
-
-        <div className="relative mb-4">
-          <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="p-2 rounded-lg bg-gray-200 hover:bg-gray-100 font-extrabold w-64"
-          >
-            Passenger Details
-          </button>
-
-          {isDropdownOpen && (
-            <div className="absolute w-full mt-1 bg-white shadow-lg rounded-lg border border-gray-200 z-10">
-              <div className="p-4 space-y-4 ">
-                {[
-                  { label: 'Adults', type: 'adults' },
-                  { label: 'Senior Citizens', type: 'seniors' },
-                  { label: 'Children', type: 'children' },
-                  { label: 'Infants', type: 'infants' },
-                ].map(({ label, type }) => (
-                  <div key={type} className="flex w-full justify-between items-center">
-                    <span>{label}:</span>
-                    <div className="flex items-center">
-                      <button
-                        type="button"
-                        onClick={() => decrement(type as keyof typeof passengers)}
-                        className="bg-gray-300 hover:bg-gray-400 px-2 py-1 rounded-lg"
-                      >
-                        -
-                      </button>
-                      <span className="mx-2">
-                        {passengers[type as keyof typeof passengers]}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => increment(type as keyof typeof passengers)}
-                        className="bg-gray-300 hover:bg-gray-400 px-2 py-1 rounded-lg"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-center mt-4">
-          <button type="submit" onClick={openModal} className="lg:w-[180px] text-white bg-green-400 font-extrabold p-2 rounded-lg">
-            Search
-          </button>
-        </div>
-        
+  <div className="flex flex-col items-center space-y-4">
+    <div className="flex space-x-4">
+      <Select
+        name="from"
+        options={filteredAirports}
+        value={selectedFrom}
+        onChange={handleSelectChange}
+        onInputChange={handleInputChange}
+        placeholder="From"
+        className="p-2 rounded-lg text-black w-48"
+      />
+      <Select
+        name="to"
+        options={filteredAirports}
+        value={selectedTo}
+        onChange={handleSelectChange}
+        onInputChange={handleInputChange}
+        placeholder="To"
+        className="p-2 rounded-lg w-48"
+      />
+    </div>
+    <div className="flex space-x-4 w-full justify-between">
+      <div className="w-full">
+        <DatePicker
+          selected={startDate}
+          onChange={(date: Date | null) => setStartDate(date)}
+          className="w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+          placeholderText="Select date"
+          minDate={new Date()}
+        />
       </div>
-    </form>
+      <div className="w-full">
+        <DatePicker
+          selected={returnDate}
+          onChange={(date: Date | null) => setreturnDate(date)}
+          className="w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+          placeholderText="Select Return Date"
+          minDate={startDate || new Date()}
+        />
+      </div>
+      <div className="w-full">
+        <Select
+          name="sort"
+          options={[
+            { value: 'price', label: 'Price(Sort)' },
+            { value: 'duration', label: 'Duration(Sort)' },
+            { value: 'departureTime', label: 'Departure Time(Sort)' },
+          ]}
+          value={{ value: sortOption, label: sortOption.charAt(0).toUpperCase() + sortOption.slice(1) }}
+          onChange={(option: SingleValue<OptionType>) => setSortOption(option?.value || 'price')}
+          placeholder="Sort by"
+          className="rounded-lg w-full"
+        />
+      </div>
+    </div>
+
+    <div className="relative mb-4">
+      <button
+        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+        className="p-2 rounded-lg bg-gray-200 hover:bg-gray-100 font-extrabold w-64"
+      >
+        Passenger Details
+      </button>
+      {isDropdownOpen && (
+        <div className="absolute w-full mt-1 bg-white shadow-lg rounded-lg border border-gray-200 z-10">
+          <div className="p-4 space-y-4">
+            {[
+              { label: 'Adults', type: 'adults' },
+              { label: 'Senior Citizens', type: 'seniors' },
+              { label: 'Children', type: 'children' },
+              { label: 'Infants', type: 'infants' },
+            ].map(({ label, type }) => (
+              <div key={type} className="flex w-full justify-between items-center">
+                <span>{label}:</span>
+                <div className="flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => decrement(type as keyof typeof passengers)}
+                    className="bg-gray-300 hover:bg-gray-400 px-2 py-1 rounded-lg"
+                  >
+                    -
+                  </button>
+                  <span className="mx-2">
+                    {passengers[type as keyof typeof passengers]}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => increment(type as keyof typeof passengers)}
+                    className="bg-gray-300 hover:bg-gray-400 px-2 py-1 rounded-lg"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+
+    <div className="flex justify-center mt-4">
+      <button
+        type="submit"
+        onClick={openModal}
+        className="lg:w-[180px] text-white bg-green-400 font-extrabold p-2 rounded-lg"
+      >
+        Search
+      </button>
+    </div>
+  </div>
+</form>
+
   )}
 </div>
 

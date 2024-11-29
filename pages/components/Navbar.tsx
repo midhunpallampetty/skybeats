@@ -64,7 +64,7 @@ console.log(isLoggedIn)
       href: '/',
       submenu: [
         { name: 'Request Cargo', href: '/user/cargo/requestCargo' },
-        { name: 'Track Cargo', href: '/user/cargo/trackCargo' },
+        
         { name: 'All Cargos', href: '/user/cargo/allCargoRequests' },
       ],
     },
