@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar';
 import Swal from 'sweetalert2';
 import Link from 'next/link';
 import axiosInstance from '../api/utils/axiosInstance';
+import axios from 'axios'
 export default function ResetPassword() {
   const router = useRouter();
   const { token } = router.query;
@@ -20,7 +21,7 @@ export default function ResetPassword() {
     setError(null);
   
     try {
-      const response = await axiosInstance.post('/resetPassword', {
+      const response = await axios.post('/api/resetPassword', {
         token,
         newPassword,
       });

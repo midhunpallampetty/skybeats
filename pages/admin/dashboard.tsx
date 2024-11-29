@@ -182,7 +182,7 @@ console.log(role,'setRole')
                             ))
                         ) : (
                             <div className="flex items-center justify-center min-h-screen">
-                                <div className="text-center text-red-500">
+                                <div className="text-center text-blue-900/5">
                                     <h1 className="text-4xl font-bold">Access Denied</h1>
                                     <p className="mt-4 text-lg">You do not have permission to access this page.</p>
                                 </div>
