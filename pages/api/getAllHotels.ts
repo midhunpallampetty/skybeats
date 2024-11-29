@@ -1,72 +1,57 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
+import { GraphQLClient, gql } from 'graphql-request';
 
-// Initialize Apollo Client
-const client = new ApolloClient({
-  uri: process.env.GRAPHQL_ENDPOINT!, // Replace with your actual GraphQL API URI
-  cache: new InMemoryCache(),
-});
+// Initialize the GraphQL Client
+const graphQLClient = new GraphQLClient(process.env.GRAPHQL_ENDPOINT!);
 
 // GraphQL Query for listing all hotels
 const LIST_ALL_HOTELS = gql`
-  query ListAllHotels {
+  query {
     listAllHotels {
-      id
-      hotelName
-      hotelLocation
-      guestName
-      email
-      phoneNumber
-      checkin
-      checkout
-      noOfGuests
       amount
       cancelled
+      checkin
+      checkout
       createdAt
+      email
+      guestName
+      hotelLocation
+      hotelName
+      id
+      noOfGuests
+      phoneNumber
+      userId
     }
   }
 `;
 
+// API handler for listing all hotels
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     try {
-      console.log('Fetching all hotels...');
+      console.log('Fetching hotel data...');
 
       // Execute the GraphQL query
-      const { data } = await client.query({
-        query: LIST_ALL_HOTELS,
-      });
+      const data = await graphQLClient.request(LIST_ALL_HOTELS);
 
-      // Ensure data is properly structured
-      const hotels = data.listAllHotels || [];
-
-      console.log('Fetched hotels:', hotels);
+      console.log('GraphQL response received:', data);
 
       // Respond with the fetched hotel data
-      res.status(200).json({ success: true, data: hotels });
+      res.status(200).json(data.listAllHotels);
     } catch (error: unknown) {
       if (error instanceof Error) {
-        // Log the error and respond with details
+        // Log and respond with error details
         console.error('Error fetching hotels:', error.message);
-        res.status(500).json({
-          success: false,
-          message: 'An error occurred while fetching hotel data.',
-          details: error.message,
-        });
+        res.status(500).json({ message: 'Error fetching hotels', error: error.message });
       } else {
-        console.error('Unexpected error:', error);
-        res.status(500).json({
-          success: false,
-          message: 'An unexpected error occurred.',
-        });
+        // Handle unknown errors
+        console.error('Unknown error:', error);
+        res.status(500).json({ message: 'An unknown error occurred' });
       }
     }
   } else {
     // Respond with 405 Method Not Allowed for unsupported HTTP methods
     res.setHeader('Allow', ['GET']);
-    res.status(405).json({
-      success: false,
-      message: `Method ${req.method} not allowed.`,
-    });
+    res.status(405).json({ message: `Method ${req.method} not allowed` });
   }
 }
