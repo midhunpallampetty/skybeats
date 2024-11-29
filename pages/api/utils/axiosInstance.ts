@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 import { useRouter } from 'next/router'; // Import the Next.js router for redirection
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000/api/", // Your API base URL
+  baseURL: "https://www.skybeats.site/api/", // Your API base URL
   withCredentials: true, // Ensures cookies are included in requests
 });
 
