@@ -267,15 +267,10 @@ const FlightBookings: React.FC = () => {
                                  <p className="text-sm">Flight Number: <span className="text-white">{bookings.flightNumber}</span></p>
                               </div>
                               <div className="flex mt-4 space-x-4">
-                                 <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                                    Details
-                                 </button>
+                              
                                  
 
-                                 <a href="#" className="text-white flex items-center space-x-2 hover:underline">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill='white' width='25'> <path d="M256 464a208 208 0 1 1 0-416 208 208 0 1 1 0 416zM256 0a256 256 0 1 0 0 512A256 256 0 1 0 256 0zM128 256l0 32L256 416 384 288l0-32-80 0 0-128-96 0 0 128-80 0z" /></svg>
-                                    <span onClick={() => toPDF()}>Download Ticket</span>
-                                 </a>
+                                 
                               </div>
                            </div>
                         </div>
