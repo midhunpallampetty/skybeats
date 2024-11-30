@@ -55,7 +55,7 @@ const ListFlights: React.FC = () => {
   const [flightsPerPage] = useState<number>(5);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const token = Cookies.get('jwtToken');
- 
+  const lastSearchRequest = useRef(null);
   useEffect(()=>{
 dispatch(clearFlights())
 dispatch(clearSelectedReturnFlight())
@@ -239,45 +239,58 @@ if(error!=''){
 
     const handleSearch = async (event: React.FormEvent) => {
       event.preventDefault();
-    
+  
       // Validate fields
       if (!selectedFrom || !selectedTo) {
         console.log('Please select both "From" and "To" locations.');
         Swal.fire('Please select both "From" and "To" locations.');
         return;
       }
-    
+  
       if (!startDate) {
         console.log('Please select a departure date.');
         Swal.fire('Please select a departure date.');
         return;
       }
-    
+  
       const totalPassengers = Object.values(passengers).reduce((sum, count) => sum + count, 0);
       if (totalPassengers === 0) {
         console.log('Please select at least one passenger.');
         Swal.fire('Please select at least one passenger.');
         return;
       }
-    
+  
+      // Check if the search request is identical to the last one
+      const from = selectedFrom.label.split(' ')[0].toLowerCase();
+      const to = selectedTo.label.split(' ')[0].toLowerCase();
+      const searchRequest = { from, to, date: startDate };
+  
+      if (
+        lastSearchRequest.current &&
+        JSON.stringify(lastSearchRequest.current) === JSON.stringify(searchRequest)
+      ) {
+        console.log('This search request was already made.');
+        return;
+      }
+  
+      // Update the ref with the current search request
+      lastSearchRequest.current = searchRequest;
+  
       // Make API call
       try {
-        const from = selectedFrom.label.split(' ')[0].toLowerCase();
-        const to = selectedTo.label.split(' ')[0].toLowerCase();
-    
         console.log(from, to, 'ok');
         const response = await axiosInstance.post('/searchFlights', {
           from,
           to,
           date: startDate,
         });
-    
+  
         // Dispatch data to Redux
         dispatch(setFlights(response.data as Flight[]));
         dispatch(setDate(startDate.toDateString()));
         dispatch(setReturnDate(returnDate?.toDateString()));
-    
-        console.log(response.data, bookDate, 'got data flights from gql server');
+  
+        console.log(response.data, 'got data flights from server');
       } catch (error: any) {
         console.error('Error searching flights:', error.message);
         alert('An error occurred while searching for flights. Please try again.');

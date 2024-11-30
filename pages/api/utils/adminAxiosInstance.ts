@@ -2,21 +2,21 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const adminAxios = axios.create({
-  baseURL: "https://www.skybeats.site/api/", // Update this to match your API base URL
+  baseURL: "https://www.skybeats.site/api/", 
   withCredentials: true,
 });
 
-// Function to verify the adminaccessToken
+
 let cachedVerificationResult: boolean | null = null;
 let lastVerificationTime: number | null = null;
 
 const verifyAdminAccessToken = async (token: string): Promise<boolean> => {
-  // Return cached result if verification was done recently (e.g., within 1 minute)
+  
   const currentTime = Date.now();
   if (
     cachedVerificationResult !== null &&
     lastVerificationTime !== null &&
-    currentTime - lastVerificationTime < 60000 // 1 minute
+    currentTime - lastVerificationTime < 60000 
   ) {
     return cachedVerificationResult;
   }
@@ -27,12 +27,12 @@ const verifyAdminAccessToken = async (token: string): Promise<boolean> => {
       { token },
       { withCredentials: true }
     );
-    cachedVerificationResult = data.isValid; // Cache the result
-    lastVerificationTime = currentTime; // Cache the timestamp of the verification
+    cachedVerificationResult = data.isValid; 
+    lastVerificationTime = currentTime; 
     return cachedVerificationResult;
   } catch (error: unknown) {
-    cachedVerificationResult = false; // Cache invalid result on error
-    lastVerificationTime = currentTime; // Cache the timestamp of the error
+    cachedVerificationResult = false; 
+    lastVerificationTime = currentTime; 
     if (
       typeof error === 'object' &&
       error !== null &&
@@ -51,21 +51,21 @@ const verifyAdminAccessToken = async (token: string): Promise<boolean> => {
     } else {
       console.error("Unknown error during token verification:", error);
     }
-    return false; // Treat as invalid if any error occurs
+    return false; 
   }
 };
 
 
-// Request interceptor to attach access token to headers
+
 adminAxios.interceptors.request.use(
   async (config) => {
-    let adminaccessToken = Cookies.get("adminaccessToken"); // Get access token from cookies
+    let adminaccessToken = Cookies.get("adminaccessToken"); 
 
-    // Verify the token before attaching it
+    
     if (adminaccessToken) {
       const isValid = await verifyAdminAccessToken(adminaccessToken);
       if (!isValid) {
-        // If invalid, try refreshing the token
+        
         const adminrefreshToken = Cookies.get("adminrefreshToken");
         if (adminrefreshToken) {
           try {
@@ -75,7 +75,7 @@ adminAxios.interceptors.request.use(
               { withCredentials: true }
             );
 
-            // Set the new access token in cookies
+            
             adminaccessToken = data.adminaccessToken;
             Cookies.set("adminaccessToken", adminaccessToken, {
               secure: true,
@@ -89,7 +89,7 @@ adminAxios.interceptors.request.use(
             throw refreshError;
           }
         } else {
-          // If no refresh token exists, redirect to login
+          
           console.error("No refresh token available.");
           window.location.href = "/admin/signin";
           throw new Error("Unauthorized: No refresh token.");
@@ -97,7 +97,7 @@ adminAxios.interceptors.request.use(
       }
     }
 
-    // Attach the token to headers
+    
     if (adminaccessToken) {
       config.headers.Authorization = `Bearer ${adminaccessToken}`;
     }
@@ -106,7 +106,7 @@ adminAxios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle 401 errors
+
 adminAxios.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -123,14 +123,14 @@ adminAxios.interceptors.response.use(
           { withCredentials: true }
         );
 
-        // Update cookies and retry request
+        
         Cookies.set("adminaccessToken", data.adminaccessToken, {
           secure: true,
           sameSite: "strict",
         });
 
         originalRequest.headers.Authorization = `Bearer ${data.adminaccessToken}`;
-        return adminAxios(originalRequest); // Retry the original request
+        return adminAxios(originalRequest); 
       } catch (refreshError) {
         console.error("Token refresh failed:", refreshError);
         Cookies.remove("adminaccessToken");
