@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Cookies from 'js-cookie';
+import Cookies from 'js-cookie';  
 import axios from 'axios';
 import Link from 'next/link';
 
