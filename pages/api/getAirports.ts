@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const AIRPORT_DATA_URL = 'https://airline-datacenter.s3.ap-south-1.amazonaws.com/airport-city.txt'; // Replace with actual CDN URL
+const AIRPORT_DATA_URL = 'https://airline-datace.s3.ap-south-1.amazonaws.com/airport-city.txt'; // Replace with actual CDN URL
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins
