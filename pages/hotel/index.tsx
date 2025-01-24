@@ -461,7 +461,7 @@ const router=useRouter();
         {sortedHotels.map((hotel: any) => (
           <a key={hotel.id} href="#" className="flex flex-col border border-white/10 md:flex-row bg-[#141f3b] text-white rounded-xl overflow-hidden shadow-lg">
             <div className="relative">
-              <img className="object-cover w-full md:w-full h-56 md:h-auto" src={imageUrl || 'https://airline-datacenter.s3.ap-south-1.amazonaws.com/4e14efa5-20b9-4642-973b-33175281372b.jpeg'} alt="Hotel" />
+              <img className="object-cover w-full md:w-full h-56 md:h-auto" src={imageUrl || 'https://cdn.pixabay.com/photo/2014/07/10/17/17/hotel-389256_640.jpg'} alt="Hotel" />
               <button className="absolute top-3 left-3 bg-white text-red-500 p-2 rounded-full">
                 ❤️
               </button>
