@@ -413,7 +413,7 @@ const router=useRouter();
           <a href="#">
             <img
               className="rounded-t-lg w-full h-48 object-cover" // Added height and object-fit
-              src="https://r1imghtlak.mmtcdn.com/b18f69d831c411eea1dd0a58a9feac02.jpg?&output-quality=75&downsize=520:350&crop=520:350;81,0&output-format=jpg&downsize=480:336&crop=480:336"
+              src="https://img.freepik.com/free-photo/beautiful-luxury-outdoor-swimming-pool-hotel-resort_74190-7433.jpg?semt=ais_hybrid"
               alt={`Image of ${hotel.name}`} // Improved alt text for accessibility
             />
             <div className="absolute top-2 right-2 bg-green-400 text-white text-xs font-bold py-1 px-2 rounded-lg">
