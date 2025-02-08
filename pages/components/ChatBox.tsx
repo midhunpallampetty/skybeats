@@ -73,7 +73,7 @@
       
           try {
             const response = await axios({
-              url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyAb4vvMHcfULLD9louz1CxjE79FPhBVR-k',
+              url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDb16Ms96uJD-hUYtp_eCBHy3nNDFkhMpk',
               method: 'post',
               data: {
                 contents: [
@@ -202,7 +202,7 @@
             }}
             onClick={toggleChat}
           >
-            <img width='55' src='https://airline-datacenter.s3.ap-south-1.amazonaws.com/chat-icon.png' alt="Chat Icon" />
+            <img width='180' src='https://airline-datace.s3.ap-south-1.amazonaws.com/snapbg.ai_1738988712102.png' alt="Chat Icon" />
           </button>
 
           {isOpen && (
