@@ -72,15 +72,15 @@
           setInputValue('');
       
           try {
-            const response = await axios({
-              url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDb16Ms96uJD-hUYtp_eCBHy3nNDFkhMpk',
-              method: 'post',
-              data: {
-                contents: [
-                  { parts: [{ text: inputValue }] },
-                ],
-              },
-            });
+          
+          
+const response = await axios({
+  url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_AI_APIKEY}`,
+  method: 'post',
+  data: {
+    contents: [{ parts: [{ text: inputValue }] }],
+  },
+});
       
             let aiResponseText = response.data.candidates[0].content.parts[0].text || 'Sorry, I couldn\'t understand your request.';
             
