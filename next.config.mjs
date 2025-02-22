@@ -8,7 +8,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ['images.unsplash.com'],
+    domains: ['images.unsplash.com','airline-datace.s3.ap-south-1.amazonaws.com'],
     remotePatterns: [
       {
         protocol: 'https',
