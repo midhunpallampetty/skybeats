@@ -103,7 +103,7 @@ console.log(session,'dscd');
           <AiChatBot />
           <div className="h-[80vh] relative">
   <Image
-    src="https://airline-datacenter.s3.ap-south-1.amazonaws.com/5668d540-7c4a-4e62-a7f6-d4eeacfeeeec.png"
+    src="https://airline-datace.s3.ap-south-1.amazonaws.com/pexels-pixabay-531756.jpg"
     layout="fill"
     alt="Loading Error"
     loading="lazy"
