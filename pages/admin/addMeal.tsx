@@ -125,7 +125,7 @@ function AddMeal() {
       await axios.put(uploadUrl, image);
   
       // Step 3: Save the image URL in your database
-      const formatedImage = { imageUrl: `https://airline-datacenter.s3.ap-south-1.amazonaws.com/${key}` };
+      const formatedImage = { imageUrl: `https://airline-datace.s3.ap-south-1.amazonaws.com/${key}` };
       const response = await axios.post('/api/saveCloud', formatedImage, {
         headers: { 'Content-Type': 'application/json' },
       });
