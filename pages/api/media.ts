@@ -18,7 +18,7 @@ export default async function handler(
     const ex=(req.query.fileType as string).split('/')[1];
     const Key=`${randomUUID()}.${ex}`;
     const s3Params={
-        Bucket:'airline-datacenter',
+        Bucket:'airline-datace',
         Key,
         Expires:60,
         ContentType:`image/${ex}`,
