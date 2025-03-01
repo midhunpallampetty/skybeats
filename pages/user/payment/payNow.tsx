@@ -26,6 +26,7 @@ const PaymentForm: React.FC = () => {
   const passengers=useSelector((state:RootState)=>state.bookdetail.passengerDetails);
   const holdSeatRequestInProgress = useRef(false);
   const returnDate=useSelector((state:RootState)=>state.returnDate.returndate);
+  console.log(bookDate,returnDate,'haiiai')
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const stripe = useStripe();
 
@@ -113,7 +114,7 @@ const handleSubmit = async (event: React.FormEvent) => {
       FarePaid: returnFlight!.price * selectedSeat.length,
       userId: userId,
       seatNumber: seatArray,
-      DateofJourney: bookDate,
+      DateofJourney: returnDate,
       flightModel: aircraftModel,
       returnDate: returnDate,
     };
@@ -150,7 +151,7 @@ const handleSubmit = async (event: React.FormEvent) => {
             'Content-Type': 'application/json',
           },
         });
-
+console.log(data2,'return')
         if (returnFlight && data2) {
           const sendReturnTicketAndBookingRequest = await axiosInstance.post('/bookReturn', data2, {
             headers: {
