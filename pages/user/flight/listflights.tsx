@@ -18,6 +18,7 @@ import { Airport } from '@/interfaces/Airport';
 import { RootState } from '@/redux/store';
 import { setFlights, clearFlights } from '@/redux/slices/flightsSlice';
 import { setDate } from '@/redux/slices/bookDate';
+
 import { setReturnDate } from '@/redux/slices/returnDate';
 import { setSelectedPassengers } from '@/redux/slices/passengerCountSlice';
 import { OptionType } from '@/interfaces/OptionType';
@@ -32,8 +33,8 @@ const ListFlights: React.FC = () => {
   const filteredAirports = useSelector((state: RootState) => state.airports.filteredAirports);
   const [isLoading, setIsLoading] = useState(true);
   const [startDate, setStartDate] = useState<Date | null>(null);
-  const [returnDate, setReturnDate] = useState<Date | null>(null);
-  const [error, setError] = useState('');
+  const [returnDate, setreturnDate] = useState<Date | null>(null);
+    const [error, setError] = useState('');
   const hasFetched = useRef(false);
   const [showMainFlights, setShowMainFlights] = useState(true);
   const [showReturnFlights, setShowReturnFlights] = useState(false);
@@ -276,10 +277,10 @@ const ListFlights: React.FC = () => {
   
       dispatch(setFlights(response.data as Flight[]));
       dispatch(setDate(startDate.toDateString()));
+      console.log(returnDate,'csgcdcg')
       dispatch(setReturnDate(returnDate?.toDateString()));
-    } catch (error: any) {
+        } catch (error: any) {
       console.error('Error searching flights:', error.message);
-      alert('An error occurred while searching for flights. Please try again.');
     }
   };
   
@@ -377,7 +378,7 @@ const ListFlights: React.FC = () => {
                     <div className="w-full">
                       <DatePicker
                         selected={returnDate}
-                        onChange={(date: Date | null) => setReturnDate(date)}
+                        onChange={(date: Date | null) => setreturnDate(date)}
                         className="w-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
                         placeholderText="Select Return Date"
                         minDate={startDate || new Date()}
