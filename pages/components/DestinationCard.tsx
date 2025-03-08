@@ -13,7 +13,7 @@ interface Props {
   destination: Destination;
 }
 
-export function DestinationCard({ destination }: Props) {
+export default function DestinationCard({ destination }: Props) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
