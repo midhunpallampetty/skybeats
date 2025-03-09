@@ -50,7 +50,7 @@
     "aws-sdk": "^2.1687.0",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
-    "canvas": "^2.11.2",
+    "canvas": "^3.1.0",
     "chart.js": "^4.4.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
