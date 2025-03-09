@@ -6,11 +6,14 @@ import Cookies from 'js-cookie';
 import { ChevronRight, ArrowRight, Facebook, Twitter, Instagram, Linkedin, Github, Menu, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { data: session } = useSession();
   const router=useRouter()
   const AiChatBot = dynamic(() => import('./components/ChatBox'));
   useEffect(() => {
@@ -21,23 +24,32 @@ const Index = () => {
     return () => clearTimeout(timer);
   }, []);
   useEffect(() => {
-    const accessToken = Cookies.get('accessToken');
-    const refreshToken = Cookies.get('refreshToken');
-console.log("accessToken",accessToken,"refreshToken",refreshToken)
-    if (accessToken) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-    }
+    const checkAuth = () => {
+      const accessToken = Cookies.get('accessToken');
+      const refreshToken = Cookies.get('refreshToken');
+      setIsLoggedIn(!!(accessToken && refreshToken));
+    };
+  
+    // Initial check
+    checkAuth();
+  
+    // Set up interval to check auth state regularly
+    const interval = setInterval(checkAuth, 5000);
+    
+    return () => clearInterval(interval);
   }, []);
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    if (session && session.user?.accessToken && session.user?.refreshToken) {
+      // Set cookies and update login state
+      Cookies.set('refreshToken', session.user.refreshToken, { expires: 7 });
+      Cookies.set('accessToken', session.user.accessToken, { expires: 7 });
+      Cookies.set('userId', session.user.usersId);
+      setIsLoggedIn(true);
+    } else if (!session) {
+      // Handle session expiration
+      setIsLoggedIn(false);
+    }
+  }, [session]);
 
   const handleLogout = async () => {
     // Remove the cookies accessible by JavaScript
@@ -46,6 +58,7 @@ console.log("accessToken",accessToken,"refreshToken",refreshToken)
 
     Cookies.remove('userId');
  
+    await signOut({ redirect: false });
     // Call the API to remove the HttpOnly refresh token cookie
     
   
@@ -244,44 +257,115 @@ console.log("accessToken",accessToken,"refreshToken",refreshToken)
 
   // Hero Component
   const Hero = () => {
+    const images = [
+      'https://airline-datace.s3.ap-south-1.amazonaws.com/pexels-pixabay-531756.jpg',
+      'https://airline-datace.s3.ap-south-1.amazonaws.com/pexels-vitalina-3800117.jpg',
+      'https://airline-datace.s3.ap-south-1.amazonaws.com/pexels-skyriusmarketing-2129796.jpg'
+    ];
+  
+    const [currentIndex, setCurrentIndex] = useState(0);
+  
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % images.length);
+      }, 15000);
+  
+      return () => clearInterval(interval);
+    }, []);
+  
     const containerVariants = {
       hidden: { opacity: 0 },
       visible: {
         opacity: 1,
         transition: {
           staggerChildren: 0.2,
+          delayChildren: 0.5,
         },
       },
     };
-
+  
     const itemVariants = {
       hidden: { opacity: 0, y: 20 },
       visible: {
         opacity: 1,
         y: 0,
-        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+        transition: { 
+          duration: 0.8,
+          ease: [0.22, 1, 0.36, 1],
+        },
       },
     };
-
+  
+    const backgroundVariants = {
+      initial: { opacity: 0, scale: 1.1 },
+      animate: { 
+        opacity: 1, 
+        scale: 1,
+        transition: {
+          duration: 1.8,
+          ease: "easeOut",
+        }
+      },
+      exit: { 
+        opacity: 0,
+        scale: 1.15,
+        transition: {
+          duration: 1.2,
+          ease: "easeIn",
+        }
+      },
+    };
+  
+    const floatingAnimation = {
+      y: [-5, 5, -5],
+      transition: {
+        duration: 3,
+        repeat: Infinity,
+        ease: "easeInOut",
+      },
+    };
+  
+    const glowAnimation = {
+      boxShadow: [
+        "0 0 10px rgba(56, 189, 248, 0.3)",
+        "0 0 20px rgba(56, 189, 248, 0.5)",
+        "0 0 10px rgba(56, 189, 248, 0.3)",
+      ],
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+        ease: "easeInOut",
+      },
+    };
+  
     return (
       <section className="relative w-full h-screen overflow-hidden">
-        {/* Background Image with Parallax Effect */}
-        <motion.div
-          initial={{ scale: 1.2, opacity: 0.8 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 2, ease: "easeOut" }}
-          className="absolute inset-0 z-0"
-        >
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: "url('https://airline-datace.s3.ap-south-1.amazonaws.com/pexels-pixabay-531756.jpg')"
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy-900/90 to-transparent" />
-        </motion.div>
-
-        {/* Content */}
+        <AnimatePresence mode='wait'>
+          <motion.div
+            key={currentIndex}
+            variants={backgroundVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="absolute inset-0 z-0"
+          >
+            <motion.div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${images[currentIndex]})` }}
+              animate={{
+                scale: [1, 1.05, 1],
+                transition: { duration: 15, ease: "linear", repeat: Infinity },
+              }}
+            />
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-t from-navy-900/90 to-transparent"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1 }}
+            />
+          </motion.div>
+        </AnimatePresence>
+  
         <div className="relative h-full z-10 container mx-auto px-4 flex flex-col justify-center">
           <motion.div
             variants={containerVariants}
@@ -292,6 +376,11 @@ console.log("accessToken",accessToken,"refreshToken",refreshToken)
             <motion.span 
               variants={itemVariants}
               className="inline-block px-3 py-1 mb-6 text-sm font-medium bg-white/10 backdrop-blur-sm border border-white/10 rounded-full text-white"
+              whileHover={{
+                backgroundColor: "rgba(255, 255, 255, 0.2)",
+                scale: 1.05,
+                transition: { duration: 0.2 },
+              }}
             >
               Journey Beyond the Ordinary
             </motion.span>
@@ -300,12 +389,26 @@ console.log("accessToken",accessToken,"refreshToken",refreshToken)
               variants={itemVariants}
               className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6"
             >
-              Welcome to <span className="text-gradient">Skybeats</span>
+              Welcome to{" "}
+              <motion.span 
+                className="text-gradient"
+                animate={{ 
+                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                }}
+                transition={{ 
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              >
+                Skybeats
+              </motion.span>
             </motion.h1>
             
             <motion.p 
               variants={itemVariants}
               className="text-lg md:text-xl text-white/80 mb-10 max-w-xl"
+              animate={floatingAnimation}
             >
               Experience the harmony of luxury travel and cutting-edge innovation. Where every journey becomes an unforgettable symphony.
             </motion.p>
@@ -315,53 +418,80 @@ console.log("accessToken",accessToken,"refreshToken",refreshToken)
               className="flex flex-wrap gap-4"
             >
               <motion.button
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ 
+                  scale: 1.05,
+                  backgroundColor: "rgb(2, 132, 199)",
+                }}
                 whileTap={{ scale: 0.95 }}
-                className="button-glow px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium shadow-lg flex items-center"
+                animate={glowAnimation}
+                className="button-glow px-6 py-3 bg-sky-600 text-white rounded-lg font-medium shadow-lg flex items-center"
               >
                 <Link href='/user/flight/listflights'>
-                Book Your Flight
+                  Book Your Flight
                 </Link>
-               
-                <ChevronRight className="ml-1 h-5 w-5" />
+                <motion.div
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  <ChevronRight className="ml-1 h-5 w-5" />
+                </motion.div>
               </motion.button>
               
               <motion.button
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ 
+                  scale: 1.05,
+                  backgroundColor: "rgba(255, 255, 255, 0.2)",
+                }}
                 whileTap={{ scale: 0.95 }}
-                className="button-glow px-6 py-3  hover:bg-white/20 backdrop-blur-sm border border-white/20 text-black rounded-lg font-medium flex items-center"
+                className="button-glow px-6 py-3 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white rounded-lg font-medium flex items-center"
               >
                 Explore Destinations
-                <ArrowRight className="ml-1 h-5 w-5" />
+                <motion.div
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  <ArrowRight className="ml-1 h-5 w-5" />
+                </motion.div>
               </motion.button>
             </motion.div>
           </motion.div>
-        </div>
-
-        {/* Animated Scroll Indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5, duration: 1 }}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
-        >
-          <span className="text-white/70 text-sm mb-2">Scroll to explore</span>
+  
           <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-            className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center pt-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.5, duration: 1 }}
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
           >
+            <motion.span 
+              className="text-white/70 text-sm mb-2"
+              animate={floatingAnimation}
+            >
+              Scroll to explore
+            </motion.span>
             <motion.div
-              animate={{ height: [6, 12, 6] }}
+              animate={{ y: [0, 10, 0] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
-              className="w-1.5 rounded-full bg-white"
-            />
+              className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center pt-2"
+            >
+              <motion.div
+                animate={{ 
+                  height: [6, 12, 6],
+                  opacity: [0.5, 1, 0.5],
+                }}
+                transition={{ 
+                  repeat: Infinity, 
+                  duration: 1.5,
+                  ease: "easeInOut",
+                }}
+                className="w-1.5 rounded-full bg-white"
+              />
+            </motion.div>
           </motion.div>
-        </motion.div>
+        </div>
       </section>
     );
   };
-
+  
   // Destinations Section
   const DestinationsSection = () => (
     <section className="py-24 bg-white">

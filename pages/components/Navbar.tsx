@@ -16,7 +16,7 @@ export default function Navbar() {
   const [mobileSubmenu, setMobileSubmenu] = useState<string | null>(null);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [submenuTimer, setSubmenuTimer] = useState<NodeJS.Timeout | null>(null);
-
+console.log('hai',isLoggedIn)
   useEffect(() => {
     const accessToken = Cookies.get('accessToken');
     const refreshToken = Cookies.get('refreshToken');
