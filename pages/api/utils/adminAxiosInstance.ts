@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const adminAxios = axios.create({
-  baseURL: "https://skybeats.vercel.app/api/", 
+  baseURL: "https://skybeats.vercel.app/api", 
   withCredentials: true,
 });
 
