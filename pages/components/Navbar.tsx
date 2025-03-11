@@ -16,11 +16,16 @@ export default function Navbar() {
   const [mobileSubmenu, setMobileSubmenu] = useState<string | null>(null);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [submenuTimer, setSubmenuTimer] = useState<NodeJS.Timeout | null>(null);
-console.log('hai',isLoggedIn)
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
   useEffect(() => {
     const accessToken = Cookies.get('accessToken');
     const refreshToken = Cookies.get('refreshToken');
     setIsLoggedIn(!!accessToken);
+    
+    // Get dark mode preference from localStorage
+    const darkModePreference = localStorage.getItem('isDarkMode');
+    setIsDarkMode(darkModePreference === 'true');
   }, []);
 
   const handleLogout = async () => {
@@ -52,7 +57,7 @@ console.log('hai',isLoggedIn)
       if (hoveredItem === itemName) {
         setHoveredItem(null);
       }
-    }, 300); // 300ms delay before hiding submenu
+    }, 300);
     setSubmenuTimer(timer);
   };
 
@@ -141,12 +146,36 @@ console.log('hai',isLoggedIn)
     }
   };
 
+  const navClasses = isDarkMode
+    ? "bg-gradient-to-r from-blue-950 to-black"
+    : "bg-gradient-to-r from-white to-blue-50";
+
+  const textClasses = isDarkMode
+    ? "text-white"
+    : "text-gray-800";
+
+  const buttonClasses = isDarkMode
+    ? "text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+    : "text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700";
+
+  const mobileMenuClasses = isDarkMode
+    ? "bg-gradient-to-r from-blue-900 to-indigo-900"
+    : "bg-gradient-to-r from-blue-50 to-white";
+
+  const submenuClasses = isDarkMode
+    ? "bg-gray-800 text-white"
+    : "bg-white text-gray-700";
+
+  const submenuHoverClasses = isDarkMode
+    ? "hover:bg-gray-700"
+    : "hover:bg-gray-50";
+
   return (
     <motion.nav 
       initial="hidden"
       animate="visible"
       variants={navVariants}
-      className="bg-gradient-to-r from-blue-950 to-black shadow-lg fixed w-full z-20 top-0 start-0 border-b border-none shadow-black"
+      className={`${navClasses} shadow-lg fixed w-full z-20 top-0 start-0 border-b border-none shadow-black`}
     >
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <motion.div
@@ -154,7 +183,13 @@ console.log('hai',isLoggedIn)
           whileTap={{ scale: 0.95 }}
         >
           <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-            <Image src="/logo_airline.png" width={140} height={12} className="h-8" alt="Airline Logo" />
+            <Image 
+              src={isDarkMode ? "/logo_airline.png" : "/logo-Photoroom-light.png"} 
+              width={140} 
+              height={12} 
+              className="h-8" 
+              alt="Airline Logo" 
+            />
           </Link>
         </motion.div>
 
@@ -163,7 +198,7 @@ console.log('hai',isLoggedIn)
             {isLoggedIn ? (
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center"
+                className={`flex items-center gap-2 ${buttonClasses} focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center`}
               >
                 <LogOut size={16} />
                 Log Out
@@ -172,7 +207,7 @@ console.log('hai',isLoggedIn)
               <Link href="/user/signin">
                 <button
                   type="button"
-                  className="flex items-center gap-2 text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center"
+                  className={`flex items-center gap-2 ${buttonClasses} focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center`}
                 >
                   <User size={16} />
                   Sign In
@@ -186,7 +221,7 @@ console.log('hai',isLoggedIn)
             whileTap={{ scale: 0.95 }}
             onClick={toggleMobileMenu}
             type="button"
-            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-white rounded-lg md:hidden hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            className={`inline-flex items-center p-2 w-10 h-10 justify-center text-sm ${textClasses} rounded-lg md:hidden hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-300`}
             aria-controls="navbar-sticky"
             aria-expanded={mobileMenuOpen}
           >
@@ -206,7 +241,7 @@ console.log('hai',isLoggedIn)
             >
               <motion.ul 
                 variants={navVariants}
-                className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-gradient-to-r from-blue-900 to-indigo-900 md:bg-transparent"
+                className={`flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:flex-row md:space-x-8 md:mt-0 md:border-0 ${mobileMenuClasses} md:bg-transparent`}
               >
                 {menuItems.map((item) => (
                   <motion.li 
@@ -224,14 +259,14 @@ console.log('hai',isLoggedIn)
                       >
                         <Link
                           href={item.href}
-                          className="flex items-center gap-2 py-2 px-3 text-white rounded hover:bg-blue-800 md:hover:bg-transparent md:hover:text-blue-300 md:p-0 transition-colors duration-200"
+                          className={`flex items-center gap-2 py-2 px-3 ${textClasses} rounded hover:bg-blue-800 md:hover:bg-transparent md:hover:text-blue-500 md:p-0 transition-colors duration-200`}
                           onClick={closeMobileMenu}
                         >
                           <span>{item.icon}</span>
                           {item.name}
                           {item.submenu && (
                             <ChevronDown 
-                              size={16} 
+                              size={18} 
                               className={`transition-transform duration-200 ${hoveredItem === item.name ? 'rotate-180' : ''}`}
                             />
                           )}
@@ -247,19 +282,19 @@ console.log('hai',isLoggedIn)
                             animate="visible"
                             exit="exit"
                             variants={submenuVariants}
-                            className="absolute left-0 mt-2 py-2 w-48 bg-white rounded-lg shadow-xl"
+                            className={`absolute left-0 mt-2 py-2 w-48 rounded-lg shadow-xl ${submenuClasses}`}
                             onMouseEnter={() => handleMouseEnter(item.name)}
                             onMouseLeave={() => handleMouseLeave(item.name)}
                           >
                             {item.submenu.map((subitem) => (
                               <motion.div
                                 key={subitem.name}
-                                whileHover={{ backgroundColor: '#f3f4f6' }}
+                                whileHover={{ backgroundColor: isDarkMode ? '#374151' : '#f3f4f6' }}
                                 className="relative"
                               >
                                 <Link
                                   href={subitem.href}
-                                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+                                  className={`block px-4 py-2 text-sm ${submenuHoverClasses} whitespace-nowrap`}
                                   onClick={closeMobileMenu}
                                 >
                                   {subitem.name}
@@ -281,7 +316,7 @@ console.log('hai',isLoggedIn)
                 >
                   <Link
                     href="/user/profile"
-                    className="block py-2 px-3 text-white rounded-full overflow-hidden hover:ring-2 hover:ring-blue-300 transition-all duration-200"
+                    className="block py-2 px-3 rounded-full overflow-hidden hover:ring-2 hover:ring-blue-300 transition-all duration-200"
                     onClick={closeMobileMenu}
                   >
                     <motion.img
@@ -318,7 +353,7 @@ console.log('hai',isLoggedIn)
                 >
                   <Link
                     href={item.href}
-                    className="flex items-center gap-2 py-2 px-3 text-white rounded hover:text-blue-300 transition-colors duration-200"
+                    className={`flex items-center gap-2 py-2 px-3 ${textClasses} rounded hover:text-blue-500 transition-colors duration-200`}
                   >
                     <span>{item.icon}</span>
                     {item.name}
@@ -339,19 +374,19 @@ console.log('hai',isLoggedIn)
                         animate="visible"
                         exit="exit"
                         variants={submenuVariants}
-                        className="absolute left-0 mt-2 py-2 w-48 bg-white rounded-lg shadow-xl"
+                        className={`absolute left-0 mt-2 py-2 w-48 rounded-lg shadow-xl ${submenuClasses}`}
                         onMouseEnter={() => handleMouseEnter(item.name)}
                         onMouseLeave={() => handleMouseLeave(item.name)}
                       >
                         {item.submenu.map((subitem) => (
                           <motion.div
                             key={subitem.name}
-                            whileHover={{ backgroundColor: '#f3f4f6' }}
+                            whileHover={{ backgroundColor: isDarkMode ? '#374151' : '#f3f4f6' }}
                             className="relative"
                           >
                             <Link
                               href={subitem.href}
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+                              className={`block px-4 py-2 text-sm ${submenuHoverClasses} whitespace-nowrap`}
                             >
                               {subitem.name}
                             </Link>

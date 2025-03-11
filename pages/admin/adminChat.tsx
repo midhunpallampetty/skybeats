@@ -34,7 +34,7 @@ const AdminChat: React.FC = () => {
 
     
 
-    const socketConnection: Socket = io('http://localhost:3300'); 
+    const socketConnection: Socket = io('https://www.skybeats.site'); 
     setSocket(socketConnection);
 
     // Identify as admin

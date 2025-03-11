@@ -38,6 +38,14 @@ const Index = () => {
     
     return () => clearInterval(interval);
   }, []);
+
+  const menuItems = [
+    { name: 'Home', path: '/' },
+    { name: 'Flights', path: '/user/flight/listflights' },
+    { name: 'Destinations', path: '/destinations' },
+    { name: 'About Us', path: '/about' },
+    { name: 'Contact', path: '/contact' }
+  ];
   useEffect(() => {
     if (session && session.user?.accessToken && session.user?.refreshToken) {
       // Set cookies and update login state
@@ -172,21 +180,22 @@ const Index = () => {
         <AiChatBot />
         {/* Desktop Menu */}
         <nav className="hidden md:flex space-x-8">
-          {['Home', 'Flights', 'Destinations', 'About Us', 'Contact'].map((item, index) => (
-            <motion.a
-              key={index}
-              href="#"
-              className={`${
-                isScrolled ? 'text-gray-800 hover:text-sky-600' : 'text-white   font-extrabold  hover:text-white'
-              } font-medium text-sm transition-colors relative group`}
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.2 }}
-            >
-              {item}
-              <span className="absolute inset-x-0 -bottom-1 h-0.5  bg-sky-500 transform scale-x-0 origin-left transition-transform group-hover:scale-x-100"></span>
-            </motion.a>
-          ))}
-        </nav>
+      {menuItems.map((item, index) => (
+        <motion.div
+          key={index}
+          whileHover={{ y: -2 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Link href={item.path} className={`
+            ${isScrolled ? 'text-gray-800 hover:text-sky-600' : 'text-white font-extrabold hover:text-white'}
+            font-medium text-sm transition-colors relative group
+          `}>
+            {item.name}
+            <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-sky-500 transform scale-x-0 origin-left transition-transform group-hover:scale-x-100"></span>
+          </Link>
+        </motion.div>
+      ))}
+    </nav>
 
         <div className="hidden md:flex items-center space-x-4">
       <motion.button

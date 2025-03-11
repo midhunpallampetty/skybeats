@@ -1443,7 +1443,7 @@ const ListFlights: React.FC = () => {
         </div>
       </motion.footer>
     </>
-  )
+  ) 
 }
 
 export default ListFlights
